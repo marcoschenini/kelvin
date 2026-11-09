@@ -1,0 +1,400 @@
+{
+ "version": 1,
+ "caseId": "demo-c",
+ "kind": "prepare_claim",
+ "mode": "deterministic",
+ "model": null,
+ "recordedAt": "2026-11-09T10:43:25.650Z",
+ "events": [
+  {
+   "t": 2,
+   "event": {
+    "type": "run_started",
+    "runId": "run-kSpXZNvUlx",
+    "caseId": "demo-c",
+    "kind": "prepare_claim",
+    "mode": "deterministic",
+    "model": null,
+    "at": "2026-11-09T10:43:25.235Z"
+   }
+  },
+  {
+   "t": 8,
+   "event": {
+    "type": "text",
+    "delta": "QA has rejected the batch, so I am re-ranking the routes with the damage confirmed.\n"
+   }
+  },
+  {
+   "t": 10,
+   "event": {
+    "type": "step_started",
+    "seq": 2,
+    "tool": "rank_routes",
+    "input": {},
+    "at": "2026-11-09T10:43:25.243Z"
+   }
+  },
+  {
+   "t": 50,
+   "event": {
+    "type": "step_finished",
+    "seq": 2,
+    "tool": "rank_routes",
+    "status": "ok",
+    "summary": "Recommended: forwarder (€350,000, 85% likely).",
+    "output": {
+     "qa": "rejected",
+     "ranking": [
+      {
+       "rank": 1,
+       "route": "forwarder",
+       "recommended": true,
+       "recoverableEur": 350000,
+       "probability": 0.85,
+       "expectedEur": 297500,
+       "reasons": [
+        "Excursion in forwarder custody, in breach of its cold-room duty",
+        "Recoverable €350,000 if successful"
+       ],
+       "blockers": [],
+       "noticeDeadline": {
+        "dueAt": "2026-11-14T23:59:59.000Z",
+        "daysLeft": 5
+       }
+      },
+      {
+       "rank": 2,
+       "route": "insurer",
+       "recommended": false,
+       "recoverableEur": 325000,
+       "probability": 0.8,
+       "expectedEur": 260000,
+       "reasons": [
+        "Temperature deviation is covered by the policy",
+        "Recoverable €325,000 if successful"
+       ],
+       "blockers": [],
+       "noticeDeadline": {
+        "dueAt": "2026-12-07T23:59:59.000Z",
+        "daysLeft": 28
+       }
+      },
+      {
+       "rank": 3,
+       "route": "carrier",
+       "recommended": false,
+       "recoverableEur": 0,
+       "probability": 0.05,
+       "expectedEur": 0,
+       "reasons": [
+        "Airline did not hold the cargo during the excursion"
+       ],
+       "blockers": [
+        "The excursion did not happen while the airline held the cargo."
+       ],
+       "noticeDeadline": {
+        "dueAt": "2026-11-21T23:59:59.000Z",
+        "daysLeft": 12
+       }
+      }
+     ],
+     "protectiveNoticesNeeded": []
+    },
+    "citations": [
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       42,
+       86
+      ],
+      "label": "Logger r.42–86",
+      "title": "logger-CT5-90377.csv: rows 42–86, 5 Nov, 03:25–5 Nov, 07:05 UTC, peak 15.0 °C",
+      "documentId": "demo-c-logger"
+     },
+     {
+      "id": "S7",
+      "kind": "document",
+      "label": "Handling event #3",
+      "quote": "Staged on warehouse floor awaiting cold-room slot (ambient)",
+      "title": "Polder Freight Solutions B.V.: Polder hub Schiphol - inbound floor area F3, 5 Nov, 03:00–5 Nov, 07:00 UTC",
+      "documentId": "demo-c-handling_events"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "page": 1,
+      "label": "Hub Movement Log - WMS E p.1",
+      "quote": "Ref. WMS-SPL-24-118377 | Issued 2026-11-08 10:00 UTC",
+      "title": "Hub Movement Log - WMS Extract",
+      "documentId": "demo-c-handling_report"
+     },
+     {
+      "id": "S10",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract §3.2 p.1",
+      "quote": "Hub storage. At all Forwarder hubs and warehouses the Goods shall be stored exclusively in qualified cold rooms maintained at +2 °C to +8 °C.",
+      "title": "Contract clause 3.2 (Hub storage)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S16",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §7.1 p.2",
+      "quote": "Notice of claim. The Customer shall give written notice of any claim, or of circumstances that may give rise to a claim, within 7 days of Delivery.",
+      "title": "Contract clause 7.1 (Notice of claim)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S19",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.1 p.1",
+      "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data log…",
+      "title": "Policy clause 2.1 (Cover)",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S24",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.3 p.2",
+      "quote": "Duty of the Insured - preservation of rights. It is the duty of the Insured to ensure that all rights against carriers, bailees or other third parties are properly preserved and exercised, including by giving written not…",
+      "title": "Policy clause 5.3",
+      "documentId": "demo-c-policy"
+     }
+    ],
+    "durationMs": 34
+   }
+  },
+  {
+   "t": 50,
+   "event": {
+    "type": "text",
+    "delta": "Drafting the claim letter for the recommended route, citing every statement.\n"
+   }
+  },
+  {
+   "t": 52,
+   "event": {
+    "type": "step_started",
+    "seq": 4,
+    "tool": "draft_claim_letter",
+    "input": {},
+    "at": "2026-11-09T10:43:25.285Z"
+   }
+  },
+  {
+   "t": 151,
+   "event": {
+    "type": "step_finished",
+    "seq": 4,
+    "tool": "draft_claim_letter",
+    "status": "ok",
+    "summary": "Claim letter to Polder Freight Solutions B.V. for €350,000 drafted with 10 citations and 1 flagged assumption(s).",
+    "output": {
+     "draftId": "dr-S9aNSPAG",
+     "route": "forwarder",
+     "amountEur": 350000,
+     "to": {
+      "name": "Polder Freight Solutions B.V.",
+      "email": "claims@polderfreight.example"
+     },
+     "subject": "Claim for temperature damage – RB-NL-7712 – €350,000",
+     "citationCoverage": 0.9,
+     "assumptions": [
+      "Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics B.V."
+     ],
+     "annexes": [
+      "Data logger file and excursion extract",
+      "Air waybill",
+      "Commercial invoice",
+      "Quality Assurance disposition",
+      "Custody timeline and handling records",
+      "Logistics services agreement (cited clauses)",
+      "Evidence pack (Kelvin)"
+     ]
+    },
+    "citations": [
+     {
+      "id": "S2",
+      "kind": "document",
+      "page": 1,
+      "label": "AWB 583-1190 2264 p.1",
+      "quote": "NVD",
+      "title": "Air waybill 583-1190 2264",
+      "documentId": "demo-c-awb"
+     },
+     {
+      "id": "S7",
+      "kind": "document",
+      "label": "Handling event #3",
+      "quote": "Staged on warehouse floor awaiting cold-room slot (ambient)",
+      "title": "Polder Freight Solutions B.V.: Polder hub Schiphol - inbound floor area F3, 5 Nov, 03:00–5 Nov, 07:00 UTC",
+      "documentId": "demo-c-handling_events"
+     },
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       42,
+       86
+      ],
+      "label": "Logger r.42–86",
+      "title": "logger-CT5-90377.csv: rows 42–86, 5 Nov, 03:25–5 Nov, 07:05 UTC, peak 15.0 °C",
+      "documentId": "demo-c-logger"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "page": 1,
+      "label": "Hub Movement Log - WMS E p.1",
+      "quote": "Ref. WMS-SPL-24-118377 | Issued 2026-11-08 10:00 UTC",
+      "title": "Hub Movement Log - WMS Extract",
+      "documentId": "demo-c-handling_report"
+     },
+     {
+      "id": "S29",
+      "kind": "record",
+      "label": "QA decision 9 Nov 2026",
+      "quote": "Outside stability data; batch rejected.",
+      "title": "Quality disposition: rejected by Elena Weber (QA Lead). Note: Outside stability data; batch rejected."
+     },
+     {
+      "id": "S10",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract §3.2 p.1",
+      "quote": "Hub storage. At all Forwarder hubs and warehouses the Goods shall be stored exclusively in qualified cold rooms maintained at +2 °C to +8 °C.",
+      "title": "Contract clause 3.2 (Hub storage)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S13",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §6.1 p.2",
+      "quote": "Basis. The Forwarder is liable for loss of or damage to the Goods, including damage resulting from a Temperature Excursion, occurring while the Goods are in its Custody, unless it proves that the loss arose from circumst…",
+      "title": "Contract clause 6.1 (Basis)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S15",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §6.3 p.2",
+      "quote": "Damaged goods. Goods that the Customer's Quality Assurance rejects as a result of a Temperature Excursion are deemed damaged. The Customer's documented QA decision is conclusive in the absence of manifest error.",
+      "title": "Contract clause 6.3 (Damaged goods)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S14",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §6.2 p.2",
+      "quote": "Limit of liability. For loss or damage resulting from a breach of clause 3 (Temperature control and service levels), the Forwarder's liability shall be limited to the invoice value of the affected Goods, as evidenced by…",
+      "title": "Contract clause 6.2 (Limit of liability)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S3",
+      "kind": "document",
+      "page": 1,
+      "label": "Invoice CI-RB-NL-7712 p.1",
+      "quote": "Total invoice value €350,000",
+      "title": "Commercial invoice CI-RB-NL-7712",
+      "documentId": "demo-c-invoice"
+     },
+     {
+      "id": "S27",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract p.1 (address)",
+      "quote": "+31 20 555 0815 | claims@polderfreight.example",
+      "title": "Polder Freight Solutions B.V. contact details",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S28",
+      "kind": "assumption",
+      "label": "Assumption: Tom Becker Claims Manager, on…",
+      "quote": "Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics B.V.",
+      "title": "No source cited for: \"Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics B.V.\""
+     }
+    ],
+    "durationMs": 89
+   }
+  },
+  {
+   "t": 152,
+   "event": {
+    "type": "text",
+    "delta": "Building the evidence pack with the chart, logger extract and cited pages.\n"
+   }
+  },
+  {
+   "t": 155,
+   "event": {
+    "type": "step_started",
+    "seq": 6,
+    "tool": "build_evidence_pack",
+    "input": {},
+    "at": "2026-11-09T10:43:25.388Z"
+   }
+  },
+  {
+   "t": 393,
+   "event": {
+    "type": "step_finished",
+    "seq": 6,
+    "tool": "build_evidence_pack",
+    "status": "ok",
+    "summary": "Evidence pack built: 9 pages incl. timeline chart, logger extract, citation index and 5 cited source pages.",
+    "output": {
+     "documentId": "demo-c-evidence-pack",
+     "pages": 9,
+     "appendedSourcePages": 5
+    },
+    "citations": [],
+    "durationMs": 235
+   }
+  },
+  {
+   "t": 393,
+   "event": {
+    "type": "text",
+    "delta": "The claim for €350,000 to Polder Freight Solutions B.V. is ready. A manager must approve it before anything is sent.\n"
+   }
+  },
+  {
+   "t": 408,
+   "event": {
+    "type": "status",
+    "from": "awaiting_qa",
+    "to": "claim_prepared",
+    "reason": "Claim letter and evidence pack prepared"
+   }
+  },
+  {
+   "t": 414,
+   "event": {
+    "type": "status",
+    "from": "claim_prepared",
+    "to": "awaiting_approval",
+    "reason": "Waiting for manager approval"
+   }
+  },
+  {
+   "t": 417,
+   "event": {
+    "type": "run_finished",
+    "status": "completed",
+    "durationMs": 417,
+    "finalStatus": "awaiting_approval"
+   }
+  }
+ ]
+}

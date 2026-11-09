@@ -19,3 +19,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Database:** PGlite is single-process. A lock file in `.data/` stops CLI scripts from opening it while the dev server holds it. Server components and GET handlers call `await connection()` before any query.
 - **Demo data is generated, never hand-edited:** change `seed/cases/*.ts` and re-seed. Document IDs are deterministic (`demo-b-contract`, `demo-b-email-01`) so recordings and citations survive a reset.
 - **Tests** run with `server-only` aliased to an empty module (`vitest.config.mts`).
+- **Agent:** tools live in `lib/agent/tools/*` and are registered in `lib/agent/tools/index.ts`. Every tool runs through `executeTool` (audit, steps, citations). Tools must throw `ToolGuardError` with an actionable message when a prerequisite is missing; never compute caps or deadlines outside `lib/rules`.
+- **Server-only code must not import React/Lucide**: domain modules stay UI-free (icons live in `components/kit/party-icons.ts`), otherwise `tsx --conditions=react-server` scripts break.
+- **AI SDK packages are server externals** in `next.config.ts` (Webpack cannot bundle `@vercel/oidc`).

@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { ROUTE_META, type RecoveryRoute } from "@/lib/domain/parties";
+import { ROUTE_ICON } from "./party-icons";
 
 /** "Insurer" with its icon; `recommended` adds the AI gradient ring. */
 export function RouteChip({
@@ -13,7 +14,7 @@ export function RouteChip({
 }) {
   if (!route) return <span className={cn("text-xs text-subtle", className)}>—</span>;
   const meta = ROUTE_META[route];
-  const Icon = meta.icon;
+  const Icon = ROUTE_ICON[route];
   return (
     <span
       className={cn(

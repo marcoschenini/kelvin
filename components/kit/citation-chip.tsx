@@ -1,24 +1,14 @@
-import { AlertTriangle, FileSpreadsheet, FileText, Mail } from "lucide-react";
+import { AlertTriangle, ClipboardCheck, FileSpreadsheet, FileText, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type CitationKind = "document" | "logger" | "email" | "assumption";
-
-export interface Citation {
-  kind: CitationKind;
-  /** Short label shown in the chip: "Contract §7.2 p.3", "Logger r.214" */
-  label: string;
-  /** Full description for the tooltip / aria-label */
-  title?: string;
-  documentId?: string;
-  page?: number;
-  /** Text to highlight when the viewer opens */
-  quote?: string;
-}
+export type { Citation, CitationKind } from "@/lib/domain/citation";
+import type { Citation } from "@/lib/domain/citation";
 
 const ICONS = {
   document: FileText,
   logger: FileSpreadsheet,
   email: Mail,
+  record: ClipboardCheck,
   assumption: AlertTriangle,
 } as const;
 

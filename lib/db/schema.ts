@@ -72,6 +72,7 @@ export const DOCUMENT_KINDS = [
   "policy",
   "invoice",
   "email",
+  "evidence_pack",
   "other",
 ] as const;
 export type DocumentKind = (typeof DOCUMENT_KINDS)[number];

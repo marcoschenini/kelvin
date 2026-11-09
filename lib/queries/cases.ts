@@ -1,7 +1,7 @@
 import "server-only";
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
-import { auditEvents, cases, documents, type CaseRow } from "@/lib/db/schema";
+import { agentRuns, agentSteps, auditEvents, cases, decisions, documents, drafts, outboxMessages, type CaseRow } from "@/lib/db/schema";
 import { isClosed } from "@/lib/domain/case-status";
 import { daysUntil } from "@/lib/format";
 
@@ -66,4 +66,28 @@ export async function getDocument(id: string) {
 export async function listAudit(caseId: string) {
   const db = await getDb();
   return db.select().from(auditEvents).where(eq(auditEvents.caseId, caseId)).orderBy(asc(auditEvents.id));
+}
+
+export async function latestRunWithSteps(caseId: string) {
+  const db = await getDb();
+  const runs = await db.select().from(agentRuns).where(eq(agentRuns.caseId, caseId)).orderBy(desc(agentRuns.startedAt));
+  const steps = runs.length
+    ? await db.select().from(agentSteps).where(inArray(agentSteps.runId, runs.map((r) => r.id))).orderBy(asc(agentSteps.startedAt), asc(agentSteps.seq))
+    : [];
+  return { runs, steps };
+}
+
+export async function listDrafts(caseId: string) {
+  const db = await getDb();
+  return db.select().from(drafts).where(eq(drafts.caseId, caseId)).orderBy(asc(drafts.createdAt));
+}
+
+export async function listDecisions(caseId: string) {
+  const db = await getDb();
+  return db.select().from(decisions).where(eq(decisions.caseId, caseId)).orderBy(asc(decisions.at));
+}
+
+export async function listOutbox(caseId: string) {
+  const db = await getDb();
+  return db.select().from(outboxMessages).where(eq(outboxMessages.caseId, caseId)).orderBy(asc(outboxMessages.at));
 }

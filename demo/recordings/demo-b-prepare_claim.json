@@ -1,0 +1,422 @@
+{
+ "version": 1,
+ "caseId": "demo-b",
+ "kind": "prepare_claim",
+ "mode": "deterministic",
+ "model": null,
+ "recordedAt": "2026-11-09T10:42:35.692Z",
+ "events": [
+  {
+   "t": 2,
+   "event": {
+    "type": "run_started",
+    "runId": "run-UT-g09DWK4",
+    "caseId": "demo-b",
+    "kind": "prepare_claim",
+    "mode": "deterministic",
+    "model": null,
+    "at": "2026-11-09T10:42:35.351Z"
+   }
+  },
+  {
+   "t": 9,
+   "event": {
+    "type": "text",
+    "delta": "QA has rejected the batch, so I am re-ranking the routes with the damage confirmed.\n"
+   }
+  },
+  {
+   "t": 12,
+   "event": {
+    "type": "step_started",
+    "seq": 2,
+    "tool": "rank_routes",
+    "input": {},
+    "at": "2026-11-09T10:42:35.361Z"
+   }
+  },
+  {
+   "t": 53,
+   "event": {
+    "type": "step_finished",
+    "seq": 2,
+    "tool": "rank_routes",
+    "status": "ok",
+    "summary": "Recommended: insurer (€190,000, 80% likely).",
+    "output": {
+     "qa": "rejected",
+     "ranking": [
+      {
+       "rank": 1,
+       "route": "insurer",
+       "recommended": true,
+       "recoverableEur": 190000,
+       "probability": 0.8,
+       "expectedEur": 152000,
+       "reasons": [
+        "Temperature deviation is covered by the policy",
+        "Recoverable €190,000 if successful"
+       ],
+       "blockers": [],
+       "noticeDeadline": {
+        "dueAt": "2026-12-08T23:59:59.000Z",
+        "daysLeft": 29
+       }
+      },
+      {
+       "rank": 2,
+       "route": "carrier",
+       "recommended": false,
+       "recoverableEur": 3771.456,
+       "probability": 0.85,
+       "expectedEur": 3206,
+       "reasons": [
+        "Excursion occurred in the airline's custody",
+        "Recoverable €3,771 if successful"
+       ],
+       "blockers": [],
+       "noticeDeadline": {
+        "dueAt": "2026-11-13T23:59:59.000Z",
+        "daysLeft": 4
+       }
+      },
+      {
+       "rank": 3,
+       "route": "forwarder",
+       "recommended": false,
+       "recoverableEur": 3771.456,
+       "probability": 0,
+       "expectedEur": 0,
+       "reasons": [
+        "Forwarder only passes through the carrier's liability",
+        "Notice deadline has passed",
+        "Recoverable €3,771 if successful"
+       ],
+       "blockers": [
+        "Excursion happened in the air carrier's custody; forwarder liability passes through to the carrier limit.",
+        "Notice period lapsed (3 days ago): Forwarder contract notice clause: within 7 days of delivery."
+       ],
+       "noticeDeadline": {
+        "dueAt": "2026-11-06T23:59:59.000Z",
+        "daysLeft": -3
+       }
+      }
+     ],
+     "protectiveNoticesNeeded": []
+    },
+    "citations": [
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       168,
+       185
+      ],
+      "label": "Logger r.168–185",
+      "title": "logger-CT5-88213.csv: rows 168–185, 28 Oct, 21:55–28 Oct, 23:20 UTC, peak 13.0 °C",
+      "documentId": "demo-b-logger"
+     },
+     {
+      "id": "S7",
+      "kind": "document",
+      "label": "Handling event #5",
+      "quote": "Staged on ramp awaiting loading (aircraft late)",
+      "title": "Boreal Air Cargo: FRA apron, position V114, 28 Oct, 21:30–28 Oct, 23:30 UTC",
+      "documentId": "demo-b-handling_events"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "page": 1,
+      "label": "Ground Handling Irregula p.1",
+      "quote": "Ref. IRR-FRA-0417 | Issued 2026-10-29 01:00 UTC",
+      "title": "Ground Handling Irregularity Report",
+      "documentId": "demo-b-handling_report"
+     },
+     {
+      "id": "S10",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract §3.2 p.1",
+      "quote": "Hub storage. At all Forwarder hubs and warehouses the Goods shall be stored exclusively in qualified cold rooms maintained at +2 °C to +8 °C.",
+      "title": "Contract clause 3.2 (Hub storage)",
+      "documentId": "demo-b-contract"
+     },
+     {
+      "id": "S16",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §7.1 p.2",
+      "quote": "Notice of claim. The Customer shall give written notice of any claim, or of circumstances that may give rise to a claim, within 7 days of Delivery.",
+      "title": "Contract clause 7.1 (Notice of claim)",
+      "documentId": "demo-b-contract"
+     },
+     {
+      "id": "S19",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.1 p.1",
+      "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data log…",
+      "title": "Policy clause 2.1 (Cover)",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S25",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.3 p.2",
+      "quote": "Duty of the Insured - preservation of rights. It is the duty of the Insured to ensure that all rights against carriers, bailees or other third parties are properly preserved and exercised, including by giving written not…",
+      "title": "Policy clause 5.3",
+      "documentId": "demo-b-policy"
+     }
+    ],
+    "durationMs": 35
+   }
+  },
+  {
+   "t": 53,
+   "event": {
+    "type": "text",
+    "delta": "Drafting the claim letter for the recommended route, citing every statement.\n"
+   }
+  },
+  {
+   "t": 55,
+   "event": {
+    "type": "step_started",
+    "seq": 4,
+    "tool": "draft_claim_letter",
+    "input": {},
+    "at": "2026-11-09T10:42:35.404Z"
+   }
+  },
+  {
+   "t": 130,
+   "event": {
+    "type": "step_finished",
+    "seq": 4,
+    "tool": "draft_claim_letter",
+    "status": "ok",
+    "summary": "Claim letter to Meridian Marine & Cargo Insurance SE for €190,000 drafted with 12 citations and 1 flagged assumption(s).",
+    "output": {
+     "draftId": "dr-Pk5e_2d4",
+     "route": "insurer",
+     "amountEur": 190000,
+     "to": {
+      "name": "Meridian Marine & Cargo Insurance SE",
+      "email": "cargo.claims@meridian-marine.example"
+     },
+     "subject": "Claim for temperature damage – RB-24093 – €190,000",
+     "citationCoverage": 0.9090909090909091,
+     "assumptions": [
+      "Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics GmbH"
+     ],
+     "annexes": [
+      "Data logger file and excursion extract",
+      "Air waybill",
+      "Commercial invoice",
+      "Quality Assurance disposition",
+      "Custody timeline and handling records",
+      "Insurance policy (cited clauses)",
+      "Notice of damage to the carrier",
+      "Evidence pack (Kelvin)"
+     ]
+    },
+    "citations": [
+     {
+      "id": "S2",
+      "kind": "document",
+      "page": 1,
+      "label": "AWB 717-4821 3377 p.1",
+      "quote": "NVD",
+      "title": "Air waybill 717-4821 3377",
+      "documentId": "demo-b-awb"
+     },
+     {
+      "id": "S7",
+      "kind": "document",
+      "label": "Handling event #5",
+      "quote": "Staged on ramp awaiting loading (aircraft late)",
+      "title": "Boreal Air Cargo: FRA apron, position V114, 28 Oct, 21:30–28 Oct, 23:30 UTC",
+      "documentId": "demo-b-handling_events"
+     },
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       168,
+       185
+      ],
+      "label": "Logger r.168–185",
+      "title": "logger-CT5-88213.csv: rows 168–185, 28 Oct, 21:55–28 Oct, 23:20 UTC, peak 13.0 °C",
+      "documentId": "demo-b-logger"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "page": 1,
+      "label": "Ground Handling Irregula p.1",
+      "quote": "Ref. IRR-FRA-0417 | Issued 2026-10-29 01:00 UTC",
+      "title": "Ground Handling Irregularity Report",
+      "documentId": "demo-b-handling_report"
+     },
+     {
+      "id": "S30",
+      "kind": "record",
+      "label": "QA decision 9 Nov 2026",
+      "quote": "Outside stability data; batch rejected.",
+      "title": "Quality disposition: rejected by Elena Weber (QA Lead). Note: Outside stability data; batch rejected."
+     },
+     {
+      "id": "S19",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.1 p.1",
+      "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data log…",
+      "title": "Policy clause 2.1 (Cover)",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S20",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.2 p.1",
+      "quote": "Damage. Goods shall be deemed damaged where the Insured's Quality Assurance, acting reasonably and in accordance with documented stability data, rejects them as a consequence of the deviation.",
+      "title": "Policy clause 2.2 (Damage)",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S21",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.3 p.1",
+      "quote": "Minimum duration. Deviations lasting less than 60 consecutive minutes are not covered under this extension.",
+      "title": "Policy clause 2.3 (Minimum duration)",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S3",
+      "kind": "document",
+      "page": 1,
+      "label": "Invoice CI-RB-24093 p.1",
+      "quote": "Total invoice value €200,000",
+      "title": "Commercial invoice CI-RB-24093",
+      "documentId": "demo-b-invoice"
+     },
+     {
+      "id": "S23",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §4.1 p.2",
+      "quote": "Measure of indemnity. In the event of total loss of the affected goods the Insurer will pay the insured value (100% of invoice value) less the deductible stated in the Schedule.",
+      "title": "Policy clause 4.1 (Measure of indemnity)",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S27",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy schedule p.1",
+      "quote": "Deductible €10,000 each and every claim",
+      "title": "Policy schedule: deductible",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S25",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.3 p.2",
+      "quote": "Duty of the Insured - preservation of rights. It is the duty of the Insured to ensure that all rights against carriers, bailees or other third parties are properly preserved and exercised, including by giving written not…",
+      "title": "Policy clause 5.3",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S31",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy p.1 (address)",
+      "quote": "cargo.claims@meridian-marine.example",
+      "title": "Meridian Marine & Cargo Insurance SE contact details",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S29",
+      "kind": "assumption",
+      "label": "Assumption: Tom Becker Claims Manager, on…",
+      "quote": "Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics GmbH",
+      "title": "No source cited for: \"Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics GmbH\""
+     }
+    ],
+    "durationMs": 68
+   }
+  },
+  {
+   "t": 130,
+   "event": {
+    "type": "text",
+    "delta": "Building the evidence pack with the chart, logger extract and cited pages.\n"
+   }
+  },
+  {
+   "t": 132,
+   "event": {
+    "type": "step_started",
+    "seq": 6,
+    "tool": "build_evidence_pack",
+    "input": {},
+    "at": "2026-11-09T10:42:35.481Z"
+   }
+  },
+  {
+   "t": 327,
+   "event": {
+    "type": "step_finished",
+    "seq": 6,
+    "tool": "build_evidence_pack",
+    "status": "ok",
+    "summary": "Evidence pack built: 8 pages incl. timeline chart, logger extract, citation index and 5 cited source pages.",
+    "output": {
+     "documentId": "demo-b-evidence-pack",
+     "pages": 8,
+     "appendedSourcePages": 5
+    },
+    "citations": [],
+    "durationMs": 193
+   }
+  },
+  {
+   "t": 327,
+   "event": {
+    "type": "text",
+    "delta": "The claim for €190,000 to Meridian Marine & Cargo Insurance SE is ready. A manager must approve it before anything is sent.\n"
+   }
+  },
+  {
+   "t": 337,
+   "event": {
+    "type": "status",
+    "from": "awaiting_qa",
+    "to": "claim_prepared",
+    "reason": "Claim letter and evidence pack prepared"
+   }
+  },
+  {
+   "t": 341,
+   "event": {
+    "type": "status",
+    "from": "claim_prepared",
+    "to": "awaiting_approval",
+    "reason": "Waiting for manager approval"
+   }
+  },
+  {
+   "t": 343,
+   "event": {
+    "type": "run_finished",
+    "status": "completed",
+    "durationMs": 343,
+    "finalStatus": "awaiting_approval"
+   }
+  }
+ ]
+}

@@ -1,0 +1,352 @@
+{
+ "version": 1,
+ "caseId": "demo-a",
+ "kind": "close",
+ "mode": "deterministic",
+ "model": null,
+ "recordedAt": "2026-11-09T10:43:51.600Z",
+ "events": [
+  {
+   "t": 2,
+   "event": {
+    "type": "run_started",
+    "runId": "run-ZsVjMCxYIy",
+    "caseId": "demo-a",
+    "kind": "close",
+    "mode": "deterministic",
+    "model": null,
+    "at": "2026-11-09T10:43:51.481Z"
+   }
+  },
+  {
+   "t": 8,
+   "event": {
+    "type": "text",
+    "delta": "QA released the product. Confirming there is nothing to recover on any route.\n"
+   }
+  },
+  {
+   "t": 11,
+   "event": {
+    "type": "step_started",
+    "seq": 2,
+    "tool": "compute_liability",
+    "input": {},
+    "at": "2026-11-09T10:43:51.490Z"
+   }
+  },
+  {
+   "t": 49,
+   "event": {
+    "type": "step_finished",
+    "seq": 2,
+    "tool": "compute_liability",
+    "status": "ok",
+    "summary": "Recoverable if successful: carrier €0, forwarder €0, insurer €0.",
+    "output": {
+     "qa": "released",
+     "lossEur": 86400,
+     "valueSource": "invoice",
+     "routes": [
+      {
+       "route": "carrier",
+       "recoverableEur": 0,
+       "capEur": 2011.4432000000002,
+       "basis": "26 SDR/kg × 64 kg = 1,664 SDR × 1.2088 €/SDR (as of 2026-11-04) = €2,011. No value declared for carriage (NVD).",
+       "deductibleEur": null,
+       "conditions": [
+        "Written notice of damage within the Art. 31 period."
+       ],
+       "blockers": [
+        "QA released the product: no damage, nothing to recover.",
+        "The excursion did not happen while the airline held the cargo."
+       ]
+      },
+      {
+       "route": "forwarder",
+       "recoverableEur": 0,
+       "capEur": 644.435456,
+       "basis": "Contract cap 8.33 SDR/kg × 64 kg = 533 SDR × 1.2088 = €644.",
+       "deductibleEur": null,
+       "conditions": [
+        "Written notice within the contract notice period."
+       ],
+       "blockers": [
+        "QA released the product: no damage, nothing to recover."
+       ]
+      },
+      {
+       "route": "insurer",
+       "recoverableEur": 0,
+       "capEur": 86400,
+       "basis": "Not recoverable under the policy.",
+       "deductibleEur": 10000,
+       "conditions": [
+        "Notify the insurer within the policy period.",
+        "Preserve rights against carriers and bailees."
+       ],
+       "blockers": [
+        "QA released the product: no damage, nothing to recover.",
+        "Deviation of 25 min is below the policy minimum of 60 min."
+       ]
+      }
+     ],
+     "sdr": {
+      "eurPerSdr": 1.2088,
+      "asOf": "2026-11-04",
+      "source": "XE mid-market XDR/EUR (indicative; check IMF daily SDR rates)"
+     }
+    },
+    "citations": [
+     {
+      "id": "S2",
+      "kind": "document",
+      "page": 1,
+      "label": "AWB 717-4820 9915 p.1",
+      "quote": "NVD",
+      "title": "Air waybill 717-4820 9915",
+      "documentId": "demo-a-awb"
+     },
+     {
+      "id": "S3",
+      "kind": "document",
+      "page": 1,
+      "label": "Invoice CI-RB-24117 p.1",
+      "quote": "Total invoice value €86,400",
+      "title": "Commercial invoice CI-RB-24117",
+      "documentId": "demo-a-invoice"
+     },
+     {
+      "id": "S12",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §6.2 p.2",
+      "quote": "Limit of liability. The Forwarder's liability shall be limited to 8.33 Special Drawing Rights (SDR) per kilogram of gross weight of the Goods lost or damaged.",
+      "title": "Contract clause 6.2 (Limit of liability)",
+      "documentId": "demo-a-contract"
+     },
+     {
+      "id": "S9",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §4.3 p.2",
+      "quote": "Air carriers. In respect of carriage by air performed by an air carrier, the Forwarder's liability shall not exceed the amount the Forwarder is able to recover from that air carrier under the Montreal Convention 1999 or…",
+      "title": "Contract clause 4.3 (Air carriers)",
+      "documentId": "demo-a-contract"
+     },
+     {
+      "id": "S11",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §6.1 p.2",
+      "quote": "Basis. The Forwarder is liable for loss of or damage to the Goods, including damage resulting from a Temperature Excursion, occurring while the Goods are in its Custody, unless it proves that the loss arose from circumst…",
+      "title": "Contract clause 6.1 (Basis)",
+      "documentId": "demo-a-contract"
+     },
+     {
+      "id": "S17",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.1 p.1",
+      "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data log…",
+      "title": "Policy clause 2.1 (Cover)",
+      "documentId": "demo-a-policy"
+     },
+     {
+      "id": "S19",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.3 p.1",
+      "quote": "Minimum duration. Deviations lasting less than 60 consecutive minutes are not covered under this extension.",
+      "title": "Policy clause 2.3 (Minimum duration)",
+      "documentId": "demo-a-policy"
+     },
+     {
+      "id": "S21",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §4.1 p.2",
+      "quote": "Measure of indemnity. In the event of total loss of the affected goods the Insurer will pay the insured value (100% of invoice value) less the deductible stated in the Schedule.",
+      "title": "Policy clause 4.1 (Measure of indemnity)",
+      "documentId": "demo-a-policy"
+     },
+     {
+      "id": "S25",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy schedule p.1",
+      "quote": "Deductible €10,000 each and every claim",
+      "title": "Policy schedule: deductible",
+      "documentId": "demo-a-policy"
+     }
+    ],
+    "durationMs": 31
+   }
+  },
+  {
+   "t": 49,
+   "event": {
+    "type": "step_started",
+    "seq": 3,
+    "tool": "rank_routes",
+    "input": {},
+    "at": "2026-11-09T10:43:51.528Z"
+   }
+  },
+  {
+   "t": 90,
+   "event": {
+    "type": "step_finished",
+    "seq": 3,
+    "tool": "rank_routes",
+    "status": "ok",
+    "summary": "No route: QA released the product, so there is no damage to claim.",
+    "output": {
+     "qa": "released",
+     "ranking": [
+      {
+       "rank": 1,
+       "route": "carrier",
+       "recommended": false,
+       "recoverableEur": 0,
+       "probability": 0,
+       "expectedEur": 0,
+       "reasons": [
+        "Product released by QA"
+       ],
+       "blockers": [
+        "QA released the product: no damage, nothing to recover.",
+        "The excursion did not happen while the airline held the cargo."
+       ],
+       "noticeDeadline": {
+        "dueAt": "2026-11-22T23:59:59.000Z",
+        "daysLeft": 13
+       }
+      },
+      {
+       "rank": 2,
+       "route": "forwarder",
+       "recommended": false,
+       "recoverableEur": 0,
+       "probability": 0,
+       "expectedEur": 0,
+       "reasons": [
+        "Product released by QA"
+       ],
+       "blockers": [
+        "QA released the product: no damage, nothing to recover."
+       ],
+       "noticeDeadline": {
+        "dueAt": "2026-11-15T23:59:59.000Z",
+        "daysLeft": 6
+       }
+      },
+      {
+       "rank": 3,
+       "route": "insurer",
+       "recommended": false,
+       "recoverableEur": 0,
+       "probability": 0,
+       "expectedEur": 0,
+       "reasons": [
+        "Product released by QA"
+       ],
+       "blockers": [
+        "QA released the product: no damage, nothing to recover.",
+        "Deviation of 25 min is below the policy minimum of 60 min."
+       ],
+       "noticeDeadline": {
+        "dueAt": "2026-12-08T23:59:59.000Z",
+        "daysLeft": 29
+       }
+      }
+     ],
+     "protectiveNoticesNeeded": []
+    },
+    "citations": [
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       51,
+       55
+      ],
+      "label": "Logger r.51–55",
+      "title": "logger-CT5-88140.csv: rows 51–55, 6 Nov, 12:10–6 Nov, 12:30 UTC, peak 9.2 °C",
+      "documentId": "demo-a-logger"
+     },
+     {
+      "id": "S6",
+      "kind": "document",
+      "label": "Handling event #3",
+      "quote": "Truck transfer: unloading reefer into hub",
+      "title": "NordStar Logistics GmbH: NordStar FRA hub - dock door 7, 6 Nov, 12:00–6 Nov, 12:36 UTC",
+      "documentId": "demo-a-handling_events"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract §3.2 p.1",
+      "quote": "Hub storage. At all Forwarder hubs and warehouses the Goods shall be stored exclusively in qualified cold rooms maintained at +2 °C to +8 °C.",
+      "title": "Contract clause 3.2 (Hub storage)",
+      "documentId": "demo-a-contract"
+     },
+     {
+      "id": "S14",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §7.1 p.2",
+      "quote": "Notice of claim. The Customer shall give written notice of any claim, or of circumstances that may give rise to a claim, within 7 days of Delivery.",
+      "title": "Contract clause 7.1 (Notice of claim)",
+      "documentId": "demo-a-contract"
+     },
+     {
+      "id": "S17",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.1 p.1",
+      "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data log…",
+      "title": "Policy clause 2.1 (Cover)",
+      "documentId": "demo-a-policy"
+     },
+     {
+      "id": "S23",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.3 p.2",
+      "quote": "Duty of the Insured - preservation of rights. It is the duty of the Insured to ensure that all rights against carriers, bailees or other third parties are properly preserved and exercised, including by giving written not…",
+      "title": "Policy clause 5.3",
+      "documentId": "demo-a-policy"
+     }
+    ],
+    "durationMs": 36
+   }
+  },
+  {
+   "t": 90,
+   "event": {
+    "type": "text",
+    "delta": "No damage means no claim on any route. Closing the case with the reason recorded for audit.\n"
+   }
+  },
+  {
+   "t": 116,
+   "event": {
+    "type": "status",
+    "from": "no_claim",
+    "to": "closed_no_claim",
+    "reason": "QA released the product (Elena Weber (QA Lead)) after an excursion to 9.2 °C for 25 min. No damage, so nothing is recoverable on any route."
+   }
+  },
+  {
+   "t": 121,
+   "event": {
+    "type": "run_finished",
+    "status": "completed",
+    "durationMs": 121,
+    "finalStatus": "closed_no_claim"
+   }
+  }
+ ]
+}

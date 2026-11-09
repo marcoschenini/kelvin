@@ -9,12 +9,14 @@ import {
   FileJson,
   FileSpreadsheet,
   FileText,
+  FolderArchive,
   History,
   Mail,
   Plane,
   Receipt,
   ScrollText,
   ShieldCheck,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { RouteLabel } from "@/components/case/case-list";
@@ -25,8 +27,12 @@ import { AiSurface, SectionHeader } from "@/components/kit/surfaces";
 import { PageContainer } from "@/components/shell/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { DocumentKind } from "@/lib/db/schema";
-import { formatDateTime, formatDateWithRelative, formatEUR, formatKg } from "@/lib/format";
-import { getCase, listAudit, listDocuments } from "@/lib/queries/cases";
+import { formatDateTime, formatDateWithRelative, formatEUR, formatKg, formatMs } from "@/lib/format";
+import { getCase, latestRunWithSteps, listAudit, listDecisions, listDocuments, listDrafts, listOutbox } from "@/lib/queries/cases";
+import { CaseWorkflow } from "@/components/case/case-workflow";
+import { CitationChip } from "@/components/kit/citation-chip";
+import { STATUS_META } from "@/lib/domain/case-status";
+import type { Citation } from "@/lib/domain/citation";
 
 export const metadata: Metadata = { title: "Case" };
 
@@ -39,6 +45,7 @@ const DOC_ICON: Record<DocumentKind, LucideIcon> = {
   policy: ShieldCheck,
   invoice: Receipt,
   email: Mail,
+  evidence_pack: FolderArchive,
   other: FileText,
 };
 
@@ -51,6 +58,7 @@ const DOC_LABEL: Record<DocumentKind, string> = {
   policy: "Policy",
   invoice: "Invoice",
   email: "Email",
+  evidence_pack: "Evidence pack",
   other: "Document",
 };
 
@@ -59,7 +67,16 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const c = await getCase(id);
   if (!c) notFound();
-  const [docs, audit] = await Promise.all([listDocuments(id), listAudit(id)]);
+  const [docs, audit, run, drafts, decisionRows, outbox] = await Promise.all([
+    listDocuments(id),
+    listAudit(id),
+    latestRunWithSteps(id),
+    listDrafts(id),
+    listDecisions(id),
+    listOutbox(id),
+  ]);
+  const qaRow = decisionRows.find((d) => d.gate === "qa");
+  const qa: "pending" | "released" | "rejected" = qaRow ? (qaRow.decision === "released" ? "released" : "rejected") : "pending";
 
   return (
     <div className="flex flex-col gap-6">
@@ -110,20 +127,82 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
       </header>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-        {/* Agent placeholder (milestone 3/4) */}
-        <AiSurface className="self-start">
-          <div className="flex items-start gap-5 p-6">
-            <AiTile size="lg" />
-            <div className="border-l border-border pl-5">
-              <AiEyebrow />
-              <div className="text-lg font-semibold tracking-tight">Ready to investigate</div>
-              <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-                {docs.length} documents received. The agent will parse the logger, rebuild custody, check the contract and policy,
-                compute caps and deadlines and rank the recovery routes. It is wired up in the next milestone.
-              </p>
+        {/* Agent (interim layout until milestone 4) */}
+        <div className="flex flex-col gap-6">
+          <AiSurface>
+            <div className="flex flex-col gap-5 p-6">
+              <div className="flex items-start gap-5">
+                <AiTile size="lg" />
+                <div className="border-l border-border pl-5">
+                  <AiEyebrow />
+                  <div className="text-lg font-semibold tracking-tight">{STATUS_META[c.status].description}</div>
+                  <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+                    {run.runs.length ? `${run.runs.length} agent run${run.runs.length > 1 ? "s" : ""} so far. ` : `${docs.length} documents received. `}
+                    {c.recommendedRoute && c.claimAmountEur ? `Recommended route: ${c.recommendedRoute} (${formatEUR(c.claimAmountEur)}).` : ""}
+                  </p>
+                </div>
+              </div>
+              <CaseWorkflow
+                caseId={c.id}
+                status={c.status}
+                qa={qa}
+                drafts={drafts.map((d) => ({ id: d.id, kind: d.kind, recipientName: d.recipientName, subject: d.subject, status: d.status, amountEur: d.amountEur }))}
+              />
             </div>
-          </div>
-        </AiSurface>
+          </AiSurface>
+
+          {run.steps.length > 0 && (
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
+              <SectionHeader title="Agent activity" description="Every step, with its sources" icon={Sparkles} />
+              <ol className="mt-4 flex flex-col gap-3">
+                {run.steps.map((s) => (
+                  <li key={s.id} className="flex gap-3 text-sm">
+                    <span className={s.tool === "message" ? "mt-1.5 size-1.5 shrink-0 rounded-full bg-ai" : "mt-1.5 size-1.5 shrink-0 rounded-full bg-success"} aria-hidden="true" />
+                    <span className="min-w-0">
+                      {s.tool === "message" ? (
+                        <span className="text-muted-foreground italic">{s.summary}</span>
+                      ) : (
+                        <>
+                          <span className="font-mono text-xs text-muted-foreground">{s.tool}</span>
+                          <span className="num ml-2 text-xs text-subtle">{s.durationMs != null ? formatMs(s.durationMs) : ""}</span>
+                          <span className="block">{s.summary}</span>
+                          {(s.citations as Citation[]).length > 0 && (
+                            <span className="mt-1.5 flex flex-wrap gap-1">
+                              {(s.citations as Citation[]).slice(0, 8).map((ci, i) => (
+                                <CitationChip key={`${ci.id}-${i}`} citation={ci} />
+                              ))}
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+
+          {drafts.length > 0 && (
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
+              <SectionHeader title="Drafts and Outbox" description={`${outbox.length} message(s) in the simulated Outbox`} icon={Mail} />
+              <ul className="mt-4 flex flex-col gap-2">
+                {drafts.map((d) => (
+                  <li key={d.id}>
+                    <details className="rounded-xl border border-border px-4 py-3">
+                      <summary className="cursor-pointer text-sm">
+                        <span className="font-medium">{d.subject}</span>
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {d.kind.replace(/_/g, " ")} · {d.status.replace(/_/g, " ")} · {(d.citations as unknown[]).length} citations
+                        </span>
+                      </summary>
+                      <pre className="mt-3 font-sans text-sm whitespace-pre-wrap text-foreground/90">{d.body}</pre>
+                    </details>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
 
         {/* Audit */}
         <section className="rounded-2xl border border-border bg-card p-5 shadow-card xl:row-span-2">

@@ -44,6 +44,7 @@ const KIND_TITLE: Record<DocumentKind, string> = {
   policy: "Cargo policy",
   invoice: "Commercial invoice",
   email: "Email",
+  evidence_pack: "Evidence pack",
   other: "Document",
 };
 

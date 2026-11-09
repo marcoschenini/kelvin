@@ -1,0 +1,1471 @@
+{
+ "version": 1,
+ "caseId": "demo-c",
+ "kind": "investigate",
+ "mode": "deterministic",
+ "model": null,
+ "recordedAt": "2026-11-09T10:43:25.198Z",
+ "events": [
+  {
+   "t": 3,
+   "event": {
+    "type": "run_started",
+    "runId": "run--VGcKZ1eur",
+    "caseId": "demo-c",
+    "kind": "investigate",
+    "mode": "deterministic",
+    "model": null,
+    "at": "2026-11-09T10:43:23.682Z"
+   }
+  },
+  {
+   "t": 17,
+   "event": {
+    "type": "status",
+    "from": "new",
+    "to": "investigating",
+    "reason": "Investigation started"
+   }
+  },
+  {
+   "t": 18,
+   "event": {
+    "type": "text",
+    "delta": "Reading the temperature logger to see what actually happened.\n"
+   }
+  },
+  {
+   "t": 24,
+   "event": {
+    "type": "step_started",
+    "seq": 2,
+    "tool": "parse_logger",
+    "input": {},
+    "at": "2026-11-09T10:43:23.703Z"
+   }
+  },
+  {
+   "t": 54,
+   "event": {
+    "type": "step_finished",
+    "seq": 2,
+    "tool": "parse_logger",
+    "status": "ok",
+    "summary": "1 excursion in 745 readings: peak 15.0 °C, 3 h 45 min above 8 °C (rows 42–86).",
+    "output": {
+     "loggerId": "CT5-90377",
+     "intervalMin": 5,
+     "readings": 745,
+     "range": {
+      "minC": 4.5,
+      "maxC": 15
+     },
+     "excursions": [
+      {
+       "direction": "high",
+       "start": "2026-11-05T03:25:00.000Z",
+       "end": "2026-11-05T07:05:00.000Z",
+       "minutes": 225,
+       "peakC": 15,
+       "peakAt": "2026-11-05T04:05:00.000Z",
+       "rowStart": 42,
+       "rowEnd": 86,
+       "index": 0,
+       "citationId": "S1",
+       "startUtc": "2026-11-05T03:25:00.000Z",
+       "endUtc": "2026-11-05T07:05:00.000Z",
+       "citation": "S1"
+      }
+     ]
+    },
+    "citations": [
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       42,
+       86
+      ],
+      "label": "Logger r.42–86",
+      "title": "logger-CT5-90377.csv: rows 42–86, 5 Nov, 03:25–5 Nov, 07:05 UTC, peak 15.0 °C",
+      "documentId": "demo-c-logger"
+     }
+    ],
+    "durationMs": 26
+   }
+  },
+  {
+   "t": 56,
+   "event": {
+    "type": "text",
+    "delta": "Reading the air waybill for weight and declared value, and the invoice for the value of the goods.\n"
+   }
+  },
+  {
+   "t": 58,
+   "event": {
+    "type": "step_started",
+    "seq": 4,
+    "tool": "extract_document",
+    "input": {
+     "kind": "awb"
+    },
+    "at": "2026-11-09T10:43:23.737Z"
+   }
+  },
+  {
+   "t": 945,
+   "event": {
+    "type": "step_finished",
+    "seq": 4,
+    "tool": "extract_document",
+    "status": "ok",
+    "summary": "Air waybill 583-1190 2264: 180 kg, 6 pieces, declared value for carriage NVD.",
+    "output": {
+     "documents": [
+      {
+       "documentId": "demo-c-awb",
+       "kind": "awb",
+       "title": "Air waybill 583-1190 2264",
+       "pages": [
+        {
+         "page": 1,
+         "text": "Westwind Cargo Airlines - Air Waybill\nNot negotiable. Issued by the carrier named below, subject to its conditions of contract.\nCargo claims: claims@westwindcargo.example\nAIR WAYBILL NUMBER ISSUING CARRIER\n583-1190 2264 Westwind Cargo Airlines\nSHIPPER'S NAME AND ADDRESS CONSIGNEE'S NAME AND ADDRESS\nRheinfeld Biologics B.V. Hudson Clinical Supply LLC\nZernikedreef 12 85 Raymond Blvd\n2333 CL Leiden Newark, NJ 07102\nNetherlands USA\nISSUING CARRIER'S AGENT ACCOUNTING INFORMATION\nPolder Freight Solutions B.V. Freight prepaid\nNetherlands Shipment ref. RB-NL-7712\nAIRPORT OF DEPARTURE AIRPORT OF DESTINATION FLIGHT / DATE CURRENCY\nAMS Amsterdam JFK New York WW 118 / 05NOV26 EUR\nDECLARED VALUE FOR CARRIAGE DECLARED VALUE FOR CUSTOMS AMOUNT OF INSURANCE\nNVD €350,000 XXX\nHANDLING INFORMATION\nKEEP REFRIGERATED +2 °C TO +8 °C. DO NOT FREEZE. SHC: PIL COL.\nData logger CT5-90377 enclosed. Notify consignee on arrival.\nPIECES GROSS WEIGHT KG/LB CHARGEABLE WT NATURE AND QUANTITY OF GOODS\n6 180.0 K 207.0 Ventralix quadrivalent vaccine\n6 x active container (2-8 °C)\nBatch VTX-2610-007\nPharmaceuticals, not restricted\nNOTICE CONCERNING CARRIER'S LIMITATION OF LIABILITY. If the carriage involves an ultimate destination or stop in a country other\nthan the country of departure, the Montreal Convention may be applicable. It governs and in most cases limits the liability of carriers for\ndestruction, loss, damage or delay to cargo. The shipper may increase the limitation of liability by declaring a higher value for carriage and\npaying a supplemental charge if required.\nNotice of complaint: in case of damage, the person entitled to delivery must complain to the carrier forthwith after discovery of the damage\nand, at the latest, within 14 days from the date of receipt of the cargo.\nExecuted on 5 Nov 2026 at Amsterdam\nSignature of issuing carrier Westwind Cargo Airlines (acceptance 2026-11-05 14:00 UTC)\nAWB 583-1190 2264 Page 1 of 1"
+        }
+       ],
+       "fields": {
+        "awbNumber": "583-1190 2264",
+        "pieces": 6,
+        "grossWeightKg": 180,
+        "declaredValueRaw": "NVD",
+        "declaredValueEur": null,
+        "customsValueEur": 350000,
+        "origin": "AMS",
+        "destination": "JFK",
+        "flight": "WW 118",
+        "flightDate": "05NOV26"
+       },
+       "citation": "S2"
+      }
+     ]
+    },
+    "citations": [
+     {
+      "id": "S2",
+      "kind": "document",
+      "page": 1,
+      "label": "AWB 583-1190 2264 p.1",
+      "quote": "NVD",
+      "title": "Air waybill 583-1190 2264",
+      "documentId": "demo-c-awb"
+     }
+    ],
+    "durationMs": 870
+   }
+  },
+  {
+   "t": 946,
+   "event": {
+    "type": "step_started",
+    "seq": 5,
+    "tool": "extract_document",
+    "input": {
+     "kind": "invoice"
+    },
+    "at": "2026-11-09T10:43:24.625Z"
+   }
+  },
+  {
+   "t": 1008,
+   "event": {
+    "type": "step_finished",
+    "seq": 5,
+    "tool": "extract_document",
+    "status": "ok",
+    "summary": "Commercial invoice CI-RB-NL-7712: total €350,000.",
+    "output": {
+     "documents": [
+      {
+       "documentId": "demo-c-invoice",
+       "kind": "invoice",
+       "title": "Commercial invoice CI-RB-NL-7712",
+       "pages": [
+        {
+         "page": 1,
+         "text": "Rheinfeld Biologics B.V.\nZernikedreef 12, 2333 CL Leiden, Netherlands\n+31 71 555 0270 | logistics-nl@rheinfeld-bio.example\nCommercial Invoice\nInvoice no. CI-RB-NL-7712 | 5 Nov 2026\nSeller Rheinfeld Biologics B.V., Zernikedreef 12, 2333 CL Leiden, Netherlands\nBuyer / consignee Hudson Clinical Supply LLC, 85 Raymond Blvd, Newark, NJ 07102, USA\nShipment reference RB-NL-7712\nAir waybill 583-1190 2264 (AMS -> JFK, WW 118)\nIncoterm FCA Leiden (Incoterms 2020)\nPayment terms 60 days net\nGOODS\nDescription Batch Qty Unit price Amount\nVentralix quadrivalent vaccine - cell-culture VTX-2610-007 2,500 €140 €350,000\ninfluenza vaccine, 0.5 mL PFS\nTotal invoice value €350,000\nGross weight 180.0 kg in 6 temperature-controlled container(s)\nStorage condition +2 °C to +8 °C. Do not freeze.\nWe certify that this invoice is true and correct and that the goods are of the origin stated.\nJoris van Dam, Logistics Manager\nRheinfeld Biologics B.V.\nInvoice CI-RB-NL-7712 Page 1 of 1"
+        }
+       ],
+       "fields": {
+        "totalEur": 350000,
+        "invoiceNo": "CI-RB-NL-7712",
+        "quote": "Total invoice value €350,000"
+       },
+       "citation": "S3"
+      }
+     ]
+    },
+    "citations": [
+     {
+      "id": "S3",
+      "kind": "document",
+      "page": 1,
+      "label": "Invoice CI-RB-NL-7712 p.1",
+      "quote": "Total invoice value €350,000",
+      "title": "Commercial invoice CI-RB-NL-7712",
+      "documentId": "demo-c-invoice"
+     }
+    ],
+    "durationMs": 50
+   }
+  },
+  {
+   "t": 1012,
+   "event": {
+    "type": "text",
+    "delta": "Skimming the correspondence for context.\n"
+   }
+  },
+  {
+   "t": 1013,
+   "event": {
+    "type": "step_started",
+    "seq": 7,
+    "tool": "extract_document",
+    "input": {
+     "kind": "email"
+    },
+    "at": "2026-11-09T10:43:24.692Z"
+   }
+  },
+  {
+   "t": 1036,
+   "event": {
+    "type": "step_finished",
+    "seq": 7,
+    "tool": "extract_document",
+    "status": "ok",
+    "summary": "Read 3 emails.",
+    "output": {
+     "documents": [
+      {
+       "documentId": "demo-c-email-01",
+       "kind": "email",
+       "email": {
+        "from": "\"Hudson Clinical Supply LLC\" <quality@hudsonclinical.example>",
+        "to": "\"Rheinfeld Biologics B.V.\" <logistics-nl@rheinfeld-bio.example>",
+        "date": "Sat, 07 Nov 2026 16:00:00 +0000",
+        "subject": "Temperature alarm at receipt - RB-NL-7712 / AWB 583-1190 2264",
+        "body": "Dear Joris,\n\nshipment RB-NL-7712 arrived today (7 Nov 2026). The ColdTrace logger shows a major alarm on 5 Nov 2026: maximum 15.0 °C and almost 4 hours above 8 °C. All 6 pieces are quarantined pending your QA disposition. Logger file attached.\n\nRegards,\nPriya Raman\nQuality Lead, Hudson Clinical Supply"
+       },
+       "citation": "S4"
+      },
+      {
+       "documentId": "demo-c-email-02",
+       "kind": "email",
+       "email": {
+        "from": "\"Rheinfeld Biologics B.V.\" <logistics-nl@rheinfeld-bio.example>",
+        "to": "\"Polder Freight Solutions B.V.\" <claims@polderfreight.example>",
+        "date": "Sat, 07 Nov 2026 18:00:00 +0000",
+        "subject": "Excursion RB-NL-7712 - WMS records requested",
+        "body": "Dear Sanne,\n\nthe logger of RB-NL-7712 shows 15.0 °C at your Schiphol hub timeframe on 5 Nov 2026. Please send the hub movement log under clause 5.3 within two business days, and explain why no excursion report was received under clause 5.2.\n\nRegards,\nJoris van Dam\nLogistics Manager, Rheinfeld Biologics B.V."
+       },
+       "citation": "S5"
+      },
+      {
+       "documentId": "demo-c-email-03",
+       "kind": "email",
+       "email": {
+        "from": "\"Polder Freight Solutions B.V.\" <claims@polderfreight.example>",
+        "to": "\"Rheinfeld Biologics B.V.\" <logistics-nl@rheinfeld-bio.example>",
+        "date": "Sun, 08 Nov 2026 10:00:00 +0000",
+        "subject": "RE: Excursion RB-NL-7712 - WMS records requested",
+        "body": "Dear Joris,\n\nplease find attached the WMS extract. Due to peak volumes the shipment was staged on inbound floor F3 for approx. 4 hours before a cold-room slot became available in CR-02. We regret this and are investigating internally.\n\nKind regards,\nSanne de Wit\nOperations Manager, Polder Freight Solutions"
+       },
+       "citation": "S6"
+      }
+     ]
+    },
+    "citations": [
+     {
+      "id": "S4",
+      "kind": "email",
+      "label": "Email 07 Nov 2026 16:00",
+      "quote": "Dear Joris,\n\nshipment RB-NL-7712 arrived today (7 Nov 2026). The ColdTrace logger shows a major alarm on 5 Nov 2026: maximum 15.0 °C and almost 4 hours above 8 °C. All 6 pieces are quarantined pending",
+      "title": "\"Hudson Clinical Supply LLC\" <quality@hudsonclinical.example>: Temperature alarm at receipt - RB-NL-7712 / AWB 583-1190 2264",
+      "documentId": "demo-c-email-01"
+     },
+     {
+      "id": "S5",
+      "kind": "email",
+      "label": "Email 07 Nov 2026 18:00",
+      "quote": "Dear Sanne,\n\nthe logger of RB-NL-7712 shows 15.0 °C at your Schiphol hub timeframe on 5 Nov 2026. Please send the hub movement log under clause 5.3 within two business days, and explain why no excursi",
+      "title": "\"Rheinfeld Biologics B.V.\" <logistics-nl@rheinfeld-bio.example>: Excursion RB-NL-7712 - WMS records requested",
+      "documentId": "demo-c-email-02"
+     },
+     {
+      "id": "S6",
+      "kind": "email",
+      "label": "Email 08 Nov 2026 10:00",
+      "quote": "Dear Joris,\n\nplease find attached the WMS extract. Due to peak volumes the shipment was staged on inbound floor F3 for approx. 4 hours before a cold-room slot became available in CR-02. We regret this",
+      "title": "\"Polder Freight Solutions B.V.\" <claims@polderfreight.example>: RE: Excursion RB-NL-7712 - WMS records requested",
+      "documentId": "demo-c-email-03"
+     }
+    ],
+    "durationMs": 16
+   }
+  },
+  {
+   "t": 1036,
+   "event": {
+    "type": "text",
+    "delta": "Matching the excursion to the custody timeline to see who held the cargo when it got warm.\n"
+   }
+  },
+  {
+   "t": 1038,
+   "event": {
+    "type": "step_started",
+    "seq": 9,
+    "tool": "build_custody_timeline",
+    "input": {},
+    "at": "2026-11-09T10:43:24.717Z"
+   }
+  },
+  {
+   "t": 1096,
+   "event": {
+    "type": "step_finished",
+    "seq": 9,
+    "tool": "build_custody_timeline",
+    "status": "ok",
+    "summary": "Excursion happened while Polder Freight Solutions B.V. (forwarder) held the cargo: Polder hub Schiphol - inbound floor area F3, not temperature controlled.",
+    "output": {
+     "segments": [
+      {
+       "seq": 1,
+       "role": "shipper",
+       "custodian": "Rheinfeld Biologics B.V.",
+       "location": "Rheinfeld plant, Leiden - cold dock",
+       "from": "2026-11-05T00:00:00.000Z",
+       "to": "2026-11-05T01:30:00.000Z",
+       "controlled": true
+      },
+      {
+       "seq": 2,
+       "role": "forwarder",
+       "custodian": "Polder Freight Solutions B.V.",
+       "location": "Road Leiden -> Schiphol (unit NL-PF 118)",
+       "from": "2026-11-05T01:30:00.000Z",
+       "to": "2026-11-05T03:00:00.000Z",
+       "controlled": true
+      },
+      {
+       "seq": 3,
+       "role": "forwarder",
+       "custodian": "Polder Freight Solutions B.V.",
+       "location": "Polder hub Schiphol - inbound floor area F3",
+       "from": "2026-11-05T03:00:00.000Z",
+       "to": "2026-11-05T07:00:00.000Z",
+       "controlled": false
+      },
+      {
+       "seq": 4,
+       "role": "forwarder",
+       "custodian": "Polder Freight Solutions B.V.",
+       "location": "Polder hub Schiphol - cold room CR-02",
+       "from": "2026-11-05T07:00:00.000Z",
+       "to": "2026-11-05T14:00:00.000Z",
+       "controlled": true
+      },
+      {
+       "seq": 5,
+       "role": "airline",
+       "custodian": "Westwind Cargo Airlines",
+       "location": "Westwind Cargo, AMS - cool centre",
+       "from": "2026-11-05T14:00:00.000Z",
+       "to": "2026-11-05T18:00:00.000Z",
+       "controlled": true
+      },
+      {
+       "seq": 6,
+       "role": "airline",
+       "custodian": "Westwind Cargo Airlines",
+       "location": "Flight WW 118 AMS -> JFK",
+       "from": "2026-11-05T18:00:00.000Z",
+       "to": "2026-11-06T02:30:00.000Z",
+       "controlled": true
+      },
+      {
+       "seq": 7,
+       "role": "airline",
+       "custodian": "Westwind Cargo Airlines",
+       "location": "Westwind Cargo, JFK Building 151 - import cool room",
+       "from": "2026-11-06T02:30:00.000Z",
+       "to": "2026-11-06T12:00:00.000Z",
+       "controlled": true
+      },
+      {
+       "seq": 8,
+       "role": "forwarder",
+       "custodian": "Polder Freight Solutions B.V.",
+       "location": "Polder US partner, Jamaica NY - cold room",
+       "from": "2026-11-06T12:00:00.000Z",
+       "to": "2026-11-07T11:00:00.000Z",
+       "controlled": true
+      },
+      {
+       "seq": 9,
+       "role": "forwarder",
+       "custodian": "Polder Freight Solutions B.V.",
+       "location": "Road JFK -> Newark NJ",
+       "from": "2026-11-07T11:00:00.000Z",
+       "to": "2026-11-07T14:00:00.000Z",
+       "controlled": true
+      }
+     ],
+     "attribution": {
+      "excursionIndex": 0,
+      "role": "forwarder",
+      "custodian": "Polder Freight Solutions B.V.",
+      "segmentSeq": 3,
+      "location": "Polder hub Schiphol - inbound floor area F3",
+      "activity": "Staged on warehouse floor awaiting cold-room slot (ambient)",
+      "controlled": false,
+      "spansMultipleParties": false,
+      "citationIds": [
+       "S1",
+       "S7",
+       "S8"
+      ]
+     }
+    },
+    "citations": [
+     {
+      "id": "S7",
+      "kind": "document",
+      "label": "Handling event #3",
+      "quote": "Staged on warehouse floor awaiting cold-room slot (ambient)",
+      "title": "Polder Freight Solutions B.V.: Polder hub Schiphol - inbound floor area F3, 5 Nov, 03:00–5 Nov, 07:00 UTC",
+      "documentId": "demo-c-handling_events"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "page": 1,
+      "label": "Hub Movement Log - WMS E p.1",
+      "quote": "Ref. WMS-SPL-24-118377 | Issued 2026-11-08 10:00 UTC",
+      "title": "Hub Movement Log - WMS Extract",
+      "documentId": "demo-c-handling_report"
+     }
+    ],
+    "durationMs": 52
+   }
+  },
+  {
+   "t": 1097,
+   "event": {
+    "type": "text",
+    "delta": "Checking the forwarder contract for temperature duties, liability caps and notice periods.\n"
+   }
+  },
+  {
+   "t": 1099,
+   "event": {
+    "type": "step_started",
+    "seq": 11,
+    "tool": "check_contract",
+    "input": {},
+    "at": "2026-11-09T10:43:24.778Z"
+   }
+  },
+  {
+   "t": 1200,
+   "event": {
+    "type": "step_finished",
+    "seq": 11,
+    "tool": "check_contract",
+    "status": "ok",
+    "summary": "Contract PFS-QA-2024-221: cold-room duty at hubs (§3.2), cap invoice value (§6.2), notice 7 days (§7.1), air legs passed through to carrier (§4.3).",
+    "output": {
+     "reference": "PFS-QA-2024-221",
+     "terms": {
+      "found": true,
+      "coldRoomDuty": true,
+      "ambientLimitMinutes": 30,
+      "liabilityCap": {
+       "kind": "invoice_value"
+      },
+      "airLegPassThrough": true,
+      "noticeDays": 7,
+      "timeBarYears": 1
+     },
+     "clauses": {
+      "temperature_duty": {
+       "clause": "3.1",
+       "title": "Temperature Range",
+       "page": 1,
+       "quote": "Temperature Range. The Forwarder shall keep the Goods within the Temperature Range at all times while they are in its Custody, using qualified and validated equipment.",
+       "citationId": "S9"
+      },
+      "hub_storage": {
+       "clause": "3.2",
+       "title": "Hub storage",
+       "page": 1,
+       "quote": "Hub storage. At all Forwarder hubs and warehouses the Goods shall be stored exclusively in qualified cold rooms maintained at +2 °C to +8 °C. The Goods shall not be staged in ambient areas, on docks or on warehouse floors for longer than 30 minutes in aggregate per hub.",
+       "citationId": "S10"
+      },
+      "air_carriers": {
+       "clause": "4.3",
+       "title": "Air carriers",
+       "page": 2,
+       "quote": "Air carriers. In respect of carriage by air performed by an air carrier, the Forwarder's liability shall not exceed the amount the Forwarder is able to recover from that air carrier under the Montreal Convention 1999 or other applicable air law. On request, the Forwarder shall assign to the Customer its rights of action against the air carrier.",
+       "citationId": "S11"
+      },
+      "excursion_reporting": {
+       "clause": "5.2",
+       "title": "Excursion reporting",
+       "page": 2,
+       "quote": "Excursion reporting. The Forwarder shall notify the Customer in writing of any known or suspected Temperature Excursion within 12 hours of becoming aware of it.",
+       "citationId": "S12"
+      },
+      "liability_basis": {
+       "clause": "6.1",
+       "title": "Basis",
+       "page": 2,
+       "quote": "Basis. The Forwarder is liable for loss of or damage to the Goods, including damage resulting from a Temperature Excursion, occurring while the Goods are in its Custody, unless it proves that the loss arose from circumstances it could not avoid and whose consequences it could not prevent.",
+       "citationId": "S13"
+      },
+      "liability_cap": {
+       "clause": "6.2",
+       "title": "Limit of liability",
+       "page": 2,
+       "quote": "Limit of liability. For loss or damage resulting from a breach of clause 3 (Temperature control and service levels), the Forwarder's liability shall be limited to the invoice value of the affected Goods, as evidenced by the Customer's commercial invoice.",
+       "citationId": "S14"
+      },
+      "damaged_goods": {
+       "clause": "6.3",
+       "title": "Damaged goods",
+       "page": 2,
+       "quote": "Damaged goods. Goods that the Customer's Quality Assurance rejects as a result of a Temperature Excursion are deemed damaged. The Customer's documented QA decision is conclusive in the absence of manifest error.",
+       "citationId": "S15"
+      },
+      "notice": {
+       "clause": "7.1",
+       "title": "Notice of claim",
+       "page": 2,
+       "quote": "Notice of claim. The Customer shall give written notice of any claim, or of circumstances that may give rise to a claim, within 7 days of Delivery. Such notice may reserve the Customer's rights pending its quality assessment and need not state the final amount claimed.",
+       "citationId": "S16"
+      },
+      "time_bar": {
+       "clause": "7.3",
+       "title": "Time bar",
+       "page": 3,
+       "quote": "Time bar. Any claim is barred unless legal proceedings are commenced within one year of Delivery.",
+       "citationId": "S17"
+      },
+      "exclusions": {
+       "clause": "9.1",
+       "title": "Excluded causes",
+       "page": 3,
+       "quote": "Excluded causes. The Forwarder is not liable to the extent a Temperature Excursion is caused by (a) packaging supplied by the Customer that is unsuitable or not validated for the route, (b) incorrect temperature instructions given by the Customer, (c) inherent vice of the Goods, or (d) force majeure.",
+       "citationId": "S18"
+      }
+     }
+    },
+    "citations": [
+     {
+      "id": "S9",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract §3.1 p.1",
+      "quote": "Temperature Range. The Forwarder shall keep the Goods within the Temperature Range at all times while they are in its Custody, using qualified and validated equipment.",
+      "title": "Contract clause 3.1 (Temperature Range)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S10",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract §3.2 p.1",
+      "quote": "Hub storage. At all Forwarder hubs and warehouses the Goods shall be stored exclusively in qualified cold rooms maintained at +2 °C to +8 °C.",
+      "title": "Contract clause 3.2 (Hub storage)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S11",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §4.3 p.2",
+      "quote": "Air carriers. In respect of carriage by air performed by an air carrier, the Forwarder's liability shall not exceed the amount the Forwarder is able to recover from that air carrier under the Montreal Convention 1999 or…",
+      "title": "Contract clause 4.3 (Air carriers)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S12",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §5.2 p.2",
+      "quote": "Excursion reporting. The Forwarder shall notify the Customer in writing of any known or suspected Temperature Excursion within 12 hours of becoming aware of it.",
+      "title": "Contract clause 5.2 (Excursion reporting)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S13",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §6.1 p.2",
+      "quote": "Basis. The Forwarder is liable for loss of or damage to the Goods, including damage resulting from a Temperature Excursion, occurring while the Goods are in its Custody, unless it proves that the loss arose from circumst…",
+      "title": "Contract clause 6.1 (Basis)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S14",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §6.2 p.2",
+      "quote": "Limit of liability. For loss or damage resulting from a breach of clause 3 (Temperature control and service levels), the Forwarder's liability shall be limited to the invoice value of the affected Goods, as evidenced by…",
+      "title": "Contract clause 6.2 (Limit of liability)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S15",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §6.3 p.2",
+      "quote": "Damaged goods. Goods that the Customer's Quality Assurance rejects as a result of a Temperature Excursion are deemed damaged. The Customer's documented QA decision is conclusive in the absence of manifest error.",
+      "title": "Contract clause 6.3 (Damaged goods)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S16",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §7.1 p.2",
+      "quote": "Notice of claim. The Customer shall give written notice of any claim, or of circumstances that may give rise to a claim, within 7 days of Delivery.",
+      "title": "Contract clause 7.1 (Notice of claim)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S17",
+      "kind": "document",
+      "page": 3,
+      "label": "Contract §7.3 p.3",
+      "quote": "Time bar. Any claim is barred unless legal proceedings are commenced within one year of Delivery.",
+      "title": "Contract clause 7.3 (Time bar)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S18",
+      "kind": "document",
+      "page": 3,
+      "label": "Contract §9.1 p.3",
+      "quote": "Excluded causes. The Forwarder is not liable to the extent a Temperature Excursion is caused by (a) packaging supplied by the Customer that is unsuitable or not validated for the route, (b) incorrect temperature instruct…",
+      "title": "Contract clause 9.1 (Excluded causes)",
+      "documentId": "demo-c-contract"
+     }
+    ],
+    "durationMs": 92
+   }
+  },
+  {
+   "t": 1200,
+   "event": {
+    "type": "text",
+    "delta": "Checking the cargo policy for cover, exclusions, deductible and notice period.\n"
+   }
+  },
+  {
+   "t": 1205,
+   "event": {
+    "type": "step_started",
+    "seq": 13,
+    "tool": "check_policy",
+    "input": {},
+    "at": "2026-11-09T10:43:24.884Z"
+   }
+  },
+  {
+   "t": 1277,
+   "event": {
+    "type": "step_finished",
+    "seq": 13,
+    "tool": "check_policy",
+    "status": "ok",
+    "summary": "Policy LCU-2026-NL-3310: temperature deviation covered, deductible €25,000, notice 30 days of discovery, must preserve rights against carriers.",
+    "output": {
+     "policyNumber": "LCU-2026-NL-3310",
+     "terms": {
+      "found": true,
+      "temperatureCover": true,
+      "deductibleEur": 25000,
+      "insuredPercentOfInvoice": 100,
+      "minDeviationMinutes": 0,
+      "noticeDays": 30,
+      "preservationDuty": true
+     },
+     "clauses": {
+      "temperature_cover": {
+       "clause": "2.1",
+       "title": "Cover",
+       "page": 1,
+       "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data logger.",
+       "citationId": "S19"
+      },
+      "damage_definition": {
+       "clause": "2.2",
+       "title": "Damage",
+       "page": 1,
+       "quote": "Damage. Goods shall be deemed damaged where the Insured's Quality Assurance, acting reasonably and in accordance with documented stability data, rejects them as a consequence of the deviation. Goods released by Quality Assurance are not damaged within the meaning of this policy.",
+       "citationId": "S20"
+      },
+      "packing_exclusion": {
+       "clause": "3.3",
+       "title": null,
+       "page": 1,
+       "quote": "Loss, damage or expense caused by insufficiency or unsuitability of packing or preparation of the subject-matter insured, where such packing is carried out by the Insured or its employees.",
+       "citationId": "S21"
+      },
+      "settlement": {
+       "clause": "4.1",
+       "title": "Measure of indemnity",
+       "page": 2,
+       "quote": "Measure of indemnity. In the event of total loss of the affected goods the Insurer will pay the insured value (100% of invoice value) less the deductible stated in the Schedule.",
+       "citationId": "S22"
+      },
+      "notification": {
+       "clause": "5.1",
+       "title": "Notification",
+       "page": 2,
+       "quote": "Notification. The Insured shall notify the Insurer in writing of any loss or damage that may give rise to a claim as soon as practicable and in any event within 30 days of discovery.",
+       "citationId": "S23"
+      },
+      "preservation": {
+       "clause": "5.3",
+       "title": null,
+       "page": 2,
+       "quote": "Duty of the Insured - preservation of rights. It is the duty of the Insured to ensure that all rights against carriers, bailees or other third parties are properly preserved and exercised, including by giving written notice of damage within the time limits applicable under the relevant contract or convention. The Insurer may reduce any claim to the extent of prejudice caused by a failure to do so.",
+       "citationId": "S24"
+      },
+      "subrogation": {
+       "clause": "5.4",
+       "title": "Subrogation",
+       "page": 2,
+       "quote": "Subrogation. Upon payment of a claim the Insurer is subrogated to all rights of the Insured against third parties in respect of the loss.",
+       "citationId": "S25"
+      },
+      "deductible": {
+       "clause": "Schedule",
+       "title": "Deductible",
+       "page": 1,
+       "quote": "Deductible €25,000 each and every claim",
+       "citationId": "S26"
+      }
+     }
+    },
+    "citations": [
+     {
+      "id": "S19",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.1 p.1",
+      "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data log…",
+      "title": "Policy clause 2.1 (Cover)",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S20",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.2 p.1",
+      "quote": "Damage. Goods shall be deemed damaged where the Insured's Quality Assurance, acting reasonably and in accordance with documented stability data, rejects them as a consequence of the deviation.",
+      "title": "Policy clause 2.2 (Damage)",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S21",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §3.3 p.1",
+      "quote": "Loss, damage or expense caused by insufficiency or unsuitability of packing or preparation of the subject-matter insured, where such packing is carried out by the Insured or its employees.",
+      "title": "Policy clause 3.3",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S22",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §4.1 p.2",
+      "quote": "Measure of indemnity. In the event of total loss of the affected goods the Insurer will pay the insured value (100% of invoice value) less the deductible stated in the Schedule.",
+      "title": "Policy clause 4.1 (Measure of indemnity)",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S23",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.1 p.2",
+      "quote": "Notification. The Insured shall notify the Insurer in writing of any loss or damage that may give rise to a claim as soon as practicable and in any event within 30 days of discovery.",
+      "title": "Policy clause 5.1 (Notification)",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S24",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.3 p.2",
+      "quote": "Duty of the Insured - preservation of rights. It is the duty of the Insured to ensure that all rights against carriers, bailees or other third parties are properly preserved and exercised, including by giving written not…",
+      "title": "Policy clause 5.3",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S25",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.4 p.2",
+      "quote": "Subrogation. Upon payment of a claim the Insurer is subrogated to all rights of the Insured against third parties in respect of the loss.",
+      "title": "Policy clause 5.4 (Subrogation)",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S26",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy schedule p.1",
+      "quote": "Deductible €25,000 each and every claim",
+      "title": "Policy schedule: deductible",
+      "documentId": "demo-c-policy"
+     }
+    ],
+    "durationMs": 67
+   }
+  },
+  {
+   "t": 1277,
+   "event": {
+    "type": "text",
+    "delta": "Applying the liability limits per route.\n"
+   }
+  },
+  {
+   "t": 1278,
+   "event": {
+    "type": "step_started",
+    "seq": 15,
+    "tool": "compute_liability",
+    "input": {},
+    "at": "2026-11-09T10:43:24.957Z"
+   }
+  },
+  {
+   "t": 1311,
+   "event": {
+    "type": "step_finished",
+    "seq": 15,
+    "tool": "compute_liability",
+    "status": "ok",
+    "summary": "Recoverable if successful: carrier €0, forwarder €350,000, insurer €325,000 (assuming QA rejects).",
+    "output": {
+     "qa": "pending",
+     "lossEur": 350000,
+     "valueSource": "invoice",
+     "routes": [
+      {
+       "route": "carrier",
+       "recoverableEur": 0,
+       "capEur": 5657.184,
+       "basis": "26 SDR/kg × 180 kg = 4,680 SDR × 1.2088 €/SDR (as of 2026-11-04) = €5,657. No value declared for carriage (NVD).",
+       "deductibleEur": null,
+       "conditions": [
+        "QA must reject the batch for the goods to count as damaged.",
+        "Written notice of damage within the Art. 31 period."
+       ],
+       "blockers": [
+        "The excursion did not happen while the airline held the cargo."
+       ]
+      },
+      {
+       "route": "forwarder",
+       "recoverableEur": 350000,
+       "capEur": 350000,
+       "basis": "Contract caps liability for temperature breaches at the invoice value: €350,000.",
+       "deductibleEur": null,
+       "conditions": [
+        "QA must reject the batch for the goods to count as damaged.",
+        "Written notice within the contract notice period."
+       ],
+       "blockers": []
+      },
+      {
+       "route": "insurer",
+       "recoverableEur": 325000,
+       "capEur": 350000,
+       "basis": "Insured value €350,000 (100% of invoice) less deductible €25,000 = €325,000.",
+       "deductibleEur": 25000,
+       "conditions": [
+        "QA must reject the batch for the goods to count as damaged.",
+        "Notify the insurer within the policy period.",
+        "Preserve rights against carriers and bailees."
+       ],
+       "blockers": []
+      }
+     ],
+     "sdr": {
+      "eurPerSdr": 1.2088,
+      "asOf": "2026-11-04",
+      "source": "XE mid-market XDR/EUR (indicative; check IMF daily SDR rates)"
+     }
+    },
+    "citations": [
+     {
+      "id": "S2",
+      "kind": "document",
+      "page": 1,
+      "label": "AWB 583-1190 2264 p.1",
+      "quote": "NVD",
+      "title": "Air waybill 583-1190 2264",
+      "documentId": "demo-c-awb"
+     },
+     {
+      "id": "S3",
+      "kind": "document",
+      "page": 1,
+      "label": "Invoice CI-RB-NL-7712 p.1",
+      "quote": "Total invoice value €350,000",
+      "title": "Commercial invoice CI-RB-NL-7712",
+      "documentId": "demo-c-invoice"
+     },
+     {
+      "id": "S14",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §6.2 p.2",
+      "quote": "Limit of liability. For loss or damage resulting from a breach of clause 3 (Temperature control and service levels), the Forwarder's liability shall be limited to the invoice value of the affected Goods, as evidenced by…",
+      "title": "Contract clause 6.2 (Limit of liability)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S11",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §4.3 p.2",
+      "quote": "Air carriers. In respect of carriage by air performed by an air carrier, the Forwarder's liability shall not exceed the amount the Forwarder is able to recover from that air carrier under the Montreal Convention 1999 or…",
+      "title": "Contract clause 4.3 (Air carriers)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S13",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §6.1 p.2",
+      "quote": "Basis. The Forwarder is liable for loss of or damage to the Goods, including damage resulting from a Temperature Excursion, occurring while the Goods are in its Custody, unless it proves that the loss arose from circumst…",
+      "title": "Contract clause 6.1 (Basis)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S19",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.1 p.1",
+      "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data log…",
+      "title": "Policy clause 2.1 (Cover)",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S22",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §4.1 p.2",
+      "quote": "Measure of indemnity. In the event of total loss of the affected goods the Insurer will pay the insured value (100% of invoice value) less the deductible stated in the Schedule.",
+      "title": "Policy clause 4.1 (Measure of indemnity)",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S26",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy schedule p.1",
+      "quote": "Deductible €25,000 each and every claim",
+      "title": "Policy schedule: deductible",
+      "documentId": "demo-c-policy"
+     }
+    ],
+    "durationMs": 27
+   }
+  },
+  {
+   "t": 1311,
+   "event": {
+    "type": "text",
+    "delta": "Working out every deadline and how many days are left.\n"
+   }
+  },
+  {
+   "t": 1313,
+   "event": {
+    "type": "step_started",
+    "seq": 17,
+    "tool": "compute_deadlines",
+    "input": {},
+    "at": "2026-11-09T10:43:24.992Z"
+   }
+  },
+  {
+   "t": 1354,
+   "event": {
+    "type": "step_finished",
+    "seq": 17,
+    "tool": "compute_deadlines",
+    "status": "ok",
+    "summary": "Forwarder notice 14 Nov 2026 (5 days left); Carrier notice 21 Nov 2026 (12 days left); Insurer notice 7 Dec 2026 (28 days left)",
+    "output": {
+     "now": "2026-11-09T10:43:23.682Z",
+     "deadlines": [
+      {
+       "id": "contract_notice",
+       "route": "forwarder",
+       "label": "Written notice of claim to the forwarder",
+       "basis": "Forwarder contract notice clause: within 7 days of delivery",
+       "dueAt": "2026-11-14T23:59:59.000Z",
+       "windowDays": 7,
+       "kind": "notice",
+       "daysLeft": 5,
+       "status": "ok"
+      },
+      {
+       "id": "montreal_notice",
+       "route": "carrier",
+       "label": "Written notice of damage to the carrier",
+       "basis": "Montreal Convention Art. 31(2): within 14 days from the date of receipt",
+       "dueAt": "2026-11-21T23:59:59.000Z",
+       "windowDays": 14,
+       "kind": "notice",
+       "daysLeft": 12,
+       "status": "ok"
+      },
+      {
+       "id": "policy_notice",
+       "route": "insurer",
+       "label": "Notification of loss to the insurer",
+       "basis": "Cargo policy claims clause: within 30 days of discovery",
+       "dueAt": "2026-12-07T23:59:59.000Z",
+       "windowDays": 30,
+       "kind": "notice",
+       "daysLeft": 28,
+       "status": "ok"
+      },
+      {
+       "id": "contract_time_bar",
+       "route": "forwarder",
+       "label": "Legal proceedings against the forwarder",
+       "basis": "Forwarder contract time bar: 1 year(s) from delivery",
+       "dueAt": "2027-11-07T23:59:59.000Z",
+       "windowDays": 365,
+       "kind": "time_bar",
+       "daysLeft": 363,
+       "status": "ok"
+      },
+      {
+       "id": "montreal_time_bar",
+       "route": "carrier",
+       "label": "Court action against the carrier",
+       "basis": "Montreal Convention Art. 35: 2 years from arrival",
+       "dueAt": "2028-11-07T23:59:59.000Z",
+       "windowDays": 730,
+       "kind": "time_bar",
+       "daysLeft": 729,
+       "status": "ok"
+      }
+     ]
+    },
+    "citations": [
+     {
+      "id": "S2",
+      "kind": "document",
+      "page": 1,
+      "label": "AWB 583-1190 2264 p.1",
+      "quote": "NVD",
+      "title": "Air waybill 583-1190 2264",
+      "documentId": "demo-c-awb"
+     },
+     {
+      "id": "S16",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §7.1 p.2",
+      "quote": "Notice of claim. The Customer shall give written notice of any claim, or of circumstances that may give rise to a claim, within 7 days of Delivery.",
+      "title": "Contract clause 7.1 (Notice of claim)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S17",
+      "kind": "document",
+      "page": 3,
+      "label": "Contract §7.3 p.3",
+      "quote": "Time bar. Any claim is barred unless legal proceedings are commenced within one year of Delivery.",
+      "title": "Contract clause 7.3 (Time bar)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S23",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.1 p.2",
+      "quote": "Notification. The Insured shall notify the Insurer in writing of any loss or damage that may give rise to a claim as soon as practicable and in any event within 30 days of discovery.",
+      "title": "Policy clause 5.1 (Notification)",
+      "documentId": "demo-c-policy"
+     }
+    ],
+    "durationMs": 34
+   }
+  },
+  {
+   "t": 1355,
+   "event": {
+    "type": "text",
+    "delta": "Ranking the recovery routes by expected recoverable amount.\n"
+   }
+  },
+  {
+   "t": 1357,
+   "event": {
+    "type": "step_started",
+    "seq": 19,
+    "tool": "rank_routes",
+    "input": {},
+    "at": "2026-11-09T10:43:25.036Z"
+   }
+  },
+  {
+   "t": 1407,
+   "event": {
+    "type": "step_finished",
+    "seq": 19,
+    "tool": "rank_routes",
+    "status": "ok",
+    "summary": "Recommended: forwarder (€350,000, 85% likely). Protective notice needed to: forwarder.",
+    "output": {
+     "qa": "pending",
+     "ranking": [
+      {
+       "rank": 1,
+       "route": "forwarder",
+       "recommended": true,
+       "recoverableEur": 350000,
+       "probability": 0.85,
+       "expectedEur": 297500,
+       "reasons": [
+        "Excursion in forwarder custody, in breach of its cold-room duty",
+        "Recoverable €350,000 if successful"
+       ],
+       "blockers": [],
+       "noticeDeadline": {
+        "dueAt": "2026-11-14T23:59:59.000Z",
+        "daysLeft": 5
+       }
+      },
+      {
+       "rank": 2,
+       "route": "insurer",
+       "recommended": false,
+       "recoverableEur": 325000,
+       "probability": 0.8,
+       "expectedEur": 260000,
+       "reasons": [
+        "Temperature deviation is covered by the policy",
+        "Recoverable €325,000 if successful"
+       ],
+       "blockers": [],
+       "noticeDeadline": {
+        "dueAt": "2026-12-07T23:59:59.000Z",
+        "daysLeft": 28
+       }
+      },
+      {
+       "rank": 3,
+       "route": "carrier",
+       "recommended": false,
+       "recoverableEur": 0,
+       "probability": 0.05,
+       "expectedEur": 0,
+       "reasons": [
+        "Airline did not hold the cargo during the excursion"
+       ],
+       "blockers": [
+        "The excursion did not happen while the airline held the cargo."
+       ],
+       "noticeDeadline": {
+        "dueAt": "2026-11-21T23:59:59.000Z",
+        "daysLeft": 12
+       }
+      }
+     ],
+     "protectiveNoticesNeeded": [
+      {
+       "route": "forwarder",
+       "deadlineId": "contract_notice",
+       "daysLeft": 5,
+       "reason": "Forwarder contract notice clause: within 7 days of delivery: 5 day(s) left and QA has not decided yet."
+      }
+     ]
+    },
+    "citations": [
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       42,
+       86
+      ],
+      "label": "Logger r.42–86",
+      "title": "logger-CT5-90377.csv: rows 42–86, 5 Nov, 03:25–5 Nov, 07:05 UTC, peak 15.0 °C",
+      "documentId": "demo-c-logger"
+     },
+     {
+      "id": "S7",
+      "kind": "document",
+      "label": "Handling event #3",
+      "quote": "Staged on warehouse floor awaiting cold-room slot (ambient)",
+      "title": "Polder Freight Solutions B.V.: Polder hub Schiphol - inbound floor area F3, 5 Nov, 03:00–5 Nov, 07:00 UTC",
+      "documentId": "demo-c-handling_events"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "page": 1,
+      "label": "Hub Movement Log - WMS E p.1",
+      "quote": "Ref. WMS-SPL-24-118377 | Issued 2026-11-08 10:00 UTC",
+      "title": "Hub Movement Log - WMS Extract",
+      "documentId": "demo-c-handling_report"
+     },
+     {
+      "id": "S10",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract §3.2 p.1",
+      "quote": "Hub storage. At all Forwarder hubs and warehouses the Goods shall be stored exclusively in qualified cold rooms maintained at +2 °C to +8 °C.",
+      "title": "Contract clause 3.2 (Hub storage)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S16",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §7.1 p.2",
+      "quote": "Notice of claim. The Customer shall give written notice of any claim, or of circumstances that may give rise to a claim, within 7 days of Delivery.",
+      "title": "Contract clause 7.1 (Notice of claim)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S19",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.1 p.1",
+      "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data log…",
+      "title": "Policy clause 2.1 (Cover)",
+      "documentId": "demo-c-policy"
+     },
+     {
+      "id": "S24",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.3 p.2",
+      "quote": "Duty of the Insured - preservation of rights. It is the duty of the Insured to ensure that all rights against carriers, bailees or other third parties are properly preserved and exercised, including by giving written not…",
+      "title": "Policy clause 5.3",
+      "documentId": "demo-c-policy"
+     }
+    ],
+    "durationMs": 44
+   }
+  },
+  {
+   "t": 1407,
+   "event": {
+    "type": "text",
+    "delta": "The forwarder notice deadline is 5 days away and QA has not decided, so I am drafting a protective notice to reserve our rights.\n"
+   }
+  },
+  {
+   "t": 1409,
+   "event": {
+    "type": "step_started",
+    "seq": 21,
+    "tool": "draft_protective_notice",
+    "input": {
+     "route": "forwarder"
+    },
+    "at": "2026-11-09T10:43:25.088Z"
+   }
+  },
+  {
+   "t": 1459,
+   "event": {
+    "type": "step_finished",
+    "seq": 21,
+    "tool": "draft_protective_notice",
+    "status": "ok",
+    "summary": "Protective notice to Polder Freight Solutions B.V. drafted, due 14 Nov 2026 (5 days left). Waiting for manager approval.",
+    "output": {
+     "draftId": "dr-iqhcbDht",
+     "route": "forwarder",
+     "to": {
+      "name": "Polder Freight Solutions B.V.",
+      "email": "claims@polderfreight.example",
+      "assumed": false
+     },
+     "subject": "Notice of claim under clause 7.1 of agreement PFS-QA-2024-221 – RB-NL-7712",
+     "status": "awaiting_approval",
+     "deadline": {
+      "id": "contract_notice",
+      "kind": "notice",
+      "basis": "Forwarder contract notice clause: within 7 days of delivery",
+      "dueAt": "2026-11-14T23:59:59.000Z",
+      "label": "Written notice of claim to the forwarder",
+      "route": "forwarder",
+      "status": "ok",
+      "daysLeft": 5,
+      "windowDays": 7
+     },
+     "citationCoverage": 0.8888888888888888,
+     "assumptions": [
+      "Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics B.V."
+     ]
+    },
+    "citations": [
+     {
+      "id": "S2",
+      "kind": "document",
+      "page": 1,
+      "label": "AWB 583-1190 2264 p.1",
+      "quote": "NVD",
+      "title": "Air waybill 583-1190 2264",
+      "documentId": "demo-c-awb"
+     },
+     {
+      "id": "S7",
+      "kind": "document",
+      "label": "Handling event #3",
+      "quote": "Staged on warehouse floor awaiting cold-room slot (ambient)",
+      "title": "Polder Freight Solutions B.V.: Polder hub Schiphol - inbound floor area F3, 5 Nov, 03:00–5 Nov, 07:00 UTC",
+      "documentId": "demo-c-handling_events"
+     },
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       42,
+       86
+      ],
+      "label": "Logger r.42–86",
+      "title": "logger-CT5-90377.csv: rows 42–86, 5 Nov, 03:25–5 Nov, 07:05 UTC, peak 15.0 °C",
+      "documentId": "demo-c-logger"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "page": 1,
+      "label": "Hub Movement Log - WMS E p.1",
+      "quote": "Ref. WMS-SPL-24-118377 | Issued 2026-11-08 10:00 UTC",
+      "title": "Hub Movement Log - WMS Extract",
+      "documentId": "demo-c-handling_report"
+     },
+     {
+      "id": "S10",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract §3.2 p.1",
+      "quote": "Hub storage. At all Forwarder hubs and warehouses the Goods shall be stored exclusively in qualified cold rooms maintained at +2 °C to +8 °C.",
+      "title": "Contract clause 3.2 (Hub storage)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S16",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §7.1 p.2",
+      "quote": "Notice of claim. The Customer shall give written notice of any claim, or of circumstances that may give rise to a claim, within 7 days of Delivery.",
+      "title": "Contract clause 7.1 (Notice of claim)",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "id": "S27",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract p.1 (address)",
+      "quote": "+31 20 555 0815 | claims@polderfreight.example",
+      "title": "Polder Freight Solutions B.V. contact details",
+      "documentId": "demo-c-contract"
+     },
+     {
+      "kind": "assumption",
+      "label": "Assumption: Tom Becker Claims Manager, on…",
+      "title": "No source cited for: \"Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics B.V.\"",
+      "quote": "Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics B.V.",
+      "id": "S28"
+     }
+    ],
+    "durationMs": 46
+   }
+  },
+  {
+   "t": 1459,
+   "event": {
+    "type": "text",
+    "delta": "Checking whether anything is missing from the file.\n"
+   }
+  },
+  {
+   "t": 1461,
+   "event": {
+    "type": "step_started",
+    "seq": 23,
+    "tool": "request_missing_info",
+    "input": {},
+    "at": "2026-11-09T10:43:25.140Z"
+   }
+  },
+  {
+   "t": 1498,
+   "event": {
+    "type": "step_finished",
+    "seq": 23,
+    "tool": "request_missing_info",
+    "status": "ok",
+    "summary": "Document set complete. Waiting only for the QA disposition.",
+    "output": {
+     "missing": [],
+     "pendingHumanDecisions": [
+      "QA disposition (Released / Rejected) by Quality Assurance"
+     ],
+     "valueSource": "invoice"
+    },
+    "citations": [],
+    "durationMs": 33
+   }
+  },
+  {
+   "t": 1501,
+   "event": {
+    "type": "text",
+    "delta": "The excursion happened while Polder Freight Solutions B.V. held the cargo. If QA rejects the batch, the best route is the forwarder for €350,000. A protective notice is ready for approval. Next: Quality Assurance decides whether the product is usable.\n"
+   }
+  },
+  {
+   "t": 1514,
+   "event": {
+    "type": "status",
+    "from": "investigating",
+    "to": "awaiting_qa",
+    "reason": "Investigation complete: Quality Assurance must decide disposition"
+   }
+  },
+  {
+   "t": 1519,
+   "event": {
+    "type": "run_finished",
+    "status": "completed",
+    "durationMs": 1519,
+    "finalStatus": "awaiting_qa"
+   }
+  }
+ ]
+}

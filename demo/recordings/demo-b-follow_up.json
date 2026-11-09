@@ -1,0 +1,116 @@
+{
+ "version": 1,
+ "caseId": "demo-b",
+ "kind": "follow_up",
+ "mode": "deterministic",
+ "model": null,
+ "recordedAt": "2026-11-09T10:42:35.771Z",
+ "events": [
+  {
+   "t": 1,
+   "event": {
+    "type": "run_started",
+    "runId": "run-ANbScVV3Sw",
+    "caseId": "demo-b",
+    "kind": "follow_up",
+    "mode": "deterministic",
+    "model": null,
+    "at": "2026-11-09T10:42:35.712Z"
+   }
+  },
+  {
+   "t": 6,
+   "event": {
+    "type": "text",
+    "delta": "Sending the approved protective notice to Boreal Air Cargo.\n"
+   }
+  },
+  {
+   "t": 7,
+   "event": {
+    "type": "step_started",
+    "seq": 2,
+    "tool": "send_via_outbox",
+    "input": {
+     "draftId": "dr-p4adSzng"
+    },
+    "at": "2026-11-09T10:42:35.718Z"
+   }
+  },
+  {
+   "t": 25,
+   "event": {
+    "type": "step_finished",
+    "seq": 2,
+    "tool": "send_via_outbox",
+    "status": "ok",
+    "summary": "Sent to Boreal Air Cargo <cargo.claims@borealaircargo.example> via the simulated Outbox (approved by Tom Becker).",
+    "output": {
+     "messageId": "msg-EJ9bxpsX",
+     "to": "cargo.claims@borealaircargo.example",
+     "subject": "Notice of damage under Article 31 of the Montreal Convention – RB-24093",
+     "approvedBy": "Tom Becker",
+     "simulated": true
+    },
+    "citations": [],
+    "durationMs": 16
+   }
+  },
+  {
+   "t": 25,
+   "event": {
+    "type": "text",
+    "delta": "Sending the approved claim letter to Meridian Marine & Cargo Insurance SE.\n"
+   }
+  },
+  {
+   "t": 26,
+   "event": {
+    "type": "step_started",
+    "seq": 4,
+    "tool": "send_via_outbox",
+    "input": {
+     "draftId": "dr-Pk5e_2d4"
+    },
+    "at": "2026-11-09T10:42:35.737Z"
+   }
+  },
+  {
+   "t": 45,
+   "event": {
+    "type": "status",
+    "from": "awaiting_approval",
+    "to": "sent",
+    "reason": "Claim sent"
+   }
+  },
+  {
+   "t": 49,
+   "event": {
+    "type": "step_finished",
+    "seq": 4,
+    "tool": "send_via_outbox",
+    "status": "ok",
+    "summary": "Sent to Meridian Marine & Cargo Insurance SE <cargo.claims@meridian-marine.example> via the simulated Outbox (approved by Tom Becker).",
+    "output": {
+     "messageId": "msg-dUHk4FPy",
+     "to": "cargo.claims@meridian-marine.example",
+     "subject": "Claim for temperature damage – RB-24093 – €190,000",
+     "approvedBy": "Tom Becker",
+     "simulated": true
+    },
+    "citations": [],
+    "durationMs": 20
+   }
+  },
+  {
+   "t": 60,
+   "event": {
+    "type": "run_finished",
+    "status": "completed",
+    "durationMs": 60,
+    "finalStatus": "sent"
+   }
+  }
+ ]
+}

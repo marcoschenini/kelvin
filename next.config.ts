@@ -6,7 +6,15 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   devIndicators: { position: "bottom-right" },
-  serverExternalPackages: ["@electric-sql/pglite", "pdfjs-dist"],
+  serverExternalPackages: [
+    "@electric-sql/pglite",
+    "pdfjs-dist",
+    "ai",
+    "@ai-sdk/anthropic",
+    "@ai-sdk/gateway",
+    "@vercel/oidc",
+    "@openrouter/ai-sdk-provider",
+  ],
 };
 
 export default nextConfig;

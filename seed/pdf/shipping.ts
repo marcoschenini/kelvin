@@ -11,7 +11,10 @@ export async function awbPdf(spec: CaseSpec, delivery: Date) {
     title: "Air Waybill",
     letterhead: {
       name: `${spec.airline.name} - Air Waybill`,
-      lines: ["Not negotiable. Issued by the carrier named below, subject to its conditions of contract."],
+      lines: [
+        "Not negotiable. Issued by the carrier named below, subject to its conditions of contract.",
+        `Cargo claims: ${spec.airline.email}`,
+      ],
       accent: ACCENTS.airline,
     },
     docRef: `AWB ${spec.awbNumber}`,

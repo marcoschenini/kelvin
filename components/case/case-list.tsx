@@ -74,7 +74,7 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
                 </span>
                 <span>
                   {c.status === "new" || (c.status === "investigating" && c.daysLeft == null) ? (
-                    <span className="text-xs text-subtle">Not yet computed</span>
+                    <span className="text-xs whitespace-nowrap text-subtle">Not yet computed</span>
                   ) : (
                     <DeadlinePill daysLeft={c.daysLeft} date={c.nearestDeadlineAt} label={c.nearestDeadlineLabel ?? undefined} />
                   )}
