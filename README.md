@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kelvin — Pharma claims recovery agent
 
-## Getting Started
+From temperature excursion to recovered money. Kelvin collects the logger data and shipping documents, rebuilds who held the cargo when it got warm, finds who should pay and by when, drafts the evidence pack and claim letter, and follows up after a manager approves. Quality keeps the product decision; a manager approves every claim.
 
-First, run the development server:
+> Decision support for a university demo. Not legal advice.
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # add your model API key
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Script | What it does |
+|---|---|
+| `npm run dev` | Dev server (Webpack, see AGENTS.md) |
+| `npm run build` | Production build |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint |
+| `npm test` | Vitest unit tests |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Status
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [x] M1 — Scaffold, design system, app shell (`/design` shows every token and component)
+- [ ] M2 — Data model, seed generator, demo cases A/B/C
+- [ ] M3 — Agent tools, orchestrator, status machine, audit log
+- [ ] M4 — Case detail: temperature × custody chart, streaming agent panel
+- [ ] M5 — Human gates, approval screen, Outbox, simulated counterparties
+- [ ] M6 — Evaluation harness and page
+- [ ] M7 — Demo + Replay mode, polish, 5-minute demo script
+- [ ] M8 — Deploy to Vercel
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 (App Router, TypeScript strict) · Tailwind CSS v4 · shadcn/ui (Base UI) · Lucide · Motion · Recharts · Vercel AI SDK · Drizzle (PGlite locally, Supabase in production) · pdf-lib / pdfjs-dist · Vitest
