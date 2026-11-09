@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# kelvin local data (PGlite db, generated files)
+/.data/
+/scratch/

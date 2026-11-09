@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   devIndicators: { position: "bottom-right" },
+  serverExternalPackages: ["@electric-sql/pglite", "pdfjs-dist"],
 };
 
 export default nextConfig;

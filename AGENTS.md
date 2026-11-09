@@ -16,3 +16,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Design tokens** live in `app/globals.css` (`--ai-*`, `--success*`, `--warning*`, `--danger*`, `--human*`, `--custody-*`). Use the semantic utilities (`bg-ai`, `text-human-fg`, `bg-warning-soft`, `num`) rather than raw colours. Red is for overdue deadlines only.
 - **Rules live in `lib/rules/`**, never in prompts. The agent never decides product disposition and never sends without an approval record.
 - Visual reference: `docs/agent-schema.png`. Full brief: `docs/BRIEF.md`.
+- **Database:** PGlite is single-process. A lock file in `.data/` stops CLI scripts from opening it while the dev server holds it. Server components and GET handlers call `await connection()` before any query.
+- **Demo data is generated, never hand-edited:** change `seed/cases/*.ts` and re-seed. Document IDs are deterministic (`demo-b-contract`, `demo-b-email-01`) so recordings and citations survive a reset.
+- **Tests** run with `server-only` aliased to an empty module (`vitest.config.mts`).
