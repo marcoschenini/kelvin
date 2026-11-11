@@ -91,6 +91,8 @@ export interface CaseRecord {
   /** Citation registry: id → citation */
   citations?: Record<string, Citation>;
   closingNote?: string;
+  /** Open settlement offer awaiting the manager (set by handle_reply) */
+  negotiation?: { route: string; offerEur: number; claimEur: number; messageId: string; counterDraftId: string; counterparty: string } | null;
   /** Incoming Outbox messages already processed by handle_reply */
   handledMessageIds?: string[];
 }

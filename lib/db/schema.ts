@@ -183,7 +183,7 @@ export const auditEvents = pgTable(
 
 /* ------------------------------------------------------- human decisions */
 
-export type GateKind = "qa" | "approval";
+export type GateKind = "qa" | "approval" | "settlement";
 
 export const decisions = pgTable(
   "decisions",

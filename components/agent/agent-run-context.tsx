@@ -38,7 +38,18 @@ export const useAgentRun = () => {
  * Owns the live agent run for a case: starts it, folds the NDJSON event stream
  * into steps, and refreshes the server components when it ends.
  */
-export function AgentRunProvider({ caseId, autoStart, children }: { caseId: string; autoStart: RunKind | null; children: React.ReactNode }) {
+export function AgentRunProvider({
+  caseId,
+  autoStart,
+  autoStartKey,
+  children,
+}: {
+  caseId: string;
+  autoStart: RunKind | null;
+  /** Changes whenever there is new work of the same kind (e.g. a new reply), so a run can start again */
+  autoStartKey?: string;
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const [running, setRunning] = useState<RunKind | null>(null);
   const [steps, setSteps] = useState<LiveStep[]>([]);
@@ -99,12 +110,12 @@ export function AgentRunProvider({ caseId, autoStart, children }: { caseId: stri
   );
 
   useEffect(() => {
-    const key = `${caseId}:${autoStart}`;
+    const key = `${caseId}:${autoStart}:${autoStartKey ?? ""}`;
     if (autoStart && startedFor.current !== key) {
       startedFor.current = key;
       start(autoStart);
     }
-  }, [autoStart, caseId, start]);
+  }, [autoStart, autoStartKey, caseId, start]);
 
   const value = useMemo(() => ({ running, steps, narration, start }), [running, steps, narration, start]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

@@ -106,6 +106,9 @@ export const sendViaOutbox = defineTool({
     }
     const row = await getCaseRow(ctx.db, ctx.caseId);
     const id = `msg-${nanoid(8)}`;
+    // Keep the thread in order even when the case clock is fixed (evaluation, tests).
+    const thread = await ctx.db.select({ at: outboxMessages.at }).from(outboxMessages).where(eq(outboxMessages.caseId, ctx.caseId));
+    const sentAt = new Date(Math.max(ctx.now.getTime(), ...thread.map((t) => t.at.getTime() + 1000)));
     await ctx.db.insert(outboxMessages).values({
       id,
       caseId: ctx.caseId,
@@ -118,7 +121,7 @@ export const sendViaOutbox = defineTool({
       subject: draft.subject,
       body: draft.body,
       attachments: draft.annexes,
-      at: ctx.now,
+      at: sentAt,
     });
     await ctx.db.update(drafts).set({ status: "sent", updatedAt: new Date() }).where(eq(drafts.id, draftId));
     if (draft.kind === "claim_letter" && row.status === "awaiting_approval") {
@@ -166,7 +169,8 @@ export const handleReply = defineTool({
           .limit(1);
     if (!msg || msg.direction !== "in") throw new ToolGuardError("No incoming reply to handle.");
     const row = await getCaseRow(ctx.db, ctx.caseId);
-    const { kind, amountEur } = classifyReply(`${msg.subject}\n${msg.body}`, row.claimAmountEur);
+    // Amounts come from the body only: the subject often repeats our own claim amount.
+    const { kind, amountEur } = classifyReply(msg.body, row.claimAmountEur);
     let proposal = "";
     let next: typeof row.status | null = null;
     const patch: Partial<typeof cases.$inferInsert> = {};
@@ -196,10 +200,51 @@ export const handleReply = defineTool({
         proposal = `Counterparty accepts the claim${amountEur ? ` for ${formatEUR(amountEur)}` : ""}. Await payment confirmation, then close as recovered.`;
         next = "in_negotiation";
         break;
-      case "accepted_partial":
-        proposal = `Offer of ${formatEUR(amountEur!)} against a claim of ${formatEUR(row.claimAmountEur ?? 0)}. Manager to decide: accept and settle, or counter. If the offer reflects a liability limit, check whether another route (e.g. the insurer) covers the balance.`;
+      case "accepted_partial": {
+        const claimEur = row.claimAmountEur ?? 0;
+        const rec = await getRecord(ctx.db, ctx.caseId);
+        const route = (row.recommendedRoute ?? "forwarder") as "carrier" | "forwarder" | "insurer";
+        const c = rec.contract?.clauses ?? {};
+        const p = rec.policy?.clauses ?? {};
+        const basisCite = route === "forwarder" ? c.liability_cap?.citationId : route === "insurer" ? p.settlement?.citationId : rec.shipment?.citations?.awb;
+        const invoiceCite = rec.shipment?.citations?.invoice;
+        const basisText =
+          route === "forwarder" && c.liability_cap
+            ? `Under clause ${c.liability_cap.clause} of our agreement your liability for a breach of the temperature obligations extends to the invoice value of the affected goods`
+            : route === "insurer"
+              ? "Under the policy the insured value less the deductible is payable"
+              : "The amount claimed is within the applicable liability limit";
+        const counterId = `dr-${nanoid(8)}`;
+        await ctx.db.insert(drafts).values({
+          id: counterId,
+          caseId: ctx.caseId,
+          kind: "reply",
+          route,
+          recipientName: msg.counterparty,
+          recipientEmail: msg.fromAddress,
+          subject: msg.subject.startsWith("Re:") ? msg.subject : `Re: ${msg.subject}`,
+          body: `Dear Sir or Madam,
+
+thank you for accepting liability for shipment ${row.shipmentRef}.
+
+We cannot accept your offer of ${formatEUR(amountEur!)}. ${basisText}${basisCite ? ` [${basisCite}]` : ""}, which is ${formatEUR(claimEur)}${invoiceCite ? ` [${invoiceCite}]` : ""}. The circumstances you mention do not limit that liability.
+
+We therefore maintain our claim for ${formatEUR(claimEur)} and ask you to confirm payment within 14 days. All our rights remain reserved.
+
+Yours faithfully,
+Tom Becker
+Claims Manager`,
+          amountEur: claimEur,
+          citations: [basisCite, invoiceCite].filter(Boolean).map((id) => rec.citations?.[id!]).filter(Boolean) as never,
+          status: "draft",
+        });
+        await patchRecord(ctx.db, ctx.caseId, {
+          negotiation: { route, offerEur: amountEur!, claimEur, messageId: msg.id, counterDraftId: counterId, counterparty: msg.counterparty },
+        });
+        proposal = `Offer of ${formatEUR(amountEur!)} against a claim of ${formatEUR(claimEur)} (${Math.round((amountEur! / (claimEur || 1)) * 100)}%). Manager to decide: accept and settle, or insist on the full amount (counter-letter drafted).`;
         next = "in_negotiation";
         break;
+      }
       case "payment_confirmed":
         proposal = `Payment of ${amountEur ? formatEUR(amountEur) : "the claim"} confirmed. Close the case.`;
         patch.recoveredEur = amountEur ?? row.claimAmountEur;

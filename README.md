@@ -30,7 +30,7 @@ npm run dev                  # http://localhost:3000
 - [x] M2 — Data model, seed generator, demo cases A/B/C
 - [x] M3 — Agent tools, orchestrator, status machine, audit log
 - [x] M4 — Case detail: temperature × custody chart, shipment journey map, streaming agent panel, recovery routes, citation viewer
-- [ ] M5 — Human gates, approval screen, Outbox, simulated counterparties
+- [x] M5 — Human gates, approval screen, Outbox, simulated counterparties
 - [ ] M6 — Evaluation harness and page
 - [ ] M7 — Demo + Replay mode, polish, 5-minute demo script
 - [ ] M8 — Deploy to Vercel

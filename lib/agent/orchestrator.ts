@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { stepCountIs, streamText, tool, type ToolSet } from "ai";
 import type { DB } from "@/lib/db/client";
-import { agentRuns, agentSteps, cases, drafts, outboxMessages } from "@/lib/db/schema";
+import { agentRuns, agentSteps, cases, decisions, drafts, outboxMessages } from "@/lib/db/schema";
 import type { CaseStatus } from "@/lib/domain/case-status";
 import { getRecord, patchRecord } from "@/lib/case/record";
 import { transition } from "@/lib/case/status-machine";
@@ -163,6 +163,13 @@ export async function runAgent(opts: RunOptions): Promise<RunResult> {
       const docs = await findDocuments(db, caseId);
       const qa = await qaStatus(db, caseId);
       const pending: string[] = [];
+      if (kind === "prepare_claim") {
+        const rejected = await db
+          .select()
+          .from(decisions)
+          .where(and(eq(decisions.caseId, caseId), eq(decisions.gate, "approval"), eq(decisions.decision, "rejected")));
+        rejected.forEach((r) => pending.push(`- The manager rejected a previous draft: "${r.note}". Address this in the new letter (write the body yourself, citing sources).`));
+      }
       if (kind === "follow_up") {
         const approved = await db.select().from(drafts).where(and(eq(drafts.caseId, caseId), eq(drafts.status, "approved")));
         approved.forEach((d) => pending.push(`- Approved draft ${d.id} (${d.kind}) to ${d.recipientName}: send it.`));

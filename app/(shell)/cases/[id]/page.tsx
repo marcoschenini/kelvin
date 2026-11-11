@@ -27,6 +27,9 @@ import { AgentPanel, type PersistedRun } from "@/components/agent/agent-panel";
 import { AgentRunProvider, type LiveStep } from "@/components/agent/agent-run-context";
 import { RouteLabel } from "@/components/case/case-list";
 import { CaseWorkflow } from "@/components/case/case-workflow";
+import { CorrespondenceThread } from "@/components/case/correspondence";
+import { getDb } from "@/lib/db/client";
+import { awaitingReplyFrom } from "@/lib/counterparties/scripted";
 import { JourneyMap } from "@/components/case/journey-map";
 import { DeadlineList, RecoveryRoutes } from "@/components/case/recovery-routes";
 import { TemperatureChart } from "@/components/case/temperature-chart";
@@ -124,15 +127,24 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
   const main = record.excursions?.find((e) => e.direction === "high") ?? record.excursions?.[0];
   const attr = record.custody?.attribution;
   const top = record.ranking?.find((r) => r.recommended);
+  const handled = new Set(record.handledMessageIds ?? []);
+  const unhandled = outbox.filter((m) => m.direction === "in" && !handled.has(m.id));
+  const approvedDrafts = drafts.filter((d) => d.status === "approved");
+  const closed = c.status.startsWith("closed_");
+  // The agent picks up automatically whenever there is work only it can do.
   const autoStart: RunKind | null = run.busy
     ? null
     : c.status === "new"
       ? "investigate"
-      : c.status === "awaiting_qa" && qa === "rejected"
+      : (c.status === "awaiting_qa" && qa === "rejected") || (c.status === "claim_prepared" && !drafts.some((d) => d.kind === "claim_letter" && d.status === "awaiting_approval"))
         ? "prepare_claim"
         : c.status === "no_claim"
           ? "close"
-          : null;
+          : !closed && (approvedDrafts.length > 0 || unhandled.length > 0)
+            ? "follow_up"
+            : null;
+  const autoStartKey = `${approvedDrafts.map((d) => d.id).join(",")}|${unhandled.map((m) => m.id).join(",")}`;
+  const waitingFor = !closed && !approvedDrafts.length && !unhandled.length ? await awaitingReplyFrom(await getDb(), id) : null;
 
   const persistedRuns: PersistedRun[] = [...run.runs].reverse().map((r) => ({
     id: r.id,
@@ -162,7 +174,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <CitationViewerProvider>
-      <AgentRunProvider caseId={c.id} autoStart={autoStart}>
+      <AgentRunProvider caseId={c.id} autoStart={autoStart} autoStartKey={autoStartKey}>
         <div className="flex flex-col gap-6">
           {/* ---------- header ---------- */}
           <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-6 rounded-2xl border border-border bg-card p-6 shadow-card">
@@ -262,6 +274,10 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
                     status={c.status}
                     qa={qa}
                     drafts={drafts.map((d) => ({ id: d.id, kind: d.kind, recipientName: d.recipientName, subject: d.subject, status: d.status, amountEur: d.amountEur }))}
+                    negotiation={record.negotiation ? { offerEur: record.negotiation.offerEur, claimEur: record.negotiation.claimEur, counterparty: record.negotiation.counterparty } : null}
+                    awaitingReplyFrom={waitingFor}
+                    recoveredEur={c.recoveredEur}
+                    closedReason={c.closedReason}
                   />
                   <div className="max-h-[60vh] overflow-y-auto pr-1 xl:max-h-[calc(100dvh-22rem)]">
                     <AgentPanel runs={persistedRuns} />
@@ -326,38 +342,12 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
               </ul>
             </Card>
 
-            <Card title="Drafts and correspondence" description={`${drafts.length} draft(s) · ${outbox.length} message(s) in the simulated Outbox`} icon={Inbox} className="xl:col-span-2">
-              {drafts.length === 0 && outbox.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Nothing drafted yet.</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {drafts.map((d) => (
-                    <details key={d.id} className="rounded-xl border border-border px-4 py-3">
-                      <summary className="cursor-pointer text-sm">
-                        <span className="font-medium">{d.subject}</span>
-                        <span className="ml-2 text-xs text-muted-foreground">
-                          {d.kind.replace(/_/g, " ")} · {d.status.replace(/_/g, " ")} · {(d.citations as unknown[]).length} citations
-                        </span>
-                      </summary>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        To {d.recipientName} &lt;{d.recipientEmail}&gt;
-                      </p>
-                      <pre className="mt-2 font-sans text-sm whitespace-pre-wrap text-foreground/90">{d.body}</pre>
-                    </details>
-                  ))}
-                  {outbox.map((m) => (
-                    <div key={m.id} className={cn("rounded-xl border px-4 py-3 text-sm", m.direction === "out" ? "border-ai-from/20 bg-ai-soft/40" : "border-border")}>
-                      <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-                        <span>
-                          {m.direction === "out" ? "Sent to" : "From"} {m.direction === "out" ? m.toAddress : m.fromAddress}
-                        </span>
-                        <span className="num">{formatDateTime(m.at)} UTC · simulated</span>
-                      </div>
-                      <div className="mt-1 font-medium">{m.subject}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <Card title="Correspondence" description={`${outbox.length} message(s) in the simulated Outbox · ${drafts.filter((d) => d.status !== "sent").length} draft(s)`} icon={Inbox} className="xl:col-span-2">
+              <CorrespondenceThread
+                caseId={c.id}
+                messages={outbox.map((m) => ({ id: m.id, direction: m.direction, counterparty: m.counterparty, fromAddress: m.fromAddress, toAddress: m.toAddress, subject: m.subject, body: m.body, attachments: m.attachments, at: m.at.toISOString(), draftId: m.draftId }))}
+                drafts={drafts.filter((d) => d.status !== "sent").map((d) => ({ id: d.id, kind: d.kind, status: d.status, subject: d.subject, recipientName: d.recipientName, body: d.body, citations: (d.citations as unknown[]).length }))}
+              />
             </Card>
 
             <Card title="Audit log" description="Append-only record of every event, newest first" icon={History} className="xl:col-span-2">

@@ -107,3 +107,52 @@ export async function recordApproval(
   }
   return { id, at, draftKind: draft.kind };
 }
+
+/**
+ * Third human decision: a counterparty offered less than the claim. The manager
+ * either accepts (case closes as settled for the offer) or insists on the full
+ * amount (the agent's counter-letter goes to approval like any outgoing message).
+ */
+export async function recordSettlement(db: DB, caseId: string, args: { decision: "accept" | "counter"; note?: string; actor: Persona }) {
+  if (!ROLE_CAN[args.actor.role].approvalGate) throw new GateError(`${args.actor.name} (${args.actor.title}) cannot decide on settlements.`);
+  const record = await getRecord(db, caseId);
+  const n = record.negotiation;
+  if (!n) throw new GateError("There is no open offer on this case.");
+  const [row] = await db.select({ status: cases.status }).from(cases).where(eq(cases.id, caseId));
+  if (row?.status !== "in_negotiation") throw new GateError(`Settlement decisions are only possible in negotiation (case is ${row?.status}).`);
+
+  const id = `dec-${nanoid(8)}`;
+  const at = new Date();
+  await db.insert(decisions).values({
+    id,
+    caseId,
+    gate: "settlement",
+    decision: args.decision === "accept" ? "accepted_offer" : "countered",
+    note: args.note,
+    draftId: args.decision === "counter" ? n.counterDraftId : null,
+    actorName: args.actor.name,
+    actorRole: args.actor.title,
+    at,
+  });
+  await db.insert(auditEvents).values({
+    caseId,
+    at,
+    actorType: "human",
+    actorName: args.actor.name,
+    actorRole: args.actor.title,
+    eventType: "settlement_decision",
+    input: { decision: args.decision, offerEur: n.offerEur, claimEur: n.claimEur, note: args.note ?? null },
+    output: { decisionId: id },
+  });
+  const actor = { type: "human" as const, name: args.actor.name, role: args.actor.title };
+  if (args.decision === "accept") {
+    const reason = `Offer of EUR ${n.offerEur.toLocaleString("en-GB")} from ${n.counterparty} accepted in settlement (claim EUR ${n.claimEur.toLocaleString("en-GB")}).`;
+    await db.update(drafts).set({ status: "rejected" }).where(eq(drafts.id, n.counterDraftId));
+    await patchRecord(db, caseId, { negotiation: null });
+    await transition(db, caseId, "closed_settled", actor, { reason, patch: { recoveredEur: n.offerEur, closedReason: reason } });
+  } else {
+    await db.update(drafts).set({ status: "awaiting_approval", updatedAt: at }).where(eq(drafts.id, n.counterDraftId));
+    await patchRecord(db, caseId, { negotiation: null });
+  }
+  return { id, at };
+}

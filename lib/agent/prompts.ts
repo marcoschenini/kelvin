@@ -46,7 +46,7 @@ Then summarise. QA decides next; do not draft a claim letter in this run.`
 1. Re-rank the routes now that QA has decided.
 2. Draft the claim letter for the recommended route (you may rely on Kelvin's template by omitting body).
 3. Build the evidence pack.
-Then summarise for the manager who must approve it.`
+${extra.pending?.length ? `\nManager feedback:\n${extra.pending.join("\n")}\n` : ""}Then summarise for the manager who must approve it.`
       );
     case "close":
       return head + `Quality Assurance released the product. Confirm there is nothing to recover by re-ranking the routes, then write a one-paragraph closing note with the reason.`;
