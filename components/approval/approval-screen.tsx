@@ -152,7 +152,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
           animate={handoff ? { x: 160, y: -40, scale: 0.6, opacity: 0, rotate: 2 } : { x: 0, y: 0, scale: 1, opacity: 1, rotate: 0 }}
           transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
         >
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-6">
             <div className="min-w-0 text-sm">
               <div className="text-muted-foreground">
                 To <span className="text-foreground">{draft.recipientName}</span> &lt;{draft.recipientEmail}&gt;
@@ -174,7 +174,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
               )}
             </div>
           </div>
-          <div className="px-6 py-6 sm:px-10">{editing ? <LetterEditor initial={body} onChange={setBody} /> : <LetterView body={body} registry={ctx.registry} />}</div>
+          <div className="px-4 py-5 sm:px-10 sm:py-6">{editing ? <LetterEditor initial={body} onChange={setBody} /> : <LetterView body={body} registry={ctx.registry} />}</div>
         </motion.section>
 
         {/* ---------- evidence ---------- */}
@@ -254,8 +254,8 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
 
       {/* ---------- action bar ---------- */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur lg:left-[248px]">
-        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-8 py-3">
-          <span className="text-sm text-muted-foreground">
+        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+          <span className="hidden text-sm text-muted-foreground sm:inline">
             {!actionable
               ? `This draft is ${draft.status.replace(/_/g, " ")}.`
               : canApprove
@@ -264,7 +264,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
                   : "Approving hands the letter to the Outbox."
                 : `Act as Tom Becker (Claims Manager) to approve. You are ${persona.name}.`}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
             <Button variant="ghost" disabled={!actionable || !canApprove || pending} onClick={() => setRejectOpen(true)}>
               <X data-icon="inline-start" />
               Reject
@@ -272,7 +272,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
             <Button variant="ai" size="lg" disabled={!actionable || !canApprove || pending || handoff} onClick={approve}>
               {pending ? <Loader2 className="animate-spin" data-icon="inline-start" /> : <Send data-icon="inline-start" />}
               {edited ? "Approve with edits" : "Approve"}
-              <Kbd className="ml-1 bg-white/20 text-white">A</Kbd>
+              <Kbd className="ml-1 hidden bg-white/20 text-white sm:inline-flex">A</Kbd>
             </Button>
           </div>
         </div>

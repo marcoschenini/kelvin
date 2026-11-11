@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FilePlus2, FlaskConical, Inbox, Palette, Scale, Settings2, type LucideIcon } from "lucide-react";
+import { useState } from "react";
+import { FilePlus2, FlaskConical, Inbox, Menu, Palette, Scale, Settings2, type LucideIcon } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { KelvinLogo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 import { PersonaSwitcher } from "./persona-switcher";
@@ -47,16 +49,9 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   );
 }
 
-export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
-  const pathname = usePathname() ?? "/";
+function SidebarBody({ pathname, publicDemo }: { pathname: string; publicDemo: boolean }) {
   return (
-    <aside className="sticky top-0 flex h-dvh w-[248px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
-      <div className="flex h-16 items-center px-5">
-        <Link href="/" aria-label="Kelvin home" className="rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
-          <KelvinLogo />
-        </Link>
-      </div>
-
+    <>
       <nav aria-label="Main" className="flex flex-1 flex-col gap-6 px-3 pt-2">
         <div className="flex flex-col gap-0.5">
           {PRIMARY.map((item) => (
@@ -86,6 +81,50 @@ export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
           <ThemeToggle />
         </div>
       </div>
-    </aside>
+    </>
+  );
+}
+
+/** Desktop: fixed rail. Below lg: a compact top bar with a slide-in menu. */
+export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
+  const pathname = usePathname() ?? "/";
+  const [open, setOpen] = useState(false);
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    // Close the mobile menu after navigating.
+    setLastPath(pathname);
+    setOpen(false);
+  }
+  const logo = (
+    <Link href="/" aria-label="Kelvin home" className="rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+      <KelvinLogo />
+    </Link>
+  );
+  return (
+    <>
+      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-sidebar-border bg-sidebar/95 px-4 backdrop-blur lg:hidden">
+        {logo}
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="grid size-10 place-items-center rounded-lg text-muted-foreground hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          aria-label="Open menu"
+        >
+          <Menu className="size-5" />
+        </button>
+      </header>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="left" className="w-[280px] gap-0 bg-sidebar p-0 lg:hidden">
+          <SheetTitle className="sr-only">Menu</SheetTitle>
+          <div className="flex h-14 items-center px-5">{logo}</div>
+          <SidebarBody pathname={pathname} publicDemo={publicDemo} />
+        </SheetContent>
+      </Sheet>
+
+      <aside className="sticky top-0 hidden h-dvh w-[248px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
+        <div className="flex h-16 items-center px-5">{logo}</div>
+        <SidebarBody pathname={pathname} publicDemo={publicDemo} />
+      </aside>
+    </>
   );
 }

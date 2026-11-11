@@ -23,9 +23,59 @@ export function RouteLabel({ origin, destination, className }: { origin: string 
   );
 }
 
+/** Small screens: one card per case instead of the wide table. */
+function CaseCards({ items }: { items: CaseListItem[] }) {
+  return (
+    <ul role="list" aria-label="Cases" className="flex flex-col gap-3 lg:hidden">
+      {items.map((c) => {
+        const owner = getPersona(c.ownerPersonaId);
+        return (
+          <li key={c.id}>
+            <Link
+              href={`/cases/${c.id}`}
+              data-case-row
+              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-card transition-colors active:bg-muted/50"
+            >
+              <span className="flex items-start gap-3">
+                {c.code && c.scenario === "demo" && (
+                  <span className="num grid size-9 shrink-0 place-items-center rounded-lg bg-ai-soft text-sm font-semibold text-ai-fg">{c.code}</span>
+                )}
+                <span className="min-w-0 flex-1">
+                  <span className="num block truncate text-[15px] font-semibold">{c.shipmentRef}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{c.product ?? c.title}</span>
+                </span>
+                <ChevronRight className="mt-1 size-4 shrink-0 text-subtle" aria-hidden="true" />
+              </span>
+              <span className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px]">
+                <RouteLabel origin={c.origin} destination={c.destination} />
+                <span className="num font-medium">{c.valueEur != null ? formatEUR(c.valueEur) : "—"}</span>
+                <StatusChip status={c.status} size="sm" />
+              </span>
+              <span className="flex flex-wrap items-center gap-2">
+                {c.status === "new" || (c.status === "investigating" && c.daysLeft == null) ? (
+                  <span className="text-xs text-subtle">Deadline not yet computed</span>
+                ) : (
+                  <DeadlinePill daysLeft={c.daysLeft} date={c.nearestDeadlineAt} label={c.nearestDeadlineLabel ?? undefined} />
+                )}
+                {c.recommendedRoute && <RouteChip route={c.recommendedRoute} recommended />}
+                <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <PersonaAvatar persona={owner} className="size-5 text-[8px]" />
+                  {owner.name}
+                </span>
+              </span>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function CaseList({ items }: { items: CaseListItem[] }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-card">
+    <>
+    <CaseCards items={items} />
+    <div className="hidden overflow-hidden rounded-xl border border-border bg-card shadow-card lg:block">
       <div
         className={cn(GRID, "border-b border-border bg-muted/40 px-5 py-2.5 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase")}
         aria-hidden="true"
@@ -89,12 +139,23 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
         })}
       </ul>
     </div>
+    </>
   );
 }
 
 export function CaseListSkeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-card" aria-busy="true" aria-label="Loading cases">
+    <>
+    <div className="flex flex-col gap-3 lg:hidden" aria-busy="true" aria-label="Loading cases">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-card">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-3 w-48" />
+          <Skeleton className="h-5 w-40 rounded-full" />
+        </div>
+      ))}
+    </div>
+    <div className="hidden overflow-hidden rounded-xl border border-border bg-card shadow-card lg:block" aria-busy="true" aria-label="Loading cases">
       <div className="border-b border-border bg-muted/40 px-5 py-3">
         <Skeleton className="h-3 w-40" />
       </div>
@@ -117,5 +178,6 @@ export function CaseListSkeleton({ rows = 3 }: { rows?: number }) {
         </div>
       ))}
     </div>
+    </>
   );
 }

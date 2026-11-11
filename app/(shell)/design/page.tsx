@@ -83,7 +83,7 @@ export default function DesignSystemPage() {
       />
 
       <Section title="Brand">
-        <div className="flex flex-wrap items-center gap-8 rounded-2xl border border-border bg-card p-8 shadow-card">
+        <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-border bg-card p-5 shadow-card sm:gap-8 sm:p-8">
           <KelvinLogo className="scale-[1.6] origin-left" />
           <span className="w-16" />
           <KelvinGlyph className="size-14" />
@@ -116,8 +116,8 @@ export default function DesignSystemPage() {
       </Section>
 
       <Section title="Type" description="Inter with the optical-size axis; tabular numbers for money and dates.">
-        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-8 shadow-card">
-          <h1 className="text-5xl font-semibold tracking-[-0.035em]">Recover {formatEUR(190000)}</h1>
+        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-card sm:p-8">
+          <h1 className="text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">Recover {formatEUR(190000)}</h1>
           <h2 className="text-2xl font-semibold">Excursion on the FRA ramp, airline custody</h2>
           <p className="max-w-2xl text-[15px] text-muted-foreground">
             The shipment reached 13.0 °C for 90 minutes while held by the carrier. Notice under Montreal Art. 31 is due{" "}
@@ -150,7 +150,7 @@ export default function DesignSystemPage() {
             <RouteChip key={r} route={r} recommended={r === "insurer"} />
           ))}
         </div>
-        <div className="flex flex-wrap items-center gap-8 rounded-2xl border border-border bg-card p-6 shadow-card">
+        <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-border bg-card p-5 shadow-card sm:gap-8 sm:p-6">
           <DeadlineRing daysLeft={11} windowDays={14} label="Montreal notice" />
           <DeadlineRing daysLeft={5} windowDays={14} label="Montreal notice" />
           <DeadlineRing daysLeft={2} windowDays={14} label="Montreal notice" />
@@ -185,7 +185,7 @@ export default function DesignSystemPage() {
       </Section>
 
       <Section title="Agent flow surfaces" description="The diagram, rebuilt from components.">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {[
             { icon: Thermometer, title: "Sensors", d: "Temperature & time data" },
             { icon: FileText, title: "Contracts", d: "Duties, limits & insurance" },
@@ -212,7 +212,7 @@ export default function DesignSystemPage() {
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               {[
                 { icon: CalendarClock, title: "Timeline", d: "Who held the cargo, when" },
                 { icon: Scale, title: "Liability", d: "Carrier, forwarder, insurer" },
@@ -240,7 +240,7 @@ export default function DesignSystemPage() {
           </div>
           <HumanDecisionBadge />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <OutcomeCard tone="success" icon={CheckCircle2} title="No claim" description="Case closed with the reason, kept for audit." />
           <OutcomeCard tone="warning" icon={TriangleAlert} title="Possible claim" description="Evidence file and claim amount prepared." />
         </div>
@@ -270,7 +270,7 @@ export default function DesignSystemPage() {
             Large action
           </Button>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card>
             <CardHeader>
               <CardTitle>Recovery routes</CardTitle>

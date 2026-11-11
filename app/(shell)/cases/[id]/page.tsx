@@ -99,7 +99,7 @@ function routeCitations(record: CaseRecord): Record<RecoveryRoute, Citation[]> {
 
 function Card({ title, description, icon, children, className }: { title: string; description?: string; icon: LucideIcon; children: React.ReactNode; className?: string }) {
   return (
-    <section className={cn("rounded-2xl border border-border bg-card p-5 shadow-card", className)}>
+    <section className={cn("min-w-0 rounded-2xl border border-border bg-card p-4 shadow-card sm:p-5", className)}>
       <SectionHeader title={title} description={description} icon={icon} />
       <div className="mt-4">{children}</div>
     </section>
@@ -177,14 +177,14 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
       <AgentRunProvider caseId={c.id} autoStart={autoStart} autoStartKey={autoStartKey}>
         <div className="flex flex-col gap-6">
           {/* ---------- header ---------- */}
-          <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-6 rounded-2xl border border-border bg-card p-6 shadow-card">
+          <header className="grid grid-cols-1 items-center gap-5 rounded-2xl border border-border bg-card p-4 shadow-card sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-6 sm:p-6">
             <div className="flex min-w-0 flex-col gap-3">
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="num text-[1.75rem] leading-none font-semibold tracking-[-0.025em]">{c.shipmentRef}</h1>
+                <h1 className="num text-[1.5rem] leading-none font-semibold tracking-[-0.025em] sm:text-[1.75rem]">{c.shipmentRef}</h1>
                 <StatusChip status={c.status} />
               </div>
               <p className="text-[15px] text-muted-foreground">{c.title}</p>
-              <dl className="num mt-1 flex flex-wrap gap-x-8 gap-y-2 text-sm">
+              <dl className="num mt-1 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:flex sm:flex-wrap sm:gap-x-8 sm:gap-y-2">
                 <div>
                   <dt className="text-xs text-muted-foreground">Route</dt>
                   <dd className="mt-0.5">
@@ -213,9 +213,9 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
                 </div>
               </dl>
             </div>
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex items-center gap-3 border-t border-border pt-4 sm:flex-col sm:gap-1 sm:border-0 sm:pt-0">
               <DeadlineRing daysLeft={c.daysLeft} windowDays={c.nearestDeadlineWindowDays ?? 14} label={c.nearestDeadlineLabel ?? undefined} />
-              {c.nearestDeadlineLabel && <span className="max-w-[9rem] text-center text-[11px] leading-tight text-muted-foreground">{c.nearestDeadlineLabel}</span>}
+              {c.nearestDeadlineLabel && <span className="max-w-[12rem] text-[12px] leading-tight text-muted-foreground sm:max-w-[9rem] sm:text-center sm:text-[11px]">{c.nearestDeadlineLabel}</span>}
             </div>
           </header>
 
@@ -261,7 +261,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
             {/* ---------- agent: sticky right column, first on small screens ---------- */}
             <aside className="xl:col-start-2 xl:row-span-2 xl:row-start-1">
               <AiSurface>
-                <div className="flex flex-col gap-5 p-5">
+                <div className="flex flex-col gap-5 p-4 sm:p-5">
                   <div className="flex items-start gap-4">
                     <AiTile size="md" />
                     <div className="min-w-0">
@@ -353,7 +353,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
             <Card title="Audit log" description="Append-only record of every event, newest first" icon={History} className="xl:col-span-2">
               <ol className="flex flex-col gap-2.5">
                 {[...audit].reverse().map((e) => (
-                  <li key={e.id} className="flex gap-3 text-sm">
+                  <li key={e.id} className="flex flex-wrap gap-x-3 gap-y-0.5 text-sm">
                     <span
                       className={cn("mt-1.5 size-1.5 shrink-0 rounded-full", e.actorType === "human" ? "bg-human" : e.actorType === "agent" ? "bg-ai" : "bg-subtle")}
                       aria-hidden="true"

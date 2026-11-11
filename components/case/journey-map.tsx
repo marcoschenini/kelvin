@@ -140,7 +140,7 @@ export function JourneyMap({ journey, deliveredAt }: { journey: Journey; deliver
         {ex && (
           <div
             className={cn(
-              "pointer-events-none absolute bottom-3 w-64 rounded-xl border border-warning/30 bg-card/95 p-3 text-xs shadow-raised backdrop-blur",
+              "pointer-events-none absolute bottom-3 hidden w-64 rounded-xl border border-warning/30 bg-card/95 p-3 text-xs shadow-raised backdrop-blur sm:block",
               ex.x > W * 0.5 ? "right-3" : "left-3",
             )}
           >
@@ -180,6 +180,18 @@ export function JourneyMap({ journey, deliveredAt }: { journey: Journey; deliver
         )}
       </div>
 
+      {ex && (
+        <div className="rounded-xl border border-warning/30 bg-warning-soft/60 p-3 text-xs sm:hidden">
+          <div className="flex items-center gap-1.5 font-semibold text-warning-fg">
+            <Thermometer className="size-3.5" aria-hidden="true" />
+            {formatTemp(ex.peakC)} peak · {formatDuration(ex.minutes)} above 8 °C
+          </div>
+          <div className="mt-1 text-foreground">{ex.placeName}</div>
+          <div className="mt-0.5 text-muted-foreground">
+            Held by {ex.custodian} · {formatDateTime(ex.start)} UTC
+          </div>
+        </div>
+      )}
       <CustodyChain chain={journey.chain} deliveredAt={deliveredAt} />
       {journey.unplaced > 0 && <p className="text-xs text-muted-foreground">{journey.unplaced} handling step(s) could not be placed on the map; they are listed in the chain.</p>}
     </div>

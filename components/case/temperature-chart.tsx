@@ -145,7 +145,7 @@ export function TemperatureChart({
             />
           ))}
         </div>
-        <div className="relative mt-1.5 h-9">
+        <div className="relative mt-1.5 hidden h-9 sm:block">
           {runs.map((r, i) => {
             const width = ((Math.min(r.to, tMax) - Math.max(r.from, tMin)) / (tMax - tMin)) * 100;
             if (width < 9) return null;
@@ -157,6 +157,14 @@ export function TemperatureChart({
             );
           })}
         </div>
+        <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] sm:hidden">
+          {runs.map((r, i) => (
+            <li key={i} className="flex items-center gap-1.5">
+              <span className="size-2 rounded-sm" style={{ background: CUSTODY_META[r.role].colorVar }} aria-hidden="true" />
+              <span className="text-foreground">{r.custodian.replace(/ (GmbH|B.V.|Inc.|LLC)$/, "")}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
