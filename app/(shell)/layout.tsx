@@ -11,7 +11,7 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
         Skip to content
       </a>
       <Suspense fallback={<div className="w-[248px] shrink-0 border-r border-sidebar-border bg-sidebar" />}>
-        <Sidebar />
+        <Sidebar publicDemo={!!process.env.VERCEL || process.env.KELVIN_AUTOSEED === "1"} />
       </Suspense>
       <main id="main" className="min-w-0 flex-1">
         {children}

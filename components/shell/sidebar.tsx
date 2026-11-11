@@ -47,7 +47,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   );
 }
 
-export function Sidebar() {
+export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
   const pathname = usePathname() ?? "/";
   return (
     <aside className="sticky top-0 flex h-dvh w-[248px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
@@ -74,7 +74,10 @@ export function Sidebar() {
       <div className="flex flex-col gap-2 border-t border-sidebar-border p-3">
         <div className="flex items-start gap-2 rounded-lg px-2 py-1.5 text-[11px] leading-snug text-muted-foreground">
           <Scale className="mt-px size-3.5 shrink-0" aria-hidden="true" />
-          <span>Decision support only. Not legal advice.</span>
+          <span>
+            Decision support only. Not legal advice.
+            {publicDemo && <span className="mt-1 block">Public demo with synthetic data. Cases reset from time to time.</span>}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <div className="min-w-0 flex-1">

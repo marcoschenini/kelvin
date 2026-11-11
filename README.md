@@ -35,6 +35,10 @@ npm run dev                  # http://localhost:3000
 - [ ] M7 — Demo + Replay mode, polish, 5-minute demo script
 - [ ] M8 — Deploy to Vercel
 
+## Public demo (Vercel)
+
+On Vercel (`VERCEL` is set) the app runs in **public-demo mode**: the embedded database lives in `/tmp` and is seeded with cases A, B and C automatically when it starts empty, so no database or secrets are needed. Data is per server instance and resets after a cold start. Add `ANTHROPIC_API_KEY` in the Vercel project settings to switch the agent from the deterministic planner to the live model. Run the same mode locally with `npm run build && npm run start:demo` (port 3200).
+
 ## Data
 
 - **Local mode (default):** embedded Postgres (PGlite) in `.data/pglite`, documents in `.data/files`. No setup needed; migrations run on first use.

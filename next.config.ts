@@ -15,6 +15,14 @@ const nextConfig: NextConfig = {
     "@vercel/oidc",
     "@openrouter/ai-sdk-provider",
   ],
+  // Files read at runtime that the tracer cannot see (SQL migrations, PGlite wasm/data, pdfjs worker).
+  outputFileTracingIncludes: {
+    "/*": [
+      "./lib/db/migrations/**/*",
+      "./node_modules/@electric-sql/pglite/dist/**/*",
+      "./node_modules/pdfjs-dist/legacy/build/**/*",
+    ],
+  },
 };
 
 export default nextConfig;

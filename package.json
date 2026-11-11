@@ -11,7 +11,8 @@
     "test": "vitest run",
     "seed": "tsx --conditions=react-server scripts/seed.ts",
     "db:generate": "drizzle-kit generate",
-    "agent": "tsx --conditions=react-server scripts/agent.ts"
+    "agent": "tsx --conditions=react-server scripts/agent.ts",
+    "start:demo": "node scripts/start-demo.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.140",

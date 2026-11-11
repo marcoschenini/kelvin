@@ -17,7 +17,15 @@ import * as schema from "./schema";
 
 export type DB = PgDatabase<PgQueryResultHKT, typeof schema>;
 
-export const DATA_DIR = path.resolve(process.env.KELVIN_DATA_DIR ?? path.join(process.cwd(), ".data"));
+/** On Vercel only /tmp is writable: the public demo keeps its database there. */
+export const DATA_DIR = path.resolve(
+  process.env.KELVIN_DATA_DIR ?? (process.env.VERCEL ? "/tmp/kelvin" : path.join(process.cwd(), ".data")),
+);
+
+/** Public demo: seed cases A, B and C automatically when the database starts empty. */
+export function autoSeedEnabled(): boolean {
+  return process.env.KELVIN_AUTOSEED === "1" || (!!process.env.VERCEL && process.env.KELVIN_AUTOSEED !== "0");
+}
 const MIGRATIONS_DIR = path.join(process.cwd(), "lib", "db", "migrations");
 
 type Handle = { db: DB; close: () => Promise<void> };
@@ -70,6 +78,14 @@ async function openLocal(): Promise<Handle> {
   const client = new PGlite(dir);
   const db = drizzle(client, { schema });
   await migrate(db, { migrationsFolder: MIGRATIONS_DIR });
+  if (autoSeedEnabled()) {
+    const { cases } = schema;
+    const existing = await db.select({ id: cases.id }).from(cases).limit(1);
+    if (!existing.length) {
+      const { resetDemo } = await import("@/seed/seed-db");
+      await resetDemo(db as unknown as DB);
+    }
+  }
   return {
     db: db as unknown as DB,
     close: async () => {
