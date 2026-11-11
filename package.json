@@ -12,7 +12,8 @@
     "seed": "tsx --conditions=react-server scripts/seed.ts",
     "db:generate": "drizzle-kit generate",
     "agent": "tsx --conditions=react-server scripts/agent.ts",
-    "start:demo": "node scripts/start-demo.mjs"
+    "start:demo": "node scripts/start-demo.mjs",
+    "gen:map": "tsx scripts/gen-map-dots.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.140",
@@ -42,16 +43,21 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.5",
+    "@types/d3-geo": "^3.1.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/topojson-client": "^3.1.5",
     "@vitest/coverage-v8": "^4.1.12",
+    "d3-geo": "^3.1.2",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
     "tailwindcss": "^4",
+    "topojson-client": "^3.1.0",
     "tsx": "^4.23.15",
     "typescript": "^5",
-    "vitest": "^4.1.12"
+    "vitest": "^4.1.12",
+    "world-atlas": "^2.0.2"
   }
 }

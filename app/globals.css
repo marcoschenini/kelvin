@@ -67,6 +67,8 @@
   --color-custody-forwarder: var(--custody-forwarder);
   --color-custody-airline: var(--custody-airline);
   --color-custody-consignee: var(--custody-consignee);
+  --color-map-land: var(--map-land);
+  --color-chart-ink: var(--chart-ink);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -141,10 +143,13 @@
   --cold: #0ea5e9;
   --cold-soft: #e0f2fe;
 
+  /* Custody: forwarder/airline validated as a pair (dataviz validator, all-pairs); cargo owner ends neutral */
   --custody-shipper: #94a3b8;
-  --custody-forwarder: #0891b2;
-  --custody-airline: #6366f1;
-  --custody-consignee: #475569;
+  --custody-forwarder: #1baf7a;
+  --custody-airline: #2a78d6;
+  --custody-consignee: #94a3b8;
+  --map-land: #c3ccd8;
+  --chart-ink: #334155;
 
   --chart-1: #4f46e5;
   --chart-2: #0ea5e9;
@@ -207,9 +212,11 @@
   --cold-soft: #0c2233;
 
   --custody-shipper: #64748b;
-  --custody-forwarder: #22d3ee;
-  --custody-airline: #818cf8;
-  --custody-consignee: #94a3b8;
+  --custody-forwarder: #199e70;
+  --custody-airline: #3987e5;
+  --custody-consignee: #64748b;
+  --map-land: #2c3850;
+  --chart-ink: #cbd5e1;
 
   --chart-1: #818cf8;
   --chart-2: #38bdf8;

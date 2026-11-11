@@ -1,5 +1,5 @@
 import "server-only";
-import { asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { agentRuns, agentSteps, auditEvents, cases, decisions, documents, drafts, outboxMessages, type CaseRow } from "@/lib/db/schema";
 import { isClosed } from "@/lib/domain/case-status";
@@ -74,7 +74,9 @@ export async function latestRunWithSteps(caseId: string) {
   const steps = runs.length
     ? await db.select().from(agentSteps).where(inArray(agentSteps.runId, runs.map((r) => r.id))).orderBy(asc(agentSteps.startedAt), asc(agentSteps.seq))
     : [];
-  return { runs, steps };
+  // A run counts as in progress for 10 minutes at most (a crashed run must not block the case forever).
+  const busy = runs.some((r) => r.status === "running" && Date.now() - r.startedAt.getTime() < 10 * 60_000);
+  return { runs, steps, busy };
 }
 
 export async function listDrafts(caseId: string) {
@@ -90,4 +92,24 @@ export async function listDecisions(caseId: string) {
 export async function listOutbox(caseId: string) {
   const db = await getDb();
   return db.select().from(outboxMessages).where(eq(outboxMessages.caseId, caseId)).orderBy(asc(outboxMessages.at));
+}
+
+/** Logger readings for the chart: [epoch ms, °C, row]. */
+export async function loadReadings(caseId: string): Promise<{ t: number; c: number; row: number }[]> {
+  const db = await getDb();
+  const [doc] = await db
+    .select()
+    .from(documents)
+    .where(and(eq(documents.caseId, caseId), eq(documents.kind, "logger")));
+  if (!doc) return [];
+  const { readText } = await import("@/lib/storage");
+  const csv = await readText(doc.storagePath);
+  return csv
+    .split(/\r?\n/)
+    .filter((l) => /^\d+,/.test(l))
+    .map((l) => {
+      const [row, ts, c] = l.split(",");
+      return { t: Date.parse(ts), c: Number(c), row: Number(row) };
+    })
+    .filter((r) => Number.isFinite(r.t) && Number.isFinite(r.c));
 }

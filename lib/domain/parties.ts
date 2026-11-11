@@ -12,6 +12,7 @@ export const ROUTE_META: Record<RecoveryRoute, { label: string; long: string }> 
 export const CUSTODY_PARTIES = ["shipper", "forwarder", "airline", "consignee"] as const;
 export type CustodyParty = (typeof CUSTODY_PARTIES)[number];
 
+/** Shipper and consignee share one neutral (the cargo owner's ends); forwarder and airline carry the two validated hues. */
 export const CUSTODY_META: Record<CustodyParty, { label: string; colorVar: string }> = {
   shipper: { label: "Shipper", colorVar: "var(--custody-shipper)" },
   forwarder: { label: "Forwarder", colorVar: "var(--custody-forwarder)" },

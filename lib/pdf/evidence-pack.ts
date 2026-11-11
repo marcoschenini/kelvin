@@ -25,9 +25,9 @@ export interface EvidenceInput {
 
 const ROLE_COLOR = {
   shipper: rgb(0.58, 0.64, 0.72),
-  forwarder: rgb(0.03, 0.57, 0.7),
-  airline: rgb(0.39, 0.4, 0.95),
-  consignee: rgb(0.28, 0.33, 0.41),
+  forwarder: rgb(0.106, 0.686, 0.478),
+  airline: rgb(0.165, 0.471, 0.839),
+  consignee: rgb(0.58, 0.64, 0.72),
 } as const;
 
 export async function buildEvidencePack(input: EvidenceInput): Promise<{ bytes: Uint8Array; pages: number }> {
