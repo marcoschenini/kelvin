@@ -1,4 +1,5 @@
 import "server-only";
+import "./dom-polyfill";
 
 /**
  * Text extraction with page numbers (pdfjs-dist). Items are grouped into lines
