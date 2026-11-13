@@ -4,6 +4,7 @@
  * npm run eval -- --limit 5
  * Stop the dev server first in local mode (PGlite is single-process).
  */
+import "./load-env";
 import { closeDb, getDb } from "@/lib/db/client";
 import { runEvaluation } from "@/lib/eval/harness";
 
