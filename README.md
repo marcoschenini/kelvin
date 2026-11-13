@@ -22,6 +22,7 @@ npm run dev                  # http://localhost:3000
 | `npm run seed` | Reset demo data: cases A, B, C anchored to today (stop the dev server first, or use Settings → Reset demo) |
 | `npm run seed -- --files` | Only write the generated documents to `.data/preview/` |
 | `npm run agent -- B --qa rejected --approve` | Run case B end to end in the terminal (add `--deterministic` to skip the model, `--print-letters` to show drafts; stop the dev server first) |
+| `npm run eval` | Run the 24 evaluation cases and print the scores (`--deterministic`, `--limit N`; stop the dev server first) |
 | `npm run db:generate` | Generate a Drizzle migration after editing `lib/db/schema.ts` |
 
 ## Status
@@ -31,7 +32,7 @@ npm run dev                  # http://localhost:3000
 - [x] M3 — Agent tools, orchestrator, status machine, audit log
 - [x] M4 — Case detail: temperature × custody chart, shipment journey map, streaming agent panel, recovery routes, citation viewer
 - [x] M5 — Human gates, approval screen, Outbox, simulated counterparties
-- [ ] M6 — Evaluation harness and page
+- [x] M6 — Evaluation harness and page (24 answer-keyed cases)
 - [ ] M7 — Demo + Replay mode, polish, 5-minute demo script
 - [ ] M8 — Deploy to Vercel
 

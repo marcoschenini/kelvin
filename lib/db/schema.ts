@@ -278,3 +278,39 @@ export type AuditEventRow = typeof auditEvents.$inferSelect;
 export type DecisionRow = typeof decisions.$inferSelect;
 export type DraftRow = typeof drafts.$inferSelect;
 export type OutboxRow = typeof outboxMessages.$inferSelect;
+
+/* -------------------------------------------------------------- evaluation */
+
+export const evalRuns = pgTable("eval_runs", {
+  id: text("id").primaryKey(),
+  mode: text("mode").$type<"live" | "deterministic">().notNull(),
+  model: text("model"),
+  status: text("status").$type<"running" | "completed" | "failed">().notNull(),
+  total: integer("total").notNull(),
+  summary: jsonb("summary").$type<Record<string, unknown>>(),
+  startedAt: ts("started_at").notNull().defaultNow(),
+  finishedAt: ts("finished_at"),
+});
+
+export const evalResults = pgTable(
+  "eval_results",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    runId: text("run_id")
+      .notNull()
+      .references(() => evalRuns.id, { onDelete: "cascade" }),
+    caseId: text("case_id").notNull(),
+    title: text("title").notNull(),
+    tests: text("tests").notNull(),
+    key: jsonb("key").$type<Record<string, unknown>>().notNull(),
+    actual: jsonb("actual").$type<Record<string, unknown>>().notNull(),
+    checks: jsonb("checks").$type<Record<string, boolean | null>>().notNull(),
+    correct: boolean("correct").notNull(),
+    citationCoverage: doublePrecision("citation_coverage"),
+    durationMs: integer("duration_ms").notNull(),
+  },
+  (t) => [index("eval_results_run_idx").on(t.runId)],
+);
+
+export type EvalRunRow = typeof evalRuns.$inferSelect;
+export type EvalResultRow = typeof evalResults.$inferSelect;

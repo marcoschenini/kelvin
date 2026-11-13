@@ -13,7 +13,8 @@
     "db:generate": "drizzle-kit generate",
     "agent": "tsx --conditions=react-server scripts/agent.ts",
     "start:demo": "node scripts/start-demo.mjs",
-    "gen:map": "tsx scripts/gen-map-dots.ts"
+    "gen:map": "tsx scripts/gen-map-dots.ts",
+    "eval": "tsx --conditions=react-server scripts/eval.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.140",

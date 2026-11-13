@@ -16,7 +16,7 @@ import {
 } from "./parties";
 
 /** FRA -> BOS custody chain used by cases A and B (NordStar + Boreal). */
-function fraBosChain(transferAtDock: boolean): CaseSpec["custody"] {
+export function fraBosChain(transferAtDock: boolean): CaseSpec["custody"] {
   return [
     {
       role: "shipper",
