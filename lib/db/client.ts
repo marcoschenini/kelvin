@@ -99,6 +99,10 @@ async function openSupabase(): Promise<Handle> {
   const client = postgres(url, {
     prepare: false, // required by Supabase's transaction pooler (port 6543)
     max: Number(process.env.DB_POOL_MAX) || 5,
+    // No pipelining: when more queries are in flight than connections, postgres-js
+    // pipelines them on one socket, and Supavisor's transaction mode never answers.
+    // A page that fires ~10 queries at once (the case screen) would hang forever.
+    max_pipeline: 1,
     ssl: local ? false : "require",
     onnotice: () => {},
   });
