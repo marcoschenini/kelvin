@@ -15,3 +15,17 @@ Kelvin is an AI agent and web platform for pharma cold-chain claims recovery, bu
 - Before pushing, run `npm run lint`, `npm run typecheck`, `npm test` and `npm run build`. The tests guard the rules and the demo outcomes (A no claim, B insurer €190,000, C forwarder €350,000, eval 24/24).
 - Local data in `.data/` and `.env.local` are per machine and never committed. Reset the demo data from Settings → Reset demo.
 - Without an API key the agent runs in deterministic mode. Each developer uses their own key in `.env.local`.
+
+## Agent team (Claude Code)
+
+The main session is the **Chief of staff** (run it on Opus: `/model opus`). It plans, delegates, coordinates, integrates and is the only one that talks to the user, in plain language and in the user's language. Five subagents live in `.claude/agents/`:
+
+| Agent | Model | Use it for |
+|---|---|---|
+| `product-architect` | Opus | Requirements, architecture, task split, acceptance criteria (writes only `docs/team/`) |
+| `frontend` | Sonnet, own worktree | `app/(shell)`, `components/`, styling, interactions |
+| `backend` | Sonnet, own worktree | DB, queries, actions, API, rules, status machine, seed, PDF |
+| `ai-engineer` | Sonnet (Opus on request), own worktree | Kelvin's internal agent, tools, prompts, recordings, eval |
+| `qa-reviewer` | Opus, read-only | Independent verification before anything is integrated |
+
+For every feature request the Chief follows `docs/team/PLAYBOOK.md`: define outcome and checks → assign precise tasks → run independent work in parallel in separate worktrees → QA verifies → fix and integrate on a `feature/<name>` branch → explain to the user what changed and how to try it. Log activity in `docs/team/LOG.md` and decisions in `docs/team/DECISIONS.md`. Ask the user only when an answer is indispensable.
