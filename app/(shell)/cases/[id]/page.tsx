@@ -402,7 +402,7 @@ function CaseSkeleton() {
 export default function CasePage({ params }: PageProps<"/cases/[id]">) {
   return (
     <PageContainer className="flex flex-col gap-5">
-      <Link href="/" className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link href="/cases" className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ChevronLeft className="size-4" aria-hidden="true" />
         Cases
       </Link>

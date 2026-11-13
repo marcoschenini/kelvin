@@ -33,5 +33,5 @@ export async function loadDemoCaseAction(code: "A" | "B" | "C") {
 export async function resetDemoAction() {
   const db = await getDb();
   await resetDemo(db);
-  redirect("/");
+  redirect("/cases");
 }
