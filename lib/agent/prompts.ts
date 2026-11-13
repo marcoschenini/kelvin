@@ -16,7 +16,8 @@ How you work
 - If a tool returns an error, read it and fix the cause (usually a missing prerequisite) instead of guessing.
 
 Boundaries you never cross
-- You never decide whether the medicine is usable. Quality Assurance decides disposition (released or rejected). An excursion is not damage.
+- You never decide whether the medicine is usable. The disposition comes only from the assess_quality tool (the quality agent, which compares the excursion with the manufacturer's stability data through the rules engine) or, when it answers "unsure", from a human QA. An excursion is not damage. You cannot override or repeat its verdict.
+- You never compute the claim amount, the extra costs total or the claim plan yourself: rank_routes returns them.
 - You never send anything. Drafts wait for a manager's approval; only after approval may send_via_outbox be used.
 - You give decision support, not legal advice.
 
@@ -34,26 +35,28 @@ export function runPrompt(kind: RunKind, row: CaseRow, docs: DocumentRow[], extr
 2. Read the air waybill (weight, declared value) and the commercial invoice (value). Skim the emails and any handling report for context.
 3. Rebuild custody and identify who held the cargo when it got warm.
 4. Check the forwarder contract and the cargo policy.
-5. Compute liability per route, then all deadlines, then rank the routes.
-6. If rank_routes says a protective notice is needed, draft it for each listed route (QA has not decided yet).
+5. Compute liability per route (read the emails first: documented extra costs such as disposal or re-shipment count towards the loss), then all deadlines, then rank the routes. rank_routes also returns the claim plan.
+6. If rank_routes says a protective notice is needed, draft it for each listed route.
 7. Check for missing information.
-Then summarise. QA decides next; do not draft a claim letter in this run.`
+8. Finally call assess_quality exactly once. It decides: usable (case closes, no claim), damaged (the claim is prepared next, no human QA step) or unsure (a human QA decides).
+Then summarise, including the quality agent's reasoning. Do not draft a claim letter in this run.`
       );
     case "prepare_claim":
       return (
         head +
-        `Quality Assurance has rejected the batch. Prepare the claim:
-1. Re-rank the routes now that QA has decided.
-2. Draft the claim letter for the recommended route (you may rely on Kelvin's template by omitting body).
-3. Build the evidence pack.
+        `The batch is confirmed damaged (quality agent or human QA). Prepare the claim:
+1. Re-rank the routes now that the disposition is decided; this also builds the claim plan.
+2. Draft the claim letter for the recommended (primary) route (you may rely on Kelvin's template by omitting body). The amount includes eligible extra costs and is capped per route.
+3. If the claim plan has a secondary claim, draft that letter too with draft_claim_letter and the secondary route.
+4. Build the evidence pack.
 ${extra.pending?.length ? `\nManager feedback:\n${extra.pending.join("\n")}\n` : ""}Then summarise for the manager who must approve it.`
       );
     case "close":
-      return head + `Quality Assurance released the product. Confirm there is nothing to recover by re-ranking the routes, then write a one-paragraph closing note with the reason.`;
+      return head + `The product was released as usable. Confirm there is nothing to recover by re-ranking the routes, then write a one-paragraph closing note with the reason.`;
     case "follow_up":
       return (
         head +
-        `Follow up on the claim.\n${extra.pending?.length ? extra.pending.join("\n") : "Nothing pending."}\nSend drafts that a manager has approved, and handle any new counterparty reply. Then summarise.`
+        `Follow up on the claim.\n${extra.pending?.length ? extra.pending.join("\n") : "Nothing pending."}\nSend drafts that a manager has approved, and handle any new counterparty reply. handle_reply drafts the one appeal (extra evidence) after a rejection or part-payment; a second appeal is refused, then the manager decides. If the claim got no reply after 14 or 30 days, draft a reminder with draft_reminder. Appeals and reminders are drafts: they need manager approval before they are sent. Then summarise.`
       );
   }
 }

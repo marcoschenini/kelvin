@@ -2,13 +2,15 @@ import "server-only";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import type { DB } from "@/lib/db/client";
+import { and } from "drizzle-orm";
 import { cases, drafts, evalResults, evalRuns } from "@/lib/db/schema";
 import { getPersona } from "@/lib/domain/personas";
 import type { RecoveryRoute } from "@/lib/domain/parties";
 import { validateLetter } from "@/lib/agent/letters";
 import { runAgent } from "@/lib/agent/orchestrator";
 import { getModel } from "@/lib/agent/provider";
-import { recordQaDecision } from "@/lib/case/gates";
+import { recordApproval, recordQaDecision } from "@/lib/case/gates";
+import { deliverDueReplies } from "@/lib/counterparties/scripted";
 import { getRecord } from "@/lib/case/record";
 import { endOfDayPlus } from "@/lib/rules/deadlines";
 import { EVAL_CASES, type EvalCase } from "@/seed/cases/eval";
@@ -31,6 +33,9 @@ export interface EvalActual {
   deadlines: Record<string, string>;
   finalStatus: string;
   claimAmountEur: number | null;
+  /** The quality agent's verdict (null when no assessment ran) */
+  qaAgent: string | null;
+  appeals: number;
   errors: string[];
 }
 
@@ -40,7 +45,7 @@ export interface EvalCaseResult {
   tests: string;
   key: EvalCase["key"] & { deadlines: Record<string, string> };
   actual: EvalActual;
-  checks: { route: boolean; claim: boolean; custody: boolean; notices: boolean; deadlines: boolean };
+  checks: { route: boolean; claim: boolean; custody: boolean; notices: boolean; deadlines: boolean; qaAgent: boolean; amount: boolean; appeal: boolean };
   correct: boolean;
   citationCoverage: number | null;
   durationMs: number;
@@ -54,6 +59,7 @@ export interface EvalSummary {
   claimAccuracy: number;
   custodyAccuracy: number;
   noticeAccuracy: number;
+  qaAgentAccuracy: number;
   citationCoverage: number | null;
   avgMsPerCase: number;
 }
@@ -87,6 +93,7 @@ export function summarise(results: EvalCaseResult[]): EvalSummary {
     claimAccuracy: rate("claim"),
     custodyAccuracy: rate("custody"),
     noticeAccuracy: rate("notices"),
+    qaAgentAccuracy: rate("qaAgent"),
     citationCoverage: cov.length ? cov.reduce((a, b) => a + b, 0) / cov.length : null,
     avgMsPerCase: results.reduce((a, r) => a + r.durationMs, 0) / n,
   };
@@ -97,7 +104,7 @@ async function evaluateCase(db: DB, c: EvalCase, mode: "live" | "deterministic")
   const started = Date.now();
   const errors: string[] = [];
   await seedCases(db, [c.spec], EVAL_NOW);
-  const run = async (kind: "investigate" | "prepare_claim" | "close") => {
+  const run = async (kind: "investigate" | "prepare_claim" | "close" | "follow_up") => {
     const r = await runAgent({ db, caseId: id, kind, mode, now: EVAL_NOW, record: false });
     if (r.status === "failed") errors.push(`${kind}: ${r.error}`);
     return r;
@@ -107,9 +114,18 @@ async function evaluateCase(db: DB, c: EvalCase, mode: "live" | "deterministic")
   // Notices are scored as drafted while QA was still pending.
   const noticeRows = (await db.select().from(drafts).where(eq(drafts.caseId, id))).filter((d) => d.kind === "protective_notice");
   const [afterInvestigation] = await db.select().from(cases).where(eq(cases.id, id));
+  // The quality agent decides clear cases itself; a human QA only decides when it is unsure.
   if (afterInvestigation.status === "awaiting_qa") {
     await recordQaDecision(db, id, { decision: c.key.qa, note: "Evaluation: decision from the answer key", actor: getPersona("elena") });
     await run(c.key.qa === "rejected" ? "prepare_claim" : "close");
+  }
+  if (c.key.appeal) {
+    // Part-payment lifecycle: manager approves, the claim goes out, the counterparty offers less, the agent appeals once.
+    const waiting = await db.select().from(drafts).where(and(eq(drafts.caseId, id), eq(drafts.status, "awaiting_approval")));
+    for (const d of waiting.filter((x) => x.kind !== "info_request")) await recordApproval(db, id, { draftId: d.id, decision: "approved", actor: getPersona("tom") });
+    await run("follow_up");
+    await deliverDueReplies(db, id, new Date(EVAL_NOW.getTime() + 60_000));
+    await run("follow_up");
   }
 
   const [row] = await db.select().from(cases).where(eq(cases.id, id));
@@ -124,6 +140,8 @@ async function evaluateCase(db: DB, c: EvalCase, mode: "live" | "deterministic")
     deadlines: Object.fromEntries((record.deadlines ?? []).filter((d) => d.kind === "notice").map((d) => [d.id, d.dueAt.slice(0, 10)])),
     finalStatus: row.status,
     claimAmountEur: claimLetter?.amountEur ?? null,
+    qaAgent: record.qaAssessment?.verdict ?? null,
+    appeals: record.followUp?.appeals.length ?? 0,
     errors,
   };
   const keyDeadlines = expectedDeadlines(c);
@@ -134,6 +152,10 @@ async function evaluateCase(db: DB, c: EvalCase, mode: "live" | "deterministic")
     claim: actual.claim === c.key.claim,
     custody: actual.custody === c.key.custody,
     notices: JSON.stringify(actual.notices) === JSON.stringify([...c.key.notices].sort()),
+    // No excursion means no assessment: nothing to check.
+    qaAgent: !c.spec.excursions.length ? actual.qaAgent === null : actual.qaAgent === (c.key.qaAgent ?? (c.key.qa === "released" ? "usable" : "damaged")),
+    amount: c.key.claimEur == null || actual.claimAmountEur === c.key.claimEur,
+    appeal: !c.key.appeal || (actual.appeals === 1 && allDrafts.some((d) => d.kind === "reply" && d.status === "awaiting_approval" && (record.followUp?.appeals ?? []).some((a) => a.draftId === d.id))),
     deadlines: Object.entries(keyDeadlines).every(([k, v]) => actual.deadlines[k] === v) && Object.keys(actual.deadlines).length === Object.keys(keyDeadlines).length,
   };
   return {
