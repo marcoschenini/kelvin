@@ -44,3 +44,8 @@ next-env.d.ts
 # kelvin local data (PGlite db, generated files)
 /.data/
 /scratch/
+
+# claude code: agent worktrees and personal settings
+/.claude/worktrees/
+/.claude/settings.local.json
+CLAUDE.local.md

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Agent worktrees (parallel copies of the repo) are linted in their own checkout.
+    ".claude/**",
   ]),
 ]);
 
