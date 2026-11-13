@@ -5,6 +5,7 @@
  * In local mode the dev server holds the database: stop it first, or use
  * Settings -> Reset demo in the app.
  */
+import "./load-env";
 import fs from "node:fs";
 import path from "node:path";
 import { closeDb, getDb, DATA_DIR } from "@/lib/db/client";

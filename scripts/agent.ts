@@ -9,6 +9,7 @@
  *
  * In local mode stop the dev server first (PGlite is single-process).
  */
+import "./load-env";
 import { and, asc, eq } from "drizzle-orm";
 import { closeDb, getDb } from "@/lib/db/client";
 import { agentRuns, auditEvents, drafts } from "@/lib/db/schema";

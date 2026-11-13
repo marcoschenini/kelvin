@@ -7,7 +7,8 @@ import { ResetDemoButton } from "@/components/settings/reset-demo";
 import { RulesForm } from "@/components/settings/rules-form";
 import { SectionHeader } from "@/components/kit/surfaces";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getDb } from "@/lib/db/client";
+import { dbMode, getDb } from "@/lib/db/client";
+import { storageMode } from "@/lib/storage";
 import { DEFAULT_MODEL, hasModelCredentials, providerName } from "@/lib/agent/provider";
 import { loadRules } from "@/lib/rules/load";
 
@@ -51,6 +52,40 @@ async function ModelSection() {
   );
 }
 
+async function DataSection() {
+  await connection();
+  const hosted = dbMode() === "supabase";
+  const files = storageMode();
+  let host = "";
+  try {
+    if (hosted && process.env.DATABASE_URL) host = new URL(process.env.DATABASE_URL).hostname;
+  } catch {
+    /* malformed URL: the database open already reports it */
+  }
+  return (
+    <dl className="num grid grid-cols-2 gap-4 text-sm lg:grid-cols-3">
+      <div>
+        <dt className="text-xs text-muted-foreground">Database</dt>
+        <dd className="mt-0.5 font-medium">{hosted ? "Supabase Postgres" : "Embedded Postgres (PGlite)"}</dd>
+        {host ? <dd className="mt-0.5 truncate font-mono text-[12px] text-muted-foreground">{host}</dd> : null}
+      </div>
+      <div>
+        <dt className="text-xs text-muted-foreground">Documents</dt>
+        <dd className="mt-0.5 font-medium">{files === "supabase" ? `Supabase Storage · ${process.env.SUPABASE_BUCKET || "kelvin-documents"}` : "Files on this server"}</dd>
+      </div>
+      <div>
+        <dt className="text-xs text-muted-foreground">Sharing</dt>
+        <dd className={hosted && files === "supabase" ? "mt-0.5 font-medium text-success-fg" : "mt-0.5 font-medium text-warning-fg"}>
+          {hosted && files === "supabase" ? "Shared by every instance and developer" : hosted ? "Database shared, documents local" : "This machine only"}
+        </dd>
+      </div>
+      <p className="col-span-full text-xs text-muted-foreground">
+        Set DB_MODE=supabase, DATABASE_URL, NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to use Supabase. Seed it once with npm run seed. Reset demo resets the data for everyone using it.
+      </p>
+    </dl>
+  );
+}
+
 export default function SettingsPage() {
   return (
     <PageContainer className="flex flex-col gap-8">
@@ -79,12 +114,11 @@ export default function SettingsPage() {
         <ResetDemoButton />
       </section>
 
-      <section className="flex items-center gap-4 rounded-2xl border border-border bg-card p-6 shadow-card">
-        <SectionHeader
-          icon={Database}
-          title="Data"
-          description={`Mode: ${process.env.DB_MODE === "supabase" ? "Supabase (hosted Postgres)" : "Local (embedded Postgres in .data/)"}`}
-        />
+      <section className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 shadow-card">
+        <SectionHeader icon={Database} title="Data" description="Where cases, audit trail and documents are stored" />
+        <Suspense fallback={<Skeleton className="h-12 w-full" />}>
+          <DataSection />
+        </Suspense>
       </section>
     </PageContainer>
   );

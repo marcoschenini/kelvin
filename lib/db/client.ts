@@ -78,14 +78,7 @@ async function openLocal(): Promise<Handle> {
   const client = new PGlite(dir);
   const db = drizzle(client, { schema });
   await migrate(db, { migrationsFolder: MIGRATIONS_DIR });
-  if (autoSeedEnabled()) {
-    const { cases } = schema;
-    const existing = await db.select({ id: cases.id }).from(cases).limit(1);
-    if (!existing.length) {
-      const { resetDemo } = await import("@/seed/seed-db");
-      await resetDemo(db as unknown as DB);
-    }
-  }
+  if (autoSeedEnabled()) await seedIfEmpty(db as unknown as DB);
   return {
     db: db as unknown as DB,
     close: async () => {
@@ -101,10 +94,27 @@ async function openSupabase(): Promise<Handle> {
   const { default: postgres } = await import("postgres");
   const { drizzle } = await import("drizzle-orm/postgres-js");
   const { migrate } = await import("drizzle-orm/postgres-js/migrator");
-  const client = postgres(url, { prepare: false, max: 5 });
+  const host = new URL(url).hostname;
+  const local = host === "localhost" || host === "127.0.0.1" || host === "::1";
+  const client = postgres(url, {
+    prepare: false, // required by Supabase's transaction pooler (port 6543)
+    max: Number(process.env.DB_POOL_MAX) || 5,
+    ssl: local ? false : "require",
+    onnotice: () => {},
+  });
   const db = drizzle(client, { schema });
   await migrate(db, { migrationsFolder: MIGRATIONS_DIR });
+  // A shared database is seeded once with `npm run seed`, never implicitly: two serverless
+  // instances seeding the same empty database at once would wipe each other's rows.
+  if (process.env.KELVIN_AUTOSEED === "1") await seedIfEmpty(db as unknown as DB);
   return { db: db as unknown as DB, close: () => client.end() };
+}
+
+async function seedIfEmpty(db: DB) {
+  const existing = await db.select({ id: schema.cases.id }).from(schema.cases).limit(1);
+  if (existing.length) return;
+  const { resetDemo } = await import("@/seed/seed-db");
+  await resetDemo(db);
 }
 
 export async function getDb(): Promise<DB> {
