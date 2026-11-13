@@ -1,9 +1,12 @@
 import { and, desc, eq } from "drizzle-orm";
 import type { DB } from "@/lib/db/client";
 import { cases, decisions, type CaseRow } from "@/lib/db/schema";
+import type { Citation } from "@/lib/domain/citation";
+import { formatDate } from "@/lib/format";
 import type { CaseRecord } from "@/lib/case/record";
 import type { DeadlineInput } from "@/lib/rules/deadlines";
 import type { LiabilityInput, QaStatus } from "@/lib/rules/types";
+import { findDocument } from "./docs";
 import { ToolGuardError } from "./tool";
 
 export async function getCaseRow(db: DB, caseId: string): Promise<CaseRow> {
@@ -48,6 +51,7 @@ export function liabilityInput(record: CaseRecord, row: CaseRow, qa: QaStatus): 
     qa,
     contract: record.contract!.terms,
     policy: record.policy!.terms,
+    extraCosts: record.extraCosts,
   };
 }
 
@@ -57,4 +61,26 @@ export function deadlineInput(record: CaseRecord, row: CaseRow, now: Date): Dead
   const discovered = row.discoveredAt ?? now;
   if (!record.contract || !record.policy) throw new ToolGuardError("Run check_contract and check_policy first.");
   return { deliveredAt: delivered, discoveredAt: discovered, contract: record.contract.terms, policy: record.policy.terms, now };
+}
+
+/** Goods value plus eligible extra costs: the total loss the claim plan is measured against. */
+export function totalLossEur(input: LiabilityInput): number {
+  return input.lossEur + (input.extraCosts ?? []).reduce((s, c) => s + c.eur, 0);
+}
+
+/** Required documents that are missing from the file (the protective-notice safety net also applies then). */
+export async function requiredDataMissing(db: DB, caseId: string): Promise<boolean> {
+  const need = ["logger", "awb", "invoice", "contract", "policy"] as const;
+  for (const k of need) if (!(await findDocument(db, caseId, k))) return true;
+  return false;
+}
+
+/** The citation for the QA decision (same source whichever letter cites it). */
+export function qaCitation(qa: Awaited<ReturnType<typeof qaStatus>>): Citation {
+  return {
+    kind: "record",
+    label: `QA decision ${qa.at ? formatDate(qa.at) : ""}`.trim(),
+    title: `Quality disposition: rejected by ${qa.by}${qa.note ? `. Note: ${qa.note}` : ""}`,
+    quote: qa.note ?? "Batch rejected",
+  };
 }

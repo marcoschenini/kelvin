@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import type { DB } from "@/lib/db/client";
 import { auditEvents, cases, decisions, drafts } from "@/lib/db/schema";
 import { ROLE_CAN, type Persona } from "@/lib/domain/personas";
+import type { QaAssessment } from "@/lib/rules/types";
 import { getRecord, patchRecord } from "./record";
 import { transition } from "./status-machine";
 
@@ -103,7 +104,8 @@ export async function recordApproval(
     output: { decisionId: id },
   });
   if (draft.kind === "claim_letter" && args.decision === "rejected") {
-    await transition(db, caseId, "claim_prepared", { type: "human", name: args.actor.name, role: args.actor.title }, { reason: `Claim rejected by manager: ${args.reason}` });
+    await transition(db, caseId, "closed_not_approved", { type: "human", name: args.actor.name, role: args.actor.title }, { reason: `Claim rejected by manager: ${args.reason}`, patch: { closedReason: `Not approved: ${args.reason}` } });
+    await patchRecord(db, caseId, { outcome: { result: "not_approved", claimedEur: draft.amountEur ?? null, recoveredEur: null, recoveryPct: null, payer: (draft.route as never) ?? null, daysToClose: null, closedAt: at.toISOString() } });
   }
   return { id, at, draftKind: draft.kind };
 }
@@ -155,4 +157,33 @@ export async function recordSettlement(db: DB, caseId: string, args: { decision:
     await patchRecord(db, caseId, { negotiation: null });
   }
   return { id, at };
+}
+
+/**
+ * TEMPORARY stand-in (backend owns this file). The quality agent's decision:
+ * usable closes the case, damaged records a rejection, unsure waits for a human.
+ */
+export async function recordAgentQaDecision(db: DB, caseId: string, a: QaAssessment): Promise<void> {
+  const actor = { type: "agent" as const, name: "Quality agent" };
+  const at = new Date();
+  const [row] = await db.select({ status: cases.status }).from(cases).where(eq(cases.id, caseId));
+  if (!row) throw new GateError("Case not found");
+  if (!["investigating", "awaiting_qa"].includes(row.status)) throw new GateError(`The quality agent cannot decide when the case is ${row.status}.`);
+  if (a.verdict === "unsure") {
+    await transition(db, caseId, "awaiting_qa", actor, { reason: a.reasons.join(" ") });
+    return;
+  }
+  const existing = await db.select({ id: decisions.id }).from(decisions).where(and(eq(decisions.caseId, caseId), eq(decisions.gate, "qa")));
+  if (existing.length) throw new GateError("QA has already decided on this case.");
+  const decision = a.verdict === "usable" ? "released" : "rejected";
+  const note = a.reasons.join(" ");
+  const id = `dec-${nanoid(8)}`;
+  await db.insert(decisions).values({ id, caseId, gate: "qa", decision, note, actorName: "Quality agent", actorRole: "AI quality agent", at });
+  await db.insert(auditEvents).values({ caseId, at, actorType: "agent", actorName: "Quality agent", eventType: "qa_decision", input: { verdict: a.verdict, basis: a.basis }, output: { decisionId: id, reasons: a.reasons } });
+  const record = await getRecord(db, caseId);
+  await patchRecord(db, caseId, { qa: { ...(record.qa ?? {}), status: decision, by: "Quality agent", at: at.toISOString(), note } });
+  if (a.verdict === "usable") {
+    await transition(db, caseId, "no_claim", actor, { reason: note });
+    await transition(db, caseId, "closed_no_claim", actor, { reason: note, patch: { closedReason: note } });
+  }
 }

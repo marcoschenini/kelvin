@@ -16,8 +16,8 @@ export interface ProtectiveNoticeNeed {
  * the carrier when the policy obliges the insured to preserve rights against
  * carriers, even if the carrier is not the best route.
  */
-export function protectiveNoticesNeeded(ranked: RankedRoute[], qa: QaStatus, cfg: RulesConfig): ProtectiveNoticeNeed[] {
-  if (qa !== "pending") return [];
+export function protectiveNoticesNeeded(ranked: RankedRoute[], qa: QaStatus, cfg: RulesConfig, opts?: { missingData?: boolean }): ProtectiveNoticeNeed[] {
+  if (qa !== "pending" && !opts?.missingData) return [];
   const out: ProtectiveNoticeNeed[] = [];
   for (const r of ranked) {
     const d = r.noticeDeadline;

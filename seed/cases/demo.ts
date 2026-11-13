@@ -507,3 +507,10 @@ Operations Manager, Polder Freight Solutions`,
 };
 
 export const DEMO_CASES: CaseSpec[] = [CASE_A, CASE_B, CASE_C];
+
+/* TEMPORARY stand-in (backend owns this file): stability data per demo case. */
+import { stabilityEmail } from "./stability-email";
+CASE_A.product.stability = { maxTempC: 25, maxMinutesOutOfRange: 1440 };
+CASE_B.product.stability = { maxTempC: 10, maxMinutesOutOfRange: 30 };
+CASE_C.product.stability = { maxTempC: 10, maxMinutesOutOfRange: 60 };
+for (const s of [CASE_A, CASE_B, CASE_C]) s.emails.push(stabilityEmail(s, s.product.stability!));

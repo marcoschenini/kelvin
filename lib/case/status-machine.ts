@@ -15,17 +15,18 @@ import type { CaseStatus } from "@/lib/domain/case-status";
  */
 export const TRANSITIONS: Record<CaseStatus, readonly CaseStatus[]> = {
   new: ["investigating"],
-  investigating: ["awaiting_qa", "no_claim"],
+  investigating: ["awaiting_qa", "no_claim", "claim_prepared"],
   awaiting_qa: ["no_claim", "claim_prepared"],
   no_claim: ["closed_no_claim"],
   claim_prepared: ["awaiting_approval"],
-  awaiting_approval: ["sent", "claim_prepared"],
+  awaiting_approval: ["sent", "claim_prepared", "closed_not_approved"],
   sent: ["in_negotiation", "closed_recovered", "closed_settled", "closed_rejected"],
   in_negotiation: ["sent", "closed_recovered", "closed_settled", "closed_rejected"],
   closed_no_claim: [],
   closed_recovered: [],
   closed_settled: [],
   closed_rejected: [],
+  closed_not_approved: [],
 };
 
 export const PROTECTIVE_NOTICE_ALLOWED: readonly CaseStatus[] = ["investigating", "awaiting_qa"];

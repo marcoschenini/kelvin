@@ -3,7 +3,7 @@ import type { DB } from "@/lib/db/client";
 import { cases } from "@/lib/db/schema";
 import { citationKey, type Citation } from "@/lib/domain/citation";
 import type { CustodyParty } from "@/lib/domain/parties";
-import type { ContractTermsParsed, Deadline, PolicyTermsParsed, QaStatus, RankedRoute, RouteLiability } from "@/lib/rules/types";
+import type { CaseOutcome, ClaimPlanItem, ContractTermsParsed, Deadline, ExtraCost, QaAssessment, PolicyTermsParsed, QaStatus, RankedRoute, RouteLiability } from "@/lib/rules/types";
 
 /** The shared case record every tool reads from and writes to (cases.record jsonb). */
 
@@ -95,6 +95,11 @@ export interface CaseRecord {
   negotiation?: { route: string; offerEur: number; claimEur: number; messageId: string; counterDraftId: string; counterparty: string } | null;
   /** Incoming Outbox messages already processed by handle_reply */
   handledMessageIds?: string[];
+  qaAssessment?: QaAssessment & { by: "quality_agent"; at: string; citationId?: string };
+  claimPlan?: ClaimPlanItem[];
+  extraCosts?: ExtraCost[];
+  followUp?: { appeals: { draftId: string; at: string }[]; remindersSent: number[]; lastReplyAt?: string | null };
+  outcome?: CaseOutcome;
 }
 
 /** Serialises record writes per case: the model may call tools in parallel. */

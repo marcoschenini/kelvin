@@ -52,6 +52,10 @@ function scriptedReply(c: ReplyContext): string {
         const offer = Math.round((claim * 0.9) / 5000) * 5000;
         return `Dear Sir or Madam,\n\nwe have completed our investigation of shipment ${c.shipmentRef} and accept liability in principle. Taking into account the peak-volume circumstances at our hub, we offer ${formatEUR(offer)} in full and final settlement of your claim.\n\n${sign(c.counterparty)}`;
       }
+      if (c.stage === 1) {
+        const offer = Math.round((claim * 0.95) / 2500) * 2500;
+        return `Dear Sir or Madam,\n\nthank you for the additional evidence on shipment ${c.shipmentRef}. We have reviewed it, continue to accept liability in principle and increase our offer to ${formatEUR(offer)} in full and final settlement of your claim.\n\n${sign(c.counterparty)}`;
+      }
       return `Dear Sir or Madam,\n\nhaving reviewed clause 6.2 of our agreement, we accept your claim in full. Payment of ${formatEUR(claim)} has been transferred to your account today.\n\n${sign(c.counterparty)}`;
     }
     case "carrier":
@@ -92,7 +96,7 @@ export async function deliverDueReplies(db: DB, caseId: string, now = new Date()
       route,
       kind,
       stage,
-      claimEur: row?.claimAmountEur ?? draft?.amountEur ?? null,
+      claimEur: draft?.amountEur ?? row?.claimAmountEur ?? null,
       shipmentRef: row?.shipmentRef ?? caseId,
       noticeLapsed,
       counterparty: m.counterparty === "carrier" || m.counterparty === "forwarder" || m.counterparty === "insurer" ? (draft?.recipientName ?? m.counterparty) : m.counterparty,

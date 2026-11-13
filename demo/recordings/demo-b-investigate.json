@@ -4,22 +4,22 @@
  "kind": "investigate",
  "mode": "deterministic",
  "model": null,
- "recordedAt": "2026-11-09T10:42:35.306Z",
+ "recordedAt": "2026-11-13T14:10:15.917Z",
  "events": [
   {
-   "t": 5,
+   "t": 1,
    "event": {
     "type": "run_started",
-    "runId": "run-D5q_o-hZlB",
+    "runId": "run-p0hh5miNXD",
     "caseId": "demo-b",
     "kind": "investigate",
     "mode": "deterministic",
     "model": null,
-    "at": "2026-11-09T10:42:32.640Z"
+    "at": "2026-11-13T14:10:15.074Z"
    }
   },
   {
-   "t": 23,
+   "t": 7,
    "event": {
     "type": "status",
     "from": "new",
@@ -28,24 +28,24 @@
    }
   },
   {
-   "t": 24,
+   "t": 7,
    "event": {
     "type": "text",
     "delta": "Reading the temperature logger to see what actually happened.\n"
    }
   },
   {
-   "t": 30,
+   "t": 18,
    "event": {
     "type": "step_started",
     "seq": 2,
     "tool": "parse_logger",
     "input": {},
-    "at": "2026-11-09T10:42:32.665Z"
+    "at": "2026-11-13T14:10:15.091Z"
    }
   },
   {
-   "t": 75,
+   "t": 36,
    "event": {
     "type": "step_finished",
     "seq": 2,
@@ -63,17 +63,17 @@
      "excursions": [
       {
        "direction": "high",
-       "start": "2026-10-28T21:55:00.000Z",
-       "end": "2026-10-28T23:20:00.000Z",
+       "start": "2026-11-01T21:55:00.000Z",
+       "end": "2026-11-01T23:20:00.000Z",
        "minutes": 90,
        "peakC": 13,
-       "peakAt": "2026-10-28T22:35:00.000Z",
+       "peakAt": "2026-11-01T22:35:00.000Z",
        "rowStart": 168,
        "rowEnd": 185,
        "index": 0,
        "citationId": "S1",
-       "startUtc": "2026-10-28T21:55:00.000Z",
-       "endUtc": "2026-10-28T23:20:00.000Z",
+       "startUtc": "2026-11-01T21:55:00.000Z",
+       "endUtc": "2026-11-01T23:20:00.000Z",
        "citation": "S1"
       }
      ]
@@ -87,22 +87,22 @@
        185
       ],
       "label": "Logger r.168–185",
-      "title": "logger-CT5-88213.csv: rows 168–185, 28 Oct, 21:55–28 Oct, 23:20 UTC, peak 13.0 °C",
+      "title": "logger-CT5-88213.csv: rows 168–185, 1 Nov, 21:55–1 Nov, 23:20 UTC, peak 13.0 °C",
       "documentId": "demo-b-logger"
      }
     ],
-    "durationMs": 39
+    "durationMs": 16
    }
   },
   {
-   "t": 78,
+   "t": 39,
    "event": {
     "type": "text",
     "delta": "Reading the air waybill for weight and declared value, and the invoice for the value of the goods.\n"
    }
   },
   {
-   "t": 82,
+   "t": 40,
    "event": {
     "type": "step_started",
     "seq": 4,
@@ -110,11 +110,11 @@
     "input": {
      "kind": "awb"
     },
-    "at": "2026-11-09T10:42:32.717Z"
+    "at": "2026-11-13T14:10:15.113Z"
    }
   },
   {
-   "t": 1995,
+   "t": 68,
    "event": {
     "type": "step_finished",
     "seq": 4,
@@ -130,7 +130,7 @@
        "pages": [
         {
          "page": 1,
-         "text": "Boreal Air Cargo - Air Waybill\nNot negotiable. Issued by the carrier named below, subject to its conditions of contract.\nCargo claims: cargo.claims@borealaircargo.example\nAIR WAYBILL NUMBER ISSUING CARRIER\n717-4821 3377 Boreal Air Cargo\nSHIPPER'S NAME AND ADDRESS CONSIGNEE'S NAME AND ADDRESS\nRheinfeld Biologics GmbH Harborview Specialty Distribution Inc.\nEmil-von-Behring-Str. 41 200 Seaport Blvd, Suite 400\n35041 Marburg Boston, MA 02210\nGermany USA\nISSUING CARRIER'S AGENT ACCOUNTING INFORMATION\nNordStar Logistics GmbH Freight prepaid\nGermany Shipment ref. RB-24093\nAIRPORT OF DEPARTURE AIRPORT OF DESTINATION FLIGHT / DATE CURRENCY\nFRA Frankfurt BOS Boston BO 404 / 28OCT26 EUR\nDECLARED VALUE FOR CARRIAGE DECLARED VALUE FOR CUSTOMS AMOUNT OF INSURANCE\nNVD €200,000 XXX\nHANDLING INFORMATION\nKEEP REFRIGERATED +2 °C TO +8 °C. DO NOT FREEZE. SHC: PIL COL.\nData logger CT5-88213 enclosed. Notify consignee on arrival.\nPIECES GROSS WEIGHT KG/LB CHARGEABLE WT NATURE AND QUANTITY OF GOODS\n4 120.0 K 138.0 Orenvacept 40 mg pre-filled syringe\n4 x active container (2-8 °C)\nBatch ORV-2608-112\nPharmaceuticals, not restricted\nNOTICE CONCERNING CARRIER'S LIMITATION OF LIABILITY. If the carriage involves an ultimate destination or stop in a country other\nthan the country of departure, the Montreal Convention may be applicable. It governs and in most cases limits the liability of carriers for\ndestruction, loss, damage or delay to cargo. The shipper may increase the limitation of liability by declaring a higher value for carriage and\npaying a supplemental charge if required.\nNotice of complaint: in case of damage, the person entitled to delivery must complain to the carrier forthwith after discovery of the damage\nand, at the latest, within 14 days from the date of receipt of the cargo.\nExecuted on 28 Oct 2026 at Frankfurt\nSignature of issuing carrier Boreal Air Cargo (acceptance 2026-10-28 17:00 UTC)\nAWB 717-4821 3377 Page 1 of 1"
+         "text": "Boreal Air Cargo - Air Waybill\nNot negotiable. Issued by the carrier named below, subject to its conditions of contract.\nCargo claims: cargo.claims@borealaircargo.example\nAIR WAYBILL NUMBER ISSUING CARRIER\n717-4821 3377 Boreal Air Cargo\nSHIPPER'S NAME AND ADDRESS CONSIGNEE'S NAME AND ADDRESS\nRheinfeld Biologics GmbH Harborview Specialty Distribution Inc.\nEmil-von-Behring-Str. 41 200 Seaport Blvd, Suite 400\n35041 Marburg Boston, MA 02210\nGermany USA\nISSUING CARRIER'S AGENT ACCOUNTING INFORMATION\nNordStar Logistics GmbH Freight prepaid\nGermany Shipment ref. RB-24093\nAIRPORT OF DEPARTURE AIRPORT OF DESTINATION FLIGHT / DATE CURRENCY\nFRA Frankfurt BOS Boston BO 404 / 01NOV26 EUR\nDECLARED VALUE FOR CARRIAGE DECLARED VALUE FOR CUSTOMS AMOUNT OF INSURANCE\nNVD €200,000 XXX\nHANDLING INFORMATION\nKEEP REFRIGERATED +2 °C TO +8 °C. DO NOT FREEZE. SHC: PIL COL.\nData logger CT5-88213 enclosed. Notify consignee on arrival.\nPIECES GROSS WEIGHT KG/LB CHARGEABLE WT NATURE AND QUANTITY OF GOODS\n4 120.0 K 138.0 Orenvacept 40 mg pre-filled syringe\n4 x active container (2-8 °C)\nBatch ORV-2608-112\nPharmaceuticals, not restricted\nNOTICE CONCERNING CARRIER'S LIMITATION OF LIABILITY. If the carriage involves an ultimate destination or stop in a country other\nthan the country of departure, the Montreal Convention may be applicable. It governs and in most cases limits the liability of carriers for\ndestruction, loss, damage or delay to cargo. The shipper may increase the limitation of liability by declaring a higher value for carriage and\npaying a supplemental charge if required.\nNotice of complaint: in case of damage, the person entitled to delivery must complain to the carrier forthwith after discovery of the damage\nand, at the latest, within 14 days from the date of receipt of the cargo.\nExecuted on 1 Nov 2026 at Frankfurt\nSignature of issuing carrier Boreal Air Cargo (acceptance 2026-11-01 17:00 UTC)\nAWB 717-4821 3377 Page 1 of 1"
         }
        ],
        "fields": {
@@ -143,7 +143,7 @@
         "origin": "FRA",
         "destination": "BOS",
         "flight": "BO 404",
-        "flightDate": "28OCT26"
+        "flightDate": "01NOV26"
        },
        "citation": "S2"
       }
@@ -160,11 +160,11 @@
       "documentId": "demo-b-awb"
      }
     ],
-    "durationMs": 1901
+    "durationMs": 24
    }
   },
   {
-   "t": 1995,
+   "t": 68,
    "event": {
     "type": "step_started",
     "seq": 5,
@@ -172,11 +172,11 @@
     "input": {
      "kind": "invoice"
     },
-    "at": "2026-11-09T10:42:34.630Z"
+    "at": "2026-11-13T14:10:15.141Z"
    }
   },
   {
-   "t": 2045,
+   "t": 94,
    "event": {
     "type": "step_finished",
     "seq": 5,
@@ -192,7 +192,7 @@
        "pages": [
         {
          "page": 1,
-         "text": "Rheinfeld Biologics GmbH\nEmil-von-Behring-Str. 41, 35041 Marburg, Germany\n+49 6421 555 0140 | logistics@rheinfeld-bio.example\nCommercial Invoice\nInvoice no. CI-RB-24093 | 28 Oct 2026\nSeller Rheinfeld Biologics GmbH, Emil-von-Behring-Str. 41, 35041 Marburg,\nGermany\nBuyer / consignee Harborview Specialty Distribution Inc., 200 Seaport Blvd, Suite 400,\nBoston, MA 02210, USA\nShipment reference RB-24093\nAir waybill 717-4821 3377 (FRA -> BOS, BO 404)\nIncoterm FCA Marburg (Incoterms 2020)\nPayment terms 60 days net\nGOODS\nDescription Batch Qty Unit price Amount\nOrenvacept 40 mg pre-filled syringe - fusion ORV-2608-112 1,000 €200 €200,000\nprotein, solution for injection\nTotal invoice value €200,000\nGross weight 120.0 kg in 4 temperature-controlled container(s)\nStorage condition +2 °C to +8 °C. Do not freeze.\nWe certify that this invoice is true and correct and that the goods are of the origin stated.\nLena Hartmann, Head of Distribution Logistics\nRheinfeld Biologics GmbH\nInvoice CI-RB-24093 Page 1 of 1"
+         "text": "Rheinfeld Biologics GmbH\nEmil-von-Behring-Str. 41, 35041 Marburg, Germany\n+49 6421 555 0140 | logistics@rheinfeld-bio.example\nCommercial Invoice\nInvoice no. CI-RB-24093 | 1 Nov 2026\nSeller Rheinfeld Biologics GmbH, Emil-von-Behring-Str. 41, 35041 Marburg,\nGermany\nBuyer / consignee Harborview Specialty Distribution Inc., 200 Seaport Blvd, Suite 400,\nBoston, MA 02210, USA\nShipment reference RB-24093\nAir waybill 717-4821 3377 (FRA -> BOS, BO 404)\nIncoterm FCA Marburg (Incoterms 2020)\nPayment terms 60 days net\nGOODS\nDescription Batch Qty Unit price Amount\nOrenvacept 40 mg pre-filled syringe - fusion ORV-2608-112 1,000 €200 €200,000\nprotein, solution for injection\nTotal invoice value €200,000\nGross weight 120.0 kg in 4 temperature-controlled container(s)\nStorage condition +2 °C to +8 °C. Do not freeze.\nWe certify that this invoice is true and correct and that the goods are of the origin stated.\nLena Hartmann, Head of Distribution Logistics\nRheinfeld Biologics GmbH\nInvoice CI-RB-24093 Page 1 of 1"
         }
        ],
        "fields": {
@@ -215,18 +215,18 @@
       "documentId": "demo-b-invoice"
      }
     ],
-    "durationMs": 45
+    "durationMs": 22
    }
   },
   {
-   "t": 2053,
+   "t": 96,
    "event": {
     "type": "text",
     "delta": "Skimming the correspondence for context.\n"
    }
   },
   {
-   "t": 2057,
+   "t": 97,
    "event": {
     "type": "step_started",
     "seq": 7,
@@ -234,17 +234,17 @@
     "input": {
      "kind": "email"
     },
-    "at": "2026-11-09T10:42:34.692Z"
+    "at": "2026-11-13T14:10:15.170Z"
    }
   },
   {
-   "t": 2099,
+   "t": 113,
    "event": {
     "type": "step_finished",
     "seq": 7,
     "tool": "extract_document",
     "status": "ok",
-    "summary": "Read 3 emails.",
+    "summary": "Read 4 emails.",
     "output": {
      "documents": [
       {
@@ -253,9 +253,9 @@
        "email": {
         "from": "\"Harborview Specialty Distribution Inc.\" <qa@harborview-dist.example>",
         "to": "\"Rheinfeld Biologics GmbH\" <logistics@rheinfeld-bio.example>",
-        "date": "Sun, 08 Nov 2026 09:00:00 +0000",
+        "date": "Thu, 12 Nov 2026 09:00:00 +0000",
         "subject": "Temperature alarm - RB-24093 / AWB 717-4821 3377",
-        "body": "Dear Lena,\n\nduring our periodic review we downloaded the ColdTrace logger of shipment RB-24093, received on 30 Oct 2026. Our apologies: the logger was not read at goods receipt because of a staffing gap at our dock.\n\nThe logger shows an alarm on 28 Oct 2026: maximum 13.0 °C, approx. 90 minutes above 8 °C. The goods are quarantined in our cold room pending your QA disposition. Logger file attached.\n\nKind regards,\nDana Whitfield\nQA Manager, Harborview Specialty Distribution"
+        "body": "Dear Lena,\n\nduring our periodic review we downloaded the ColdTrace logger of shipment RB-24093, received on 3 Nov 2026. Our apologies: the logger was not read at goods receipt because of a staffing gap at our dock.\n\nThe logger shows an alarm on 1 Nov 2026: maximum 13.0 °C, approx. 90 minutes above 8 °C. The goods are quarantined in our cold room pending your QA disposition. Logger file attached.\n\nKind regards,\nDana Whitfield\nQA Manager, Harborview Specialty Distribution"
        },
        "citation": "S4"
       },
@@ -265,9 +265,9 @@
        "email": {
         "from": "\"Rheinfeld Biologics GmbH\" <logistics@rheinfeld-bio.example>",
         "to": "\"NordStar Logistics GmbH\" <claims@nordstar-logistics.example>",
-        "date": "Sun, 08 Nov 2026 11:00:00 +0000",
+        "date": "Thu, 12 Nov 2026 11:00:00 +0000",
         "subject": "Custody records requested - RB-24093",
-        "body": "Dear Markus,\n\nthe logger of RB-24093 shows an excursion to 13.0 °C on 28 Oct 2026. Please send us the custody and handling records for this shipment under clause 5.3 of our agreement as soon as possible.\n\nBest regards,\nLena Hartmann\nHead of Distribution Logistics, Rheinfeld Biologics"
+        "body": "Dear Markus,\n\nthe logger of RB-24093 shows an excursion to 13.0 °C on 1 Nov 2026. Please send us the custody and handling records for this shipment under clause 5.3 of our agreement as soon as possible.\n\nBest regards,\nLena Hartmann\nHead of Distribution Logistics, Rheinfeld Biologics"
        },
        "citation": "S5"
       },
@@ -277,11 +277,23 @@
        "email": {
         "from": "\"NordStar Logistics GmbH\" <claims@nordstar-logistics.example>",
         "to": "\"Rheinfeld Biologics GmbH\" <logistics@rheinfeld-bio.example>",
-        "date": "Sun, 08 Nov 2026 13:00:00 +0000",
+        "date": "Thu, 12 Nov 2026 13:00:00 +0000",
         "subject": "RE: Custody records requested - RB-24093",
-        "body": "Dear Lena,\n\nour records show the shipment was tendered to Boreal Air Cargo at FRA at 2026-10-28 17:00 UTC and collected from Boreal at BOS at 2026-10-29 17:00 UTC. Our hub and truck records for both legs are within 2-8 °C.\n\nBoreal's ramp handler issued the attached irregularity report: the pieces were staged on apron V114 during an aircraft delay. Please note clause 4.3 of our agreement for the air leg. We are happy to support your notice to the carrier.\n\nKind regards,\nMarkus Feld\nClaims Desk, NordStar Logistics"
+        "body": "Dear Lena,\n\nour records show the shipment was tendered to Boreal Air Cargo at FRA at 2026-11-01 17:00 UTC and collected from Boreal at BOS at 2026-11-02 17:00 UTC. Our hub and truck records for both legs are within 2-8 °C.\n\nBoreal's ramp handler issued the attached irregularity report: the pieces were staged on apron V114 during an aircraft delay. Please note clause 4.3 of our agreement for the air leg. We are happy to support your notice to the carrier.\n\nKind regards,\nMarkus Feld\nClaims Desk, NordStar Logistics"
        },
        "citation": "S6"
+      },
+      {
+       "documentId": "demo-b-email-04",
+       "kind": "email",
+       "email": {
+        "from": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>",
+        "to": "\"Rheinfeld Biologics GmbH\" <logistics@rheinfeld-bio.example>",
+        "date": "Tue, 03 Nov 2026 16:00:00 +0000",
+        "subject": "Stability data - Orenvacept 40 mg pre-filled syringe",
+        "body": "Dear team,\n\nfor Orenvacept 40 mg pre-filled syringe (batch ORV-2608-112) the validated stability data allows temperature excursions up to 10 °C for a cumulative 30 minutes outside 2-8 °C.\n\nElena"
+       },
+       "citation": "S7"
       }
      ]
     },
@@ -289,50 +301,58 @@
      {
       "id": "S4",
       "kind": "email",
-      "label": "Email 08 Nov 2026 09:00",
-      "quote": "Dear Lena,\n\nduring our periodic review we downloaded the ColdTrace logger of shipment RB-24093, received on 30 Oct 2026. Our apologies: the logger was not read at goods receipt because of a staffing g",
+      "label": "Email 12 Nov 2026 09:00",
+      "quote": "Dear Lena,\n\nduring our periodic review we downloaded the ColdTrace logger of shipment RB-24093, received on 3 Nov 2026. Our apologies: the logger was not read at goods receipt because of a staffing ga",
       "title": "\"Harborview Specialty Distribution Inc.\" <qa@harborview-dist.example>: Temperature alarm - RB-24093 / AWB 717-4821 3377",
       "documentId": "demo-b-email-01"
      },
      {
       "id": "S5",
       "kind": "email",
-      "label": "Email 08 Nov 2026 11:00",
-      "quote": "Dear Markus,\n\nthe logger of RB-24093 shows an excursion to 13.0 °C on 28 Oct 2026. Please send us the custody and handling records for this shipment under clause 5.3 of our agreement as soon as possib",
+      "label": "Email 12 Nov 2026 11:00",
+      "quote": "Dear Markus,\n\nthe logger of RB-24093 shows an excursion to 13.0 °C on 1 Nov 2026. Please send us the custody and handling records for this shipment under clause 5.3 of our agreement as soon as possibl",
       "title": "\"Rheinfeld Biologics GmbH\" <logistics@rheinfeld-bio.example>: Custody records requested - RB-24093",
       "documentId": "demo-b-email-02"
      },
      {
       "id": "S6",
       "kind": "email",
-      "label": "Email 08 Nov 2026 13:00",
-      "quote": "Dear Lena,\n\nour records show the shipment was tendered to Boreal Air Cargo at FRA at 2026-10-28 17:00 UTC and collected from Boreal at BOS at 2026-10-29 17:00 UTC. Our hub and truck records for both l",
+      "label": "Email 12 Nov 2026 13:00",
+      "quote": "Dear Lena,\n\nour records show the shipment was tendered to Boreal Air Cargo at FRA at 2026-11-01 17:00 UTC and collected from Boreal at BOS at 2026-11-02 17:00 UTC. Our hub and truck records for both l",
       "title": "\"NordStar Logistics GmbH\" <claims@nordstar-logistics.example>: RE: Custody records requested - RB-24093",
       "documentId": "demo-b-email-03"
+     },
+     {
+      "id": "S7",
+      "kind": "email",
+      "label": "Email 03 Nov 2026 16:00",
+      "quote": "Dear team,\n\nfor Orenvacept 40 mg pre-filled syringe (batch ORV-2608-112) the validated stability data allows temperature excursions up to 10 °C for a cumulative 30 minutes outside 2-8 °C.\n\nElena",
+      "title": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>: Stability data - Orenvacept 40 mg pre-filled syringe",
+      "documentId": "demo-b-email-04"
      }
     ],
-    "durationMs": 31
+    "durationMs": 14
    }
   },
   {
-   "t": 2099,
+   "t": 113,
    "event": {
     "type": "text",
     "delta": "Matching the excursion to the custody timeline to see who held the cargo when it got warm.\n"
    }
   },
   {
-   "t": 2102,
+   "t": 115,
    "event": {
     "type": "step_started",
     "seq": 9,
     "tool": "build_custody_timeline",
     "input": {},
-    "at": "2026-11-09T10:42:34.737Z"
+    "at": "2026-11-13T14:10:15.188Z"
    }
   },
   {
-   "t": 2180,
+   "t": 146,
    "event": {
     "type": "step_finished",
     "seq": 9,
@@ -346,8 +366,8 @@
        "role": "shipper",
        "custodian": "Rheinfeld Biologics GmbH",
        "location": "Rheinfeld plant, Marburg - cold dock",
-       "from": "2026-10-28T08:00:00.000Z",
-       "to": "2026-10-28T09:30:00.000Z",
+       "from": "2026-11-01T08:00:00.000Z",
+       "to": "2026-11-01T09:30:00.000Z",
        "controlled": true
       },
       {
@@ -355,8 +375,8 @@
        "role": "forwarder",
        "custodian": "NordStar Logistics GmbH",
        "location": "Road Marburg -> Frankfurt (unit FR-NS 2207)",
-       "from": "2026-10-28T09:30:00.000Z",
-       "to": "2026-10-28T12:00:00.000Z",
+       "from": "2026-11-01T09:30:00.000Z",
+       "to": "2026-11-01T12:00:00.000Z",
        "controlled": true
       },
       {
@@ -364,8 +384,8 @@
        "role": "forwarder",
        "custodian": "NordStar Logistics GmbH",
        "location": "NordStar FRA hub, Cargo City Sued - cold room CR-1",
-       "from": "2026-10-28T12:00:00.000Z",
-       "to": "2026-10-28T17:00:00.000Z",
+       "from": "2026-11-01T12:00:00.000Z",
+       "to": "2026-11-01T17:00:00.000Z",
        "controlled": true
       },
       {
@@ -373,8 +393,8 @@
        "role": "airline",
        "custodian": "Boreal Air Cargo",
        "location": "Boreal Air Cargo, FRA - cool centre",
-       "from": "2026-10-28T17:00:00.000Z",
-       "to": "2026-10-28T21:30:00.000Z",
+       "from": "2026-11-01T17:00:00.000Z",
+       "to": "2026-11-01T21:30:00.000Z",
        "controlled": true
       },
       {
@@ -382,8 +402,8 @@
        "role": "airline",
        "custodian": "Boreal Air Cargo",
        "location": "FRA apron, position V114",
-       "from": "2026-10-28T21:30:00.000Z",
-       "to": "2026-10-28T23:30:00.000Z",
+       "from": "2026-11-01T21:30:00.000Z",
+       "to": "2026-11-01T23:30:00.000Z",
        "controlled": false
       },
       {
@@ -391,8 +411,8 @@
        "role": "airline",
        "custodian": "Boreal Air Cargo",
        "location": "Flight BO 404 FRA -> BOS",
-       "from": "2026-10-28T23:30:00.000Z",
-       "to": "2026-10-29T08:00:00.000Z",
+       "from": "2026-11-01T23:30:00.000Z",
+       "to": "2026-11-02T08:00:00.000Z",
        "controlled": true
       },
       {
@@ -400,8 +420,8 @@
        "role": "airline",
        "custodian": "Boreal Air Cargo",
        "location": "Boreal Air Cargo, BOS Logan - import cool room",
-       "from": "2026-10-29T08:00:00.000Z",
-       "to": "2026-10-29T17:00:00.000Z",
+       "from": "2026-11-02T08:00:00.000Z",
+       "to": "2026-11-02T17:00:00.000Z",
        "controlled": true
       },
       {
@@ -409,8 +429,8 @@
        "role": "forwarder",
        "custodian": "NordStar Logistics GmbH",
        "location": "NordStar US agent, Chelsea MA - cold storage",
-       "from": "2026-10-29T17:00:00.000Z",
-       "to": "2026-10-30T11:30:00.000Z",
+       "from": "2026-11-02T17:00:00.000Z",
+       "to": "2026-11-03T11:30:00.000Z",
        "controlled": true
       },
       {
@@ -418,8 +438,8 @@
        "role": "forwarder",
        "custodian": "NordStar Logistics GmbH",
        "location": "Road Chelsea MA -> Boston",
-       "from": "2026-10-30T11:30:00.000Z",
-       "to": "2026-10-30T14:00:00.000Z",
+       "from": "2026-11-03T11:30:00.000Z",
+       "to": "2026-11-03T14:00:00.000Z",
        "controlled": true
       }
      ],
@@ -434,52 +454,52 @@
       "spansMultipleParties": false,
       "citationIds": [
        "S1",
-       "S7",
-       "S8"
+       "S8",
+       "S9"
       ]
      }
     },
     "citations": [
      {
-      "id": "S7",
+      "id": "S8",
       "kind": "document",
       "label": "Handling event #5",
       "quote": "Staged on ramp awaiting loading (aircraft late)",
-      "title": "Boreal Air Cargo: FRA apron, position V114, 28 Oct, 21:30–28 Oct, 23:30 UTC",
+      "title": "Boreal Air Cargo: FRA apron, position V114, 1 Nov, 21:30–1 Nov, 23:30 UTC",
       "documentId": "demo-b-handling_events"
      },
      {
-      "id": "S8",
+      "id": "S9",
       "kind": "document",
       "page": 1,
       "label": "Ground Handling Irregula p.1",
-      "quote": "Ref. IRR-FRA-0417 | Issued 2026-10-29 01:00 UTC",
+      "quote": "Ref. IRR-FRA-0417 | Issued 2026-11-02 01:00 UTC",
       "title": "Ground Handling Irregularity Report",
       "documentId": "demo-b-handling_report"
      }
     ],
-    "durationMs": 72
+    "durationMs": 26
    }
   },
   {
-   "t": 2180,
+   "t": 146,
    "event": {
     "type": "text",
     "delta": "Checking the forwarder contract for temperature duties, liability caps and notice periods.\n"
    }
   },
   {
-   "t": 2182,
+   "t": 147,
    "event": {
     "type": "step_started",
     "seq": 11,
     "tool": "check_contract",
     "input": {},
-    "at": "2026-11-09T10:42:34.817Z"
+    "at": "2026-11-13T14:10:15.220Z"
    }
   },
   {
-   "t": 2303,
+   "t": 234,
    "event": {
     "type": "step_finished",
     "seq": 11,
@@ -506,76 +526,76 @@
        "title": "Temperature Range",
        "page": 1,
        "quote": "Temperature Range. The Forwarder shall keep the Goods within the Temperature Range at all times while they are in its Custody, using qualified and validated equipment.",
-       "citationId": "S9"
+       "citationId": "S10"
       },
       "hub_storage": {
        "clause": "3.2",
        "title": "Hub storage",
        "page": 1,
        "quote": "Hub storage. At all Forwarder hubs and warehouses the Goods shall be stored exclusively in qualified cold rooms maintained at +2 °C to +8 °C. The Goods shall not be staged in ambient areas, on docks or on warehouse floors for longer than 30 minutes in aggregate per hub.",
-       "citationId": "S10"
+       "citationId": "S11"
       },
       "air_carriers": {
        "clause": "4.3",
        "title": "Air carriers",
        "page": 2,
        "quote": "Air carriers. In respect of carriage by air performed by an air carrier, the Forwarder's liability shall not exceed the amount the Forwarder is able to recover from that air carrier under the Montreal Convention 1999 or other applicable air law. On request, the Forwarder shall assign to the Customer its rights of action against the air carrier.",
-       "citationId": "S11"
+       "citationId": "S12"
       },
       "excursion_reporting": {
        "clause": "5.2",
        "title": "Excursion reporting",
        "page": 2,
        "quote": "Excursion reporting. The Forwarder shall notify the Customer in writing of any known or suspected Temperature Excursion within 24 hours of becoming aware of it.",
-       "citationId": "S12"
+       "citationId": "S13"
       },
       "liability_basis": {
        "clause": "6.1",
        "title": "Basis",
        "page": 2,
        "quote": "Basis. The Forwarder is liable for loss of or damage to the Goods, including damage resulting from a Temperature Excursion, occurring while the Goods are in its Custody, unless it proves that the loss arose from circumstances it could not avoid and whose consequences it could not prevent.",
-       "citationId": "S13"
+       "citationId": "S14"
       },
       "liability_cap": {
        "clause": "6.2",
        "title": "Limit of liability",
        "page": 2,
        "quote": "Limit of liability. The Forwarder's liability shall be limited to 8.33 Special Drawing Rights (SDR) per kilogram of gross weight of the Goods lost or damaged.",
-       "citationId": "S14"
+       "citationId": "S15"
       },
       "damaged_goods": {
        "clause": "6.3",
        "title": "Damaged goods",
        "page": 2,
        "quote": "Damaged goods. Goods that the Customer's Quality Assurance rejects as a result of a Temperature Excursion are deemed damaged. The Customer's documented QA decision is conclusive in the absence of manifest error.",
-       "citationId": "S15"
+       "citationId": "S16"
       },
       "notice": {
        "clause": "7.1",
        "title": "Notice of claim",
        "page": 2,
        "quote": "Notice of claim. The Customer shall give written notice of any claim, or of circumstances that may give rise to a claim, within 7 days of Delivery. Such notice may reserve the Customer's rights pending its quality assessment and need not state the final amount claimed.",
-       "citationId": "S16"
+       "citationId": "S17"
       },
       "time_bar": {
        "clause": "7.3",
        "title": "Time bar",
        "page": 3,
        "quote": "Time bar. Any claim is barred unless legal proceedings are commenced within one year of Delivery.",
-       "citationId": "S17"
+       "citationId": "S18"
       },
       "exclusions": {
        "clause": "9.1",
        "title": "Excluded causes",
        "page": 3,
        "quote": "Excluded causes. The Forwarder is not liable to the extent a Temperature Excursion is caused by (a) packaging supplied by the Customer that is unsuitable or not validated for the route, (b) incorrect temperature instructions given by the Customer, (c) inherent vice of the Goods, or (d) force majeure.",
-       "citationId": "S18"
+       "citationId": "S19"
       }
      }
     },
     "citations": [
      {
-      "id": "S9",
+      "id": "S10",
       "kind": "document",
       "page": 1,
       "label": "Contract §3.1 p.1",
@@ -584,7 +604,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S10",
+      "id": "S11",
       "kind": "document",
       "page": 1,
       "label": "Contract §3.2 p.1",
@@ -593,7 +613,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S11",
+      "id": "S12",
       "kind": "document",
       "page": 2,
       "label": "Contract §4.3 p.2",
@@ -602,7 +622,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S12",
+      "id": "S13",
       "kind": "document",
       "page": 2,
       "label": "Contract §5.2 p.2",
@@ -611,7 +631,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S13",
+      "id": "S14",
       "kind": "document",
       "page": 2,
       "label": "Contract §6.1 p.2",
@@ -620,7 +640,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S14",
+      "id": "S15",
       "kind": "document",
       "page": 2,
       "label": "Contract §6.2 p.2",
@@ -629,7 +649,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S15",
+      "id": "S16",
       "kind": "document",
       "page": 2,
       "label": "Contract §6.3 p.2",
@@ -638,7 +658,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S16",
+      "id": "S17",
       "kind": "document",
       "page": 2,
       "label": "Contract §7.1 p.2",
@@ -647,7 +667,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S17",
+      "id": "S18",
       "kind": "document",
       "page": 3,
       "label": "Contract §7.3 p.3",
@@ -656,7 +676,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S18",
+      "id": "S19",
       "kind": "document",
       "page": 3,
       "label": "Contract §9.1 p.3",
@@ -665,28 +685,28 @@
       "documentId": "demo-b-contract"
      }
     ],
-    "durationMs": 113
+    "durationMs": 84
    }
   },
   {
-   "t": 2303,
+   "t": 234,
    "event": {
     "type": "text",
     "delta": "Checking the cargo policy for cover, exclusions, deductible and notice period.\n"
    }
   },
   {
-   "t": 2305,
+   "t": 236,
    "event": {
     "type": "step_started",
     "seq": 13,
     "tool": "check_policy",
     "input": {},
-    "at": "2026-11-09T10:42:34.940Z"
+    "at": "2026-11-13T14:10:15.309Z"
    }
   },
   {
-   "t": 2417,
+   "t": 291,
    "event": {
     "type": "step_finished",
     "seq": 13,
@@ -710,69 +730,69 @@
        "title": "Cover",
        "page": 1,
        "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data logger.",
-       "citationId": "S19"
+       "citationId": "S20"
       },
       "damage_definition": {
        "clause": "2.2",
        "title": "Damage",
        "page": 1,
        "quote": "Damage. Goods shall be deemed damaged where the Insured's Quality Assurance, acting reasonably and in accordance with documented stability data, rejects them as a consequence of the deviation. Goods released by Quality Assurance are not damaged within the meaning of this policy.",
-       "citationId": "S20"
+       "citationId": "S21"
       },
       "minimum_duration": {
        "clause": "2.3",
        "title": "Minimum duration",
        "page": 1,
        "quote": "Minimum duration. Deviations lasting less than 60 consecutive minutes are not covered under this extension.",
-       "citationId": "S21"
+       "citationId": "S22"
       },
       "packing_exclusion": {
        "clause": "3.3",
        "title": null,
        "page": 1,
        "quote": "Loss, damage or expense caused by insufficiency or unsuitability of packing or preparation of the subject-matter insured, where such packing is carried out by the Insured or its employees.",
-       "citationId": "S22"
+       "citationId": "S23"
       },
       "settlement": {
        "clause": "4.1",
        "title": "Measure of indemnity",
        "page": 2,
        "quote": "Measure of indemnity. In the event of total loss of the affected goods the Insurer will pay the insured value (100% of invoice value) less the deductible stated in the Schedule.",
-       "citationId": "S23"
+       "citationId": "S24"
       },
       "notification": {
        "clause": "5.1",
        "title": "Notification",
        "page": 2,
        "quote": "Notification. The Insured shall notify the Insurer in writing of any loss or damage that may give rise to a claim as soon as practicable and in any event within 30 days of discovery.",
-       "citationId": "S24"
+       "citationId": "S25"
       },
       "preservation": {
        "clause": "5.3",
        "title": null,
        "page": 2,
        "quote": "Duty of the Insured - preservation of rights. It is the duty of the Insured to ensure that all rights against carriers, bailees or other third parties are properly preserved and exercised, including by giving written notice of damage within the time limits applicable under the relevant contract or convention. The Insurer may reduce any claim to the extent of prejudice caused by a failure to do so.",
-       "citationId": "S25"
+       "citationId": "S26"
       },
       "subrogation": {
        "clause": "5.4",
        "title": "Subrogation",
        "page": 2,
        "quote": "Subrogation. Upon payment of a claim the Insurer is subrogated to all rights of the Insured against third parties in respect of the loss.",
-       "citationId": "S26"
+       "citationId": "S27"
       },
       "deductible": {
        "clause": "Schedule",
        "title": "Deductible",
        "page": 1,
        "quote": "Deductible €10,000 each and every claim",
-       "citationId": "S27"
+       "citationId": "S28"
       }
      }
     },
     "citations": [
      {
-      "id": "S19",
+      "id": "S20",
       "kind": "document",
       "page": 1,
       "label": "Policy §2.1 p.1",
@@ -781,7 +801,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S20",
+      "id": "S21",
       "kind": "document",
       "page": 1,
       "label": "Policy §2.2 p.1",
@@ -790,7 +810,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S21",
+      "id": "S22",
       "kind": "document",
       "page": 1,
       "label": "Policy §2.3 p.1",
@@ -799,7 +819,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S22",
+      "id": "S23",
       "kind": "document",
       "page": 1,
       "label": "Policy §3.3 p.1",
@@ -808,7 +828,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S23",
+      "id": "S24",
       "kind": "document",
       "page": 2,
       "label": "Policy §4.1 p.2",
@@ -817,7 +837,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S24",
+      "id": "S25",
       "kind": "document",
       "page": 2,
       "label": "Policy §5.1 p.2",
@@ -826,7 +846,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S25",
+      "id": "S26",
       "kind": "document",
       "page": 2,
       "label": "Policy §5.3 p.2",
@@ -835,7 +855,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S26",
+      "id": "S27",
       "kind": "document",
       "page": 2,
       "label": "Policy §5.4 p.2",
@@ -844,7 +864,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S27",
+      "id": "S28",
       "kind": "document",
       "page": 1,
       "label": "Policy schedule p.1",
@@ -853,28 +873,28 @@
       "documentId": "demo-b-policy"
      }
     ],
-    "durationMs": 102
+    "durationMs": 50
    }
   },
   {
-   "t": 2417,
+   "t": 291,
    "event": {
     "type": "text",
     "delta": "Applying the liability limits per route.\n"
    }
   },
   {
-   "t": 2418,
+   "t": 292,
    "event": {
     "type": "step_started",
     "seq": 15,
     "tool": "compute_liability",
     "input": {},
-    "at": "2026-11-09T10:42:35.053Z"
+    "at": "2026-11-13T14:10:15.365Z"
    }
   },
   {
-   "t": 2460,
+   "t": 312,
    "event": {
     "type": "step_finished",
     "seq": 15,
@@ -952,7 +972,7 @@
       "documentId": "demo-b-invoice"
      },
      {
-      "id": "S14",
+      "id": "S15",
       "kind": "document",
       "page": 2,
       "label": "Contract §6.2 p.2",
@@ -961,7 +981,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S11",
+      "id": "S12",
       "kind": "document",
       "page": 2,
       "label": "Contract §4.3 p.2",
@@ -970,7 +990,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S13",
+      "id": "S14",
       "kind": "document",
       "page": 2,
       "label": "Contract §6.1 p.2",
@@ -979,7 +999,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S19",
+      "id": "S20",
       "kind": "document",
       "page": 1,
       "label": "Policy §2.1 p.1",
@@ -988,7 +1008,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S21",
+      "id": "S22",
       "kind": "document",
       "page": 1,
       "label": "Policy §2.3 p.1",
@@ -997,7 +1017,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S23",
+      "id": "S24",
       "kind": "document",
       "page": 2,
       "label": "Policy §4.1 p.2",
@@ -1006,7 +1026,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S27",
+      "id": "S28",
       "kind": "document",
       "page": 1,
       "label": "Policy schedule p.1",
@@ -1015,43 +1035,43 @@
       "documentId": "demo-b-policy"
      }
     ],
-    "durationMs": 29
+    "durationMs": 14
    }
   },
   {
-   "t": 2460,
+   "t": 312,
    "event": {
     "type": "text",
     "delta": "Working out every deadline and how many days are left.\n"
    }
   },
   {
-   "t": 2463,
+   "t": 313,
    "event": {
     "type": "step_started",
     "seq": 17,
     "tool": "compute_deadlines",
     "input": {},
-    "at": "2026-11-09T10:42:35.098Z"
+    "at": "2026-11-13T14:10:15.386Z"
    }
   },
   {
-   "t": 2503,
+   "t": 337,
    "event": {
     "type": "step_finished",
     "seq": 17,
     "tool": "compute_deadlines",
     "status": "ok",
-    "summary": "Forwarder notice 6 Nov 2026 (3 days overdue); Carrier notice 13 Nov 2026 (4 days left); Insurer notice 8 Dec 2026 (29 days left)",
+    "summary": "Forwarder notice 10 Nov 2026 (3 days overdue); Carrier notice 17 Nov 2026 (4 days left); Insurer notice 12 Dec 2026 (29 days left)",
     "output": {
-     "now": "2026-11-09T10:42:32.640Z",
+     "now": "2026-11-13T14:10:15.074Z",
      "deadlines": [
       {
        "id": "contract_notice",
        "route": "forwarder",
        "label": "Written notice of claim to the forwarder",
        "basis": "Forwarder contract notice clause: within 7 days of delivery",
-       "dueAt": "2026-11-06T23:59:59.000Z",
+       "dueAt": "2026-11-10T23:59:59.000Z",
        "windowDays": 7,
        "kind": "notice",
        "daysLeft": -3,
@@ -1062,7 +1082,7 @@
        "route": "carrier",
        "label": "Written notice of damage to the carrier",
        "basis": "Montreal Convention Art. 31(2): within 14 days from the date of receipt",
-       "dueAt": "2026-11-13T23:59:59.000Z",
+       "dueAt": "2026-11-17T23:59:59.000Z",
        "windowDays": 14,
        "kind": "notice",
        "daysLeft": 4,
@@ -1073,7 +1093,7 @@
        "route": "insurer",
        "label": "Notification of loss to the insurer",
        "basis": "Cargo policy claims clause: within 30 days of discovery",
-       "dueAt": "2026-12-08T23:59:59.000Z",
+       "dueAt": "2026-12-12T23:59:59.000Z",
        "windowDays": 30,
        "kind": "notice",
        "daysLeft": 29,
@@ -1084,7 +1104,7 @@
        "route": "forwarder",
        "label": "Legal proceedings against the forwarder",
        "basis": "Forwarder contract time bar: 1 year(s) from delivery",
-       "dueAt": "2027-10-30T23:59:59.000Z",
+       "dueAt": "2027-11-03T23:59:59.000Z",
        "windowDays": 365,
        "kind": "time_bar",
        "daysLeft": 355,
@@ -1095,7 +1115,7 @@
        "route": "carrier",
        "label": "Court action against the carrier",
        "basis": "Montreal Convention Art. 35: 2 years from arrival",
-       "dueAt": "2028-10-30T23:59:59.000Z",
+       "dueAt": "2028-11-03T23:59:59.000Z",
        "windowDays": 730,
        "kind": "time_bar",
        "daysLeft": 721,
@@ -1114,7 +1134,7 @@
       "documentId": "demo-b-awb"
      },
      {
-      "id": "S16",
+      "id": "S17",
       "kind": "document",
       "page": 2,
       "label": "Contract §7.1 p.2",
@@ -1123,7 +1143,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S17",
+      "id": "S18",
       "kind": "document",
       "page": 3,
       "label": "Contract §7.3 p.3",
@@ -1132,7 +1152,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S24",
+      "id": "S25",
       "kind": "document",
       "page": 2,
       "label": "Policy §5.1 p.2",
@@ -1141,34 +1161,34 @@
       "documentId": "demo-b-policy"
      }
     ],
-    "durationMs": 35
+    "durationMs": 23
    }
   },
   {
-   "t": 2503,
+   "t": 337,
    "event": {
     "type": "text",
     "delta": "Ranking the recovery routes by expected recoverable amount.\n"
    }
   },
   {
-   "t": 2505,
+   "t": 338,
    "event": {
     "type": "step_started",
     "seq": 19,
     "tool": "rank_routes",
     "input": {},
-    "at": "2026-11-09T10:42:35.140Z"
+    "at": "2026-11-13T14:10:15.411Z"
    }
   },
   {
-   "t": 2555,
+   "t": 388,
    "event": {
     "type": "step_finished",
     "seq": 19,
     "tool": "rank_routes",
     "status": "ok",
-    "summary": "Recommended: insurer (€190,000, 80% likely). Protective notice needed to: carrier.",
+    "summary": "Recommended: insurer (€190,000, 80% likely). Claim plan: insurer €190,000 (primary), carrier €3,771 (secondary). Protective notice needed to: carrier.",
     "output": {
      "qa": "pending",
      "ranking": [
@@ -1185,7 +1205,7 @@
        ],
        "blockers": [],
        "noticeDeadline": {
-        "dueAt": "2026-12-08T23:59:59.000Z",
+        "dueAt": "2026-12-12T23:59:59.000Z",
         "daysLeft": 29
        }
       },
@@ -1202,7 +1222,7 @@
        ],
        "blockers": [],
        "noticeDeadline": {
-        "dueAt": "2026-11-13T23:59:59.000Z",
+        "dueAt": "2026-11-17T23:59:59.000Z",
         "daysLeft": 4
        }
       },
@@ -1223,7 +1243,7 @@
         "Notice period lapsed (3 days ago): Forwarder contract notice clause: within 7 days of delivery."
        ],
        "noticeDeadline": {
-        "dueAt": "2026-11-06T23:59:59.000Z",
+        "dueAt": "2026-11-10T23:59:59.000Z",
         "daysLeft": -3
        }
       }
@@ -1234,6 +1254,22 @@
        "deadlineId": "montreal_notice",
        "daysLeft": 4,
        "reason": "Montreal Convention Art. 31(2): within 14 days from the date of receipt: 4 day(s) left and QA has not decided yet."
+      }
+     ],
+     "claimPlan": [
+      {
+       "route": "insurer",
+       "role": "primary",
+       "amountEur": 190000,
+       "reason": "Temperature deviation is covered by the policy",
+       "order": 1
+      },
+      {
+       "route": "carrier",
+       "role": "secondary",
+       "amountEur": 3771.456,
+       "reason": "Party in custody at the excursion, for the uninsured part (deductible and uninsured share)",
+       "order": 2
       }
      ]
     },
@@ -1246,28 +1282,28 @@
        185
       ],
       "label": "Logger r.168–185",
-      "title": "logger-CT5-88213.csv: rows 168–185, 28 Oct, 21:55–28 Oct, 23:20 UTC, peak 13.0 °C",
+      "title": "logger-CT5-88213.csv: rows 168–185, 1 Nov, 21:55–1 Nov, 23:20 UTC, peak 13.0 °C",
       "documentId": "demo-b-logger"
-     },
-     {
-      "id": "S7",
-      "kind": "document",
-      "label": "Handling event #5",
-      "quote": "Staged on ramp awaiting loading (aircraft late)",
-      "title": "Boreal Air Cargo: FRA apron, position V114, 28 Oct, 21:30–28 Oct, 23:30 UTC",
-      "documentId": "demo-b-handling_events"
      },
      {
       "id": "S8",
       "kind": "document",
+      "label": "Handling event #5",
+      "quote": "Staged on ramp awaiting loading (aircraft late)",
+      "title": "Boreal Air Cargo: FRA apron, position V114, 1 Nov, 21:30–1 Nov, 23:30 UTC",
+      "documentId": "demo-b-handling_events"
+     },
+     {
+      "id": "S9",
+      "kind": "document",
       "page": 1,
       "label": "Ground Handling Irregula p.1",
-      "quote": "Ref. IRR-FRA-0417 | Issued 2026-10-29 01:00 UTC",
+      "quote": "Ref. IRR-FRA-0417 | Issued 2026-11-02 01:00 UTC",
       "title": "Ground Handling Irregularity Report",
       "documentId": "demo-b-handling_report"
      },
      {
-      "id": "S10",
+      "id": "S11",
       "kind": "document",
       "page": 1,
       "label": "Contract §3.2 p.1",
@@ -1276,7 +1312,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S16",
+      "id": "S17",
       "kind": "document",
       "page": 2,
       "label": "Contract §7.1 p.2",
@@ -1285,7 +1321,7 @@
       "documentId": "demo-b-contract"
      },
      {
-      "id": "S19",
+      "id": "S20",
       "kind": "document",
       "page": 1,
       "label": "Policy §2.1 p.1",
@@ -1294,7 +1330,7 @@
       "documentId": "demo-b-policy"
      },
      {
-      "id": "S25",
+      "id": "S26",
       "kind": "document",
       "page": 2,
       "label": "Policy §5.3 p.2",
@@ -1303,18 +1339,18 @@
       "documentId": "demo-b-policy"
      }
     ],
-    "durationMs": 42
+    "durationMs": 48
    }
   },
   {
-   "t": 2555,
+   "t": 388,
    "event": {
     "type": "text",
     "delta": "The carrier notice deadline is 4 days away and QA has not decided, so I am drafting a protective notice to reserve our rights.\n"
    }
   },
   {
-   "t": 2558,
+   "t": 389,
    "event": {
     "type": "step_started",
     "seq": 21,
@@ -1322,19 +1358,19 @@
     "input": {
      "route": "carrier"
     },
-    "at": "2026-11-09T10:42:35.193Z"
+    "at": "2026-11-13T14:10:15.462Z"
    }
   },
   {
-   "t": 2618,
+   "t": 434,
    "event": {
     "type": "step_finished",
     "seq": 21,
     "tool": "draft_protective_notice",
     "status": "ok",
-    "summary": "Protective notice to Boreal Air Cargo drafted, due 13 Nov 2026 (4 days left). Waiting for manager approval.",
+    "summary": "Protective notice to Boreal Air Cargo drafted, due 17 Nov 2026 (4 days left). Waiting for manager approval.",
     "output": {
-     "draftId": "dr-p4adSzng",
+     "draftId": "dr-18rq1F46",
      "route": "carrier",
      "to": {
       "name": "Boreal Air Cargo",
@@ -1347,17 +1383,15 @@
       "id": "montreal_notice",
       "kind": "notice",
       "basis": "Montreal Convention Art. 31(2): within 14 days from the date of receipt",
-      "dueAt": "2026-11-13T23:59:59.000Z",
+      "dueAt": "2026-11-17T23:59:59.000Z",
       "label": "Written notice of damage to the carrier",
       "route": "carrier",
       "status": "ok",
       "daysLeft": 4,
       "windowDays": 14
      },
-     "citationCoverage": 0.875,
-     "assumptions": [
-      "Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics GmbH"
-     ]
+     "citationCoverage": 1,
+     "assumptions": []
     },
     "citations": [
      {
@@ -1370,11 +1404,11 @@
       "documentId": "demo-b-awb"
      },
      {
-      "id": "S7",
+      "id": "S8",
       "kind": "document",
       "label": "Handling event #5",
       "quote": "Staged on ramp awaiting loading (aircraft late)",
-      "title": "Boreal Air Cargo: FRA apron, position V114, 28 Oct, 21:30–28 Oct, 23:30 UTC",
+      "title": "Boreal Air Cargo: FRA apron, position V114, 1 Nov, 21:30–1 Nov, 23:30 UTC",
       "documentId": "demo-b-handling_events"
      },
      {
@@ -1385,57 +1419,50 @@
        185
       ],
       "label": "Logger r.168–185",
-      "title": "logger-CT5-88213.csv: rows 168–185, 28 Oct, 21:55–28 Oct, 23:20 UTC, peak 13.0 °C",
+      "title": "logger-CT5-88213.csv: rows 168–185, 1 Nov, 21:55–1 Nov, 23:20 UTC, peak 13.0 °C",
       "documentId": "demo-b-logger"
      },
      {
-      "id": "S8",
+      "id": "S9",
       "kind": "document",
       "page": 1,
       "label": "Ground Handling Irregula p.1",
-      "quote": "Ref. IRR-FRA-0417 | Issued 2026-10-29 01:00 UTC",
+      "quote": "Ref. IRR-FRA-0417 | Issued 2026-11-02 01:00 UTC",
       "title": "Ground Handling Irregularity Report",
       "documentId": "demo-b-handling_report"
      },
      {
-      "id": "S28",
+      "id": "S29",
       "kind": "document",
       "page": 1,
       "label": "AWB p.1 (address)",
       "quote": "Cargo claims: cargo.claims@borealaircargo.example",
       "title": "Boreal Air Cargo contact details",
       "documentId": "demo-b-awb"
-     },
-     {
-      "kind": "assumption",
-      "label": "Assumption: Tom Becker Claims Manager, on…",
-      "title": "No source cited for: \"Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics GmbH\"",
-      "quote": "Tom Becker\nClaims Manager, on behalf of Rheinfeld Biologics GmbH",
-      "id": "S29"
      }
     ],
-    "durationMs": 55
+    "durationMs": 43
    }
   },
   {
-   "t": 2618,
+   "t": 434,
    "event": {
     "type": "text",
     "delta": "Checking whether anything is missing from the file.\n"
    }
   },
   {
-   "t": 2619,
+   "t": 435,
    "event": {
     "type": "step_started",
     "seq": 23,
     "tool": "request_missing_info",
     "input": {},
-    "at": "2026-11-09T10:42:35.254Z"
+    "at": "2026-11-13T14:10:15.508Z"
    }
   },
   {
-   "t": 2650,
+   "t": 463,
    "event": {
     "type": "step_finished",
     "seq": 23,
@@ -1450,32 +1477,581 @@
      "valueSource": "invoice"
     },
     "citations": [],
+    "durationMs": 26
+   }
+  },
+  {
+   "t": 463,
+   "event": {
+    "type": "text",
+    "delta": "Handing the measured excursion to the quality agent: it compares peak temperature and minutes out of range with the manufacturer's stability data.\n"
+   }
+  },
+  {
+   "t": 464,
+   "event": {
+    "type": "step_started",
+    "seq": 25,
+    "tool": "assess_quality",
+    "input": {},
+    "at": "2026-11-13T14:10:15.537Z"
+   }
+  },
+  {
+   "t": 519,
+   "event": {
+    "type": "step_finished",
+    "seq": 25,
+    "tool": "assess_quality",
+    "status": "ok",
+    "summary": "Quality agent: damaged. The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min). The claim path opens.",
+    "output": {
+     "verdict": "damaged",
+     "basis": "beyond_allowance",
+     "peakC": 13,
+     "minutesOutOfRange": 90,
+     "allowance": {
+      "maxTempC": 10,
+      "maxMinutesOutOfRange": 30,
+      "citationHint": "S30"
+     },
+     "reasons": [
+      "The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min)."
+     ],
+     "citationId": "S30"
+    },
+    "citations": [
+     {
+      "id": "S30",
+      "kind": "email",
+      "label": "Stability data 3 Nov 2026",
+      "quote": "Dear team, for Orenvacept 40 mg pre-filled syringe (batch ORV-2608-112) the validated stability data allows temperature excursions up to 10 °C for a cumulative 30 minutes outside 2-8 °C.",
+      "title": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>: Stability data - Orenvacept 40 mg pre-filled syringe",
+      "documentId": "demo-b-email-04"
+     }
+    ],
+    "durationMs": 45
+   }
+  },
+  {
+   "t": 520,
+   "event": {
+    "type": "text",
+    "delta": "The excursion happened while Boreal Air Cargo held the cargo. The best route is the insurer for €190,000. A protective notice is ready for approval. The quality agent found the product damaged, so I prepare the claim for manager approval.\n"
+   }
+  },
+  {
+   "t": 532,
+   "event": {
+    "type": "text",
+    "delta": "The product is confirmed damaged, so I am re-ranking the routes and building the claim plan.\n"
+   }
+  },
+  {
+   "t": 533,
+   "event": {
+    "type": "step_started",
+    "seq": 28,
+    "tool": "rank_routes",
+    "input": {},
+    "at": "2026-11-13T14:10:15.606Z"
+   }
+  },
+  {
+   "t": 557,
+   "event": {
+    "type": "step_finished",
+    "seq": 28,
+    "tool": "rank_routes",
+    "status": "ok",
+    "summary": "Recommended: insurer (€190,000, 80% likely). Claim plan: insurer €190,000 (primary), carrier €3,771 (secondary).",
+    "output": {
+     "qa": "rejected",
+     "ranking": [
+      {
+       "rank": 1,
+       "route": "insurer",
+       "recommended": true,
+       "recoverableEur": 190000,
+       "probability": 0.8,
+       "expectedEur": 152000,
+       "reasons": [
+        "Temperature deviation is covered by the policy",
+        "Recoverable €190,000 if successful"
+       ],
+       "blockers": [],
+       "noticeDeadline": {
+        "dueAt": "2026-12-12T23:59:59.000Z",
+        "daysLeft": 29
+       }
+      },
+      {
+       "rank": 2,
+       "route": "carrier",
+       "recommended": false,
+       "recoverableEur": 3771.456,
+       "probability": 0.85,
+       "expectedEur": 3206,
+       "reasons": [
+        "Excursion occurred in the airline's custody",
+        "Recoverable €3,771 if successful"
+       ],
+       "blockers": [],
+       "noticeDeadline": {
+        "dueAt": "2026-11-17T23:59:59.000Z",
+        "daysLeft": 4
+       }
+      },
+      {
+       "rank": 3,
+       "route": "forwarder",
+       "recommended": false,
+       "recoverableEur": 3771.456,
+       "probability": 0,
+       "expectedEur": 0,
+       "reasons": [
+        "Forwarder only passes through the carrier's liability",
+        "Notice deadline has passed",
+        "Recoverable €3,771 if successful"
+       ],
+       "blockers": [
+        "Excursion happened in the air carrier's custody; forwarder liability passes through to the carrier limit.",
+        "Notice period lapsed (3 days ago): Forwarder contract notice clause: within 7 days of delivery."
+       ],
+       "noticeDeadline": {
+        "dueAt": "2026-11-10T23:59:59.000Z",
+        "daysLeft": -3
+       }
+      }
+     ],
+     "protectiveNoticesNeeded": [],
+     "claimPlan": [
+      {
+       "route": "insurer",
+       "role": "primary",
+       "amountEur": 190000,
+       "reason": "Temperature deviation is covered by the policy",
+       "order": 1
+      },
+      {
+       "route": "carrier",
+       "role": "secondary",
+       "amountEur": 3771.456,
+       "reason": "Party in custody at the excursion, for the uninsured part (deductible and uninsured share)",
+       "order": 2
+      }
+     ]
+    },
+    "citations": [
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       168,
+       185
+      ],
+      "label": "Logger r.168–185",
+      "title": "logger-CT5-88213.csv: rows 168–185, 1 Nov, 21:55–1 Nov, 23:20 UTC, peak 13.0 °C",
+      "documentId": "demo-b-logger"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "label": "Handling event #5",
+      "quote": "Staged on ramp awaiting loading (aircraft late)",
+      "title": "Boreal Air Cargo: FRA apron, position V114, 1 Nov, 21:30–1 Nov, 23:30 UTC",
+      "documentId": "demo-b-handling_events"
+     },
+     {
+      "id": "S9",
+      "kind": "document",
+      "page": 1,
+      "label": "Ground Handling Irregula p.1",
+      "quote": "Ref. IRR-FRA-0417 | Issued 2026-11-02 01:00 UTC",
+      "title": "Ground Handling Irregularity Report",
+      "documentId": "demo-b-handling_report"
+     },
+     {
+      "id": "S11",
+      "kind": "document",
+      "page": 1,
+      "label": "Contract §3.2 p.1",
+      "quote": "Hub storage. At all Forwarder hubs and warehouses the Goods shall be stored exclusively in qualified cold rooms maintained at +2 °C to +8 °C.",
+      "title": "Contract clause 3.2 (Hub storage)",
+      "documentId": "demo-b-contract"
+     },
+     {
+      "id": "S17",
+      "kind": "document",
+      "page": 2,
+      "label": "Contract §7.1 p.2",
+      "quote": "Notice of claim. The Customer shall give written notice of any claim, or of circumstances that may give rise to a claim, within 7 days of Delivery.",
+      "title": "Contract clause 7.1 (Notice of claim)",
+      "documentId": "demo-b-contract"
+     },
+     {
+      "id": "S20",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.1 p.1",
+      "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data log…",
+      "title": "Policy clause 2.1 (Cover)",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S26",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.3 p.2",
+      "quote": "Duty of the Insured - preservation of rights. It is the duty of the Insured to ensure that all rights against carriers, bailees or other third parties are properly preserved and exercised, including by giving written not…",
+      "title": "Policy clause 5.3",
+      "documentId": "demo-b-policy"
+     }
+    ],
+    "durationMs": 19
+   }
+  },
+  {
+   "t": 557,
+   "event": {
+    "type": "text",
+    "delta": "Drafting the claim letter for the recommended route, citing every statement.\n"
+   }
+  },
+  {
+   "t": 558,
+   "event": {
+    "type": "step_started",
+    "seq": 30,
+    "tool": "draft_claim_letter",
+    "input": {},
+    "at": "2026-11-13T14:10:15.631Z"
+   }
+  },
+  {
+   "t": 586,
+   "event": {
+    "type": "step_finished",
+    "seq": 30,
+    "tool": "draft_claim_letter",
+    "status": "ok",
+    "summary": "Claim letter to Meridian Marine & Cargo Insurance SE for €190,000 drafted with 12 citations, every statement sourced.",
+    "output": {
+     "draftId": "dr-iQOGUHOR",
+     "route": "insurer",
+     "role": "primary",
+     "amountEur": 190000,
+     "to": {
+      "name": "Meridian Marine & Cargo Insurance SE",
+      "email": "cargo.claims@meridian-marine.example"
+     },
+     "subject": "Claim for temperature damage – RB-24093 – €190,000",
+     "citationCoverage": 1,
+     "assumptions": [],
+     "annexes": [
+      "Data logger file and excursion extract",
+      "Air waybill",
+      "Commercial invoice",
+      "Quality Assurance disposition",
+      "Custody timeline and handling records",
+      "Insurance policy (cited clauses)",
+      "Notice of damage to the carrier",
+      "Evidence pack (Kelvin)"
+     ]
+    },
+    "citations": [
+     {
+      "id": "S2",
+      "kind": "document",
+      "page": 1,
+      "label": "AWB 717-4821 3377 p.1",
+      "quote": "NVD",
+      "title": "Air waybill 717-4821 3377",
+      "documentId": "demo-b-awb"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "label": "Handling event #5",
+      "quote": "Staged on ramp awaiting loading (aircraft late)",
+      "title": "Boreal Air Cargo: FRA apron, position V114, 1 Nov, 21:30–1 Nov, 23:30 UTC",
+      "documentId": "demo-b-handling_events"
+     },
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       168,
+       185
+      ],
+      "label": "Logger r.168–185",
+      "title": "logger-CT5-88213.csv: rows 168–185, 1 Nov, 21:55–1 Nov, 23:20 UTC, peak 13.0 °C",
+      "documentId": "demo-b-logger"
+     },
+     {
+      "id": "S9",
+      "kind": "document",
+      "page": 1,
+      "label": "Ground Handling Irregula p.1",
+      "quote": "Ref. IRR-FRA-0417 | Issued 2026-11-02 01:00 UTC",
+      "title": "Ground Handling Irregularity Report",
+      "documentId": "demo-b-handling_report"
+     },
+     {
+      "id": "S31",
+      "kind": "record",
+      "label": "QA decision 13 Nov 2026",
+      "quote": "The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min).",
+      "title": "Quality disposition: rejected by Quality agent (AI quality agent). Note: The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min)."
+     },
+     {
+      "id": "S20",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.1 p.1",
+      "quote": "Cover. This policy is extended to cover physical loss of or damage to the subject-matter insured caused by a deviation from the temperature range stated in the shipping documents, as recorded by the accompanying data log…",
+      "title": "Policy clause 2.1 (Cover)",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S21",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.2 p.1",
+      "quote": "Damage. Goods shall be deemed damaged where the Insured's Quality Assurance, acting reasonably and in accordance with documented stability data, rejects them as a consequence of the deviation.",
+      "title": "Policy clause 2.2 (Damage)",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S22",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy §2.3 p.1",
+      "quote": "Minimum duration. Deviations lasting less than 60 consecutive minutes are not covered under this extension.",
+      "title": "Policy clause 2.3 (Minimum duration)",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S3",
+      "kind": "document",
+      "page": 1,
+      "label": "Invoice CI-RB-24093 p.1",
+      "quote": "Total invoice value €200,000",
+      "title": "Commercial invoice CI-RB-24093",
+      "documentId": "demo-b-invoice"
+     },
+     {
+      "id": "S24",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §4.1 p.2",
+      "quote": "Measure of indemnity. In the event of total loss of the affected goods the Insurer will pay the insured value (100% of invoice value) less the deductible stated in the Schedule.",
+      "title": "Policy clause 4.1 (Measure of indemnity)",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S28",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy schedule p.1",
+      "quote": "Deductible €10,000 each and every claim",
+      "title": "Policy schedule: deductible",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S26",
+      "kind": "document",
+      "page": 2,
+      "label": "Policy §5.3 p.2",
+      "quote": "Duty of the Insured - preservation of rights. It is the duty of the Insured to ensure that all rights against carriers, bailees or other third parties are properly preserved and exercised, including by giving written not…",
+      "title": "Policy clause 5.3",
+      "documentId": "demo-b-policy"
+     },
+     {
+      "id": "S32",
+      "kind": "document",
+      "page": 1,
+      "label": "Policy p.1 (address)",
+      "quote": "cargo.claims@meridian-marine.example",
+      "title": "Meridian Marine & Cargo Insurance SE contact details",
+      "documentId": "demo-b-policy"
+     }
+    ],
+    "durationMs": 26
+   }
+  },
+  {
+   "t": 588,
+   "event": {
+    "type": "text",
+    "delta": "The carrier held the cargo and is liable for the part the insurance does not cover, so I am drafting a secondary claim for €3,771.\n"
+   }
+  },
+  {
+   "t": 589,
+   "event": {
+    "type": "step_started",
+    "seq": 32,
+    "tool": "draft_claim_letter",
+    "input": {
+     "route": "carrier"
+    },
+    "at": "2026-11-13T14:10:15.662Z"
+   }
+  },
+  {
+   "t": 619,
+   "event": {
+    "type": "step_finished",
+    "seq": 32,
+    "tool": "draft_claim_letter",
+    "status": "ok",
+    "summary": "Secondary claim letter to Boreal Air Cargo for €3,771 drafted with 5 citations, every statement sourced.",
+    "output": {
+     "draftId": "dr-7xgPckyE",
+     "route": "carrier",
+     "role": "secondary",
+     "amountEur": 3771.456,
+     "to": {
+      "name": "Boreal Air Cargo",
+      "email": "cargo.claims@borealaircargo.example"
+     },
+     "subject": "Secondary claim for temperature damage – RB-24093 – €3,771",
+     "citationCoverage": 1,
+     "assumptions": [],
+     "annexes": [
+      "Data logger file and excursion extract",
+      "Air waybill",
+      "Commercial invoice",
+      "Quality Assurance disposition",
+      "Custody timeline and handling records",
+      "Evidence pack (Kelvin)"
+     ]
+    },
+    "citations": [
+     {
+      "id": "S2",
+      "kind": "document",
+      "page": 1,
+      "label": "AWB 717-4821 3377 p.1",
+      "quote": "NVD",
+      "title": "Air waybill 717-4821 3377",
+      "documentId": "demo-b-awb"
+     },
+     {
+      "id": "S8",
+      "kind": "document",
+      "label": "Handling event #5",
+      "quote": "Staged on ramp awaiting loading (aircraft late)",
+      "title": "Boreal Air Cargo: FRA apron, position V114, 1 Nov, 21:30–1 Nov, 23:30 UTC",
+      "documentId": "demo-b-handling_events"
+     },
+     {
+      "id": "S1",
+      "kind": "logger",
+      "rows": [
+       168,
+       185
+      ],
+      "label": "Logger r.168–185",
+      "title": "logger-CT5-88213.csv: rows 168–185, 1 Nov, 21:55–1 Nov, 23:20 UTC, peak 13.0 °C",
+      "documentId": "demo-b-logger"
+     },
+     {
+      "id": "S9",
+      "kind": "document",
+      "page": 1,
+      "label": "Ground Handling Irregula p.1",
+      "quote": "Ref. IRR-FRA-0417 | Issued 2026-11-02 01:00 UTC",
+      "title": "Ground Handling Irregularity Report",
+      "documentId": "demo-b-handling_report"
+     },
+     {
+      "id": "S31",
+      "kind": "record",
+      "label": "QA decision 13 Nov 2026",
+      "quote": "The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min).",
+      "title": "Quality disposition: rejected by Quality agent (AI quality agent). Note: The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min)."
+     },
+     {
+      "id": "S29",
+      "kind": "document",
+      "page": 1,
+      "label": "AWB p.1 (address)",
+      "quote": "Cargo claims: cargo.claims@borealaircargo.example",
+      "title": "Boreal Air Cargo contact details",
+      "documentId": "demo-b-awb"
+     }
+    ],
     "durationMs": 28
    }
   },
   {
-   "t": 2653,
+   "t": 619,
    "event": {
     "type": "text",
-    "delta": "The excursion happened while Boreal Air Cargo held the cargo. If QA rejects the batch, the best route is the insurer for €190,000. A protective notice is ready for approval. Next: Quality Assurance decides whether the product is usable.\n"
+    "delta": "Building the evidence pack with the chart, logger extract and cited pages.\n"
    }
   },
   {
-   "t": 2668,
+   "t": 620,
+   "event": {
+    "type": "step_started",
+    "seq": 34,
+    "tool": "build_evidence_pack",
+    "input": {},
+    "at": "2026-11-13T14:10:15.693Z"
+   }
+  },
+  {
+   "t": 794,
+   "event": {
+    "type": "step_finished",
+    "seq": 34,
+    "tool": "build_evidence_pack",
+    "status": "ok",
+    "summary": "Evidence pack built: 8 pages incl. timeline chart, logger extract, citation index and 5 cited source pages.",
+    "output": {
+     "documentId": "demo-b-evidence-pack",
+     "pages": 8,
+     "appendedSourcePages": 5
+    },
+    "citations": [],
+    "durationMs": 172
+   }
+  },
+  {
+   "t": 794,
+   "event": {
+    "type": "text",
+    "delta": "The claim for €190,000 to Meridian Marine & Cargo Insurance SE is ready. A manager must approve it before anything is sent.\n"
+   }
+  },
+  {
+   "t": 825,
    "event": {
     "type": "status",
     "from": "investigating",
-    "to": "awaiting_qa",
-    "reason": "Investigation complete: Quality Assurance must decide disposition"
+    "to": "claim_prepared",
+    "reason": "Claim letter and evidence pack prepared"
    }
   },
   {
-   "t": 2671,
+   "t": 841,
+   "event": {
+    "type": "status",
+    "from": "claim_prepared",
+    "to": "awaiting_approval",
+    "reason": "Waiting for manager approval"
+   }
+  },
+  {
+   "t": 844,
    "event": {
     "type": "run_finished",
     "status": "completed",
-    "durationMs": 2671,
-    "finalStatus": "awaiting_qa"
+    "durationMs": 844,
+    "finalStatus": "awaiting_approval"
    }
   }
  ]

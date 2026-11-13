@@ -5,11 +5,12 @@ import type { Citation } from "@/lib/domain/citation";
 import { ROUTE_META } from "@/lib/domain/parties";
 import { formatDate, formatEUR } from "@/lib/format";
 import { getRecord, patchRecord } from "@/lib/case/record";
+import { buildClaimPlan } from "@/lib/rules/claim-plan";
 import { computeDeadlines, nearestOpenDeadline } from "@/lib/rules/deadlines";
 import { protectiveNoticesNeeded } from "@/lib/rules/early-notice";
 import { computeLiability } from "@/lib/rules/liability";
 import { rankRoutes } from "@/lib/rules/ranking";
-import { deadlineInput, getCaseRow, liabilityInput, qaStatus } from "../assess";
+import { deadlineInput, getCaseRow, liabilityInput, qaStatus, requiredDataMissing, totalLossEur } from "../assess";
 import { defineTool, ToolGuardError } from "../tool";
 
 const cite = (reg: Record<string, Citation> | undefined, ...ids: (string | undefined)[]) =>
@@ -88,7 +89,7 @@ export const computeDeadlinesTool = defineTool({
 export const rankRoutesTool = defineTool({
   name: "rank_routes",
   description:
-    "Rank carrier, forwarder and insurer by expected recoverable € (recoverable × probability), blocking routes whose notice lapsed. Also says which protective notices are needed before QA decides. Run after compute_liability and compute_deadlines.",
+    "Rank carrier, forwarder and insurer by expected recoverable € (recoverable × probability), blocking routes whose notice lapsed. Builds the claim plan (primary route plus a secondary claim against the party in custody when the insurer is primary). Also says which protective notices are needed (before QA decides, or while required documents are missing). Run after compute_liability and compute_deadlines.",
   input: z.object({}),
   async run(_input, ctx) {
     const [record, row, qa] = await Promise.all([getRecord(ctx.db, ctx.caseId), getCaseRow(ctx.db, ctx.caseId), qaStatus(ctx.db, ctx.caseId)]);
@@ -97,11 +98,13 @@ export const rankRoutesTool = defineTool({
     // Recompute against the current QA status so a decision made since compute_liability is respected.
     const liability = computeLiability(input, ctx.rules);
     const ranked = rankRoutes(liability, record.deadlines, input, ctx.rules);
-    const notices = protectiveNoticesNeeded(ranked, qa.status, ctx.rules);
+    const missingData = await requiredDataMissing(ctx.db, ctx.caseId);
+    const notices = protectiveNoticesNeeded(ranked, qa.status, ctx.rules, { missingData });
+    const claimPlan = buildClaimPlan(ranked, { custodyAtExcursion: input.custodyAtExcursion, lossEur: totalLossEur(input) });
     const top = ranked.find((r) => r.recommended) ?? null;
     const live = new Set(ranked.filter((r) => r.probability > 0 && r.recoverableEur > 0).map((r) => r.route));
     const nearest = nearestOpenDeadline(record.deadlines, live.size ? live : undefined);
-    await patchRecord(ctx.db, ctx.caseId, { liability, ranking: ranked });
+    await patchRecord(ctx.db, ctx.caseId, { liability, ranking: ranked, claimPlan });
     await ctx.db
       .update(cases)
       .set({
@@ -131,9 +134,10 @@ export const rankRoutesTool = defineTool({
           noticeDeadline: r.noticeDeadline ? { dueAt: r.noticeDeadline.dueAt, daysLeft: r.noticeDeadline.daysLeft } : null,
         })),
         protectiveNoticesNeeded: notices,
+        claimPlan,
       },
       summary: top
-        ? `Recommended: ${ROUTE_META[top.route].label.toLowerCase()} (${formatEUR(top.recoverableEur)}, ${Math.round(top.probability * 100)}% likely).${notices.length ? ` Protective notice needed to: ${notices.map((n) => ROUTE_META[n.route].label.toLowerCase()).join(", ")}.` : ""}`
+        ? `Recommended: ${ROUTE_META[top.route].label.toLowerCase()} (${formatEUR(top.recoverableEur)}, ${Math.round(top.probability * 100)}% likely).${claimPlan.length > 1 ? ` Claim plan: ${claimPlan.map((c) => `${ROUTE_META[c.route].label.toLowerCase()} ${formatEUR(c.amountEur)} (${c.role})`).join(", ")}.` : ""}${notices.length ? ` Protective notice needed to: ${notices.map((n) => ROUTE_META[n.route].label.toLowerCase()).join(", ")}.` : ""}`
         : qa.status === "released"
           ? "No route: QA released the product, so there is no damage to claim."
           : "No route with a realistic recovery.",

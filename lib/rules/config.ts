@@ -27,6 +27,10 @@ export interface RulesConfig {
   earlyNoticeThresholdDays: number;
   /** Deadlines under this many days are "at risk" (red) */
   atRiskDays: number;
+  /** TEMPORARY (backend owns): quality agent uncertainty margin around the allowance, % */
+  qaUncertaintyMarginPct: number;
+  reminderDays: number[];
+  maxAppeals: number;
   /** Heuristic success probabilities used to rank routes by expected recovery */
   probability: {
     carrierInCustody: number;
@@ -44,6 +48,9 @@ export const DEFAULT_RULES: RulesConfig = {
   montreal: { sdrPerKg: 26, limitEffectiveFrom: "2024-12-28", damageNoticeDays: 14, delayNoticeDays: 21, timeBarYears: 2 },
   earlyNoticeThresholdDays: 5,
   atRiskDays: 3,
+  qaUncertaintyMarginPct: 10,
+  reminderDays: [14, 30],
+  maxAppeals: 1,
   probability: {
     carrierInCustody: 0.85,
     carrierNotInCustody: 0.05,

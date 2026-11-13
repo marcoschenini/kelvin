@@ -2,10 +2,11 @@ import type { RunKind } from "../events";
 import type { KelvinTool } from "../tool";
 import { computeDeadlinesTool, computeLiabilityTool, rankRoutesTool } from "./decide";
 import { draftClaimLetter, draftProtectiveNotice, requestMissingInfo } from "./drafts";
-import { buildEvidencePackTool, handleReply, sendViaOutbox } from "./followup";
+import { buildEvidencePackTool, draftAppealTool, draftReminderTool, handleReply, sendViaOutbox } from "./followup";
+import { assessQuality } from "./quality";
 import { buildCustodyTimeline, checkContract, checkPolicy, extractDocument, parseLogger } from "./investigate";
 
-/** All 14 tools, in the order the brief lists them. */
+/** All 17 tools: the brief's 14, plus the quality agent, the appeal and the reminder. */
 export const ALL_TOOLS = [
   parseLogger,
   extractDocument,
@@ -21,6 +22,9 @@ export const ALL_TOOLS = [
   requestMissingInfo,
   sendViaOutbox,
   handleReply,
+  assessQuality,
+  draftAppealTool,
+  draftReminderTool,
 ] as KelvinTool[];
 
 const byName = Object.fromEntries(ALL_TOOLS.map((t) => [t.name, t]));
@@ -43,8 +47,9 @@ export const TOOLS_FOR_RUN: Record<RunKind, string[]> = {
     "rank_routes",
     "draft_protective_notice",
     "request_missing_info",
+    "assess_quality",
   ],
   prepare_claim: ["extract_document", "compute_liability", "compute_deadlines", "rank_routes", "draft_claim_letter", "build_evidence_pack", "request_missing_info"],
   close: ["compute_liability", "rank_routes"],
-  follow_up: ["send_via_outbox", "handle_reply", "extract_document", "rank_routes"],
+  follow_up: ["send_via_outbox", "handle_reply", "draft_appeal", "draft_reminder", "extract_document", "rank_routes"],
 };

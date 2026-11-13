@@ -3,11 +3,11 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 import { drafts } from "@/lib/db/schema";
 import { getPersona } from "@/lib/domain/personas";
-import { RECOVERY_ROUTES } from "@/lib/domain/parties";
+import { RECOVERY_ROUTES, ROUTE_META } from "@/lib/domain/parties";
 import { formatDate, formatEUR } from "@/lib/format";
 import { getRecord, patchRecord, registerCitations } from "@/lib/case/record";
 import { PROTECTIVE_NOTICE_ALLOWED } from "@/lib/case/status-machine";
-import { getCaseRow, qaStatus } from "../assess";
+import { getCaseRow, qaCitation, qaStatus, requiredDataMissing } from "../assess";
 import { findDocument } from "../docs";
 import { claimLetter, protectiveNotice, validateLetter } from "../letters";
 import { resolveCounterparty } from "../parties";
@@ -33,7 +33,7 @@ export const draftProtectiveNotice = defineTool({
   async run({ route, subject, body }, ctx) {
     const [row, record, qa] = await Promise.all([getCaseRow(ctx.db, ctx.caseId), getRecord(ctx.db, ctx.caseId), qaStatus(ctx.db, ctx.caseId)]);
     if (!PROTECTIVE_NOTICE_ALLOWED.includes(row.status)) throw new ToolGuardError(`Protective notices are only allowed while investigating or awaiting QA (case is ${row.status}).`);
-    if (qa.status !== "pending") throw new ToolGuardError("QA has already decided: draft the claim letter (or close the case) instead.");
+    if (qa.status !== "pending" && !(await requiredDataMissing(ctx.db, ctx.caseId))) throw new ToolGuardError("QA has already decided and no required document is missing: draft the claim letter (or close the case) instead.");
     const existing = await ctx.db
       .select({ id: drafts.id })
       .from(drafts)
@@ -79,7 +79,7 @@ export const draftProtectiveNotice = defineTool({
 export const draftClaimLetter = defineTool({
   name: "draft_claim_letter",
   description:
-    "Draft the full claim letter for a route (defaults to the recommended one): amount, facts, clauses, citations and annex list. Only after QA has rejected the batch.",
+    "Draft the full claim letter for a route (defaults to the recommended one): amount, facts, extra costs, clauses, citations and annex list. For the claim plan's secondary route (e.g. the airline when the insurer is primary) it drafts the secondary claim letter for the plan's amount. Only after QA has rejected the batch.",
   input: z.object({ route: z.enum(RECOVERY_ROUTES).optional(), ...bodyInput }),
   async run({ route, subject, body }, ctx) {
     const [row, record, qa] = await Promise.all([getCaseRow(ctx.db, ctx.caseId), getRecord(ctx.db, ctx.caseId), qaStatus(ctx.db, ctx.caseId)]);
@@ -88,27 +88,35 @@ export const draftClaimLetter = defineTool({
     const chosen = record.ranking.find((r) => (route ? r.route === route : r.recommended));
     if (!chosen || chosen.recoverableEur <= 0) throw new ToolGuardError(`No recoverable amount on the ${route ?? "recommended"} route.`);
 
-    const [qaCit] = await registerCitations(ctx.db, ctx.caseId, [
-      {
-        kind: "record",
-        label: `QA decision ${qa.at ? formatDate(qa.at) : ""}`.trim(),
-        title: `Quality disposition: rejected by ${qa.by}${qa.note ? `. Note: ${qa.note}` : ""}`,
-        quote: qa.note ?? "Batch rejected",
-      },
-    ]);
+    const [qaCit] = await registerCitations(ctx.db, ctx.caseId, [qaCitation(qa)]);
+    const planItem = record.claimPlan?.find((p) => p.route === chosen.route) ?? null;
+    const isSecondary = planItem?.role === "secondary";
+    const primary = record.claimPlan?.find((p) => p.role === "primary") ?? null;
+    if (isSecondary && !primary) throw new ToolGuardError("A secondary claim needs a primary claim in the claim plan.");
+    const amountEur = planItem?.amountEur ?? chosen.recoverableEur;
+    if (amountEur <= 0) throw new ToolGuardError(`No recoverable amount on the ${chosen.route} route.`);
     const to = await resolveCounterparty(ctx.db, ctx.caseId, chosen.route);
     const toCitations = to.source ? await registerCitations(ctx.db, ctx.caseId, [to.source]) : [];
     const fresh = await getRecord(ctx.db, ctx.caseId);
-    const template = claimLetter({ record: fresh, row, to, signer: SIGNER, today: ctx.now, route: chosen, qaCitationId: qaCit.id });
+    const template = claimLetter({
+      record: fresh,
+      row,
+      to,
+      signer: SIGNER,
+      today: ctx.now,
+      route: chosen,
+      qaCitationId: qaCit.id,
+      secondary: isSecondary ? { amountEur, primaryLabel: primary!.route === "insurer" ? "our cargo insurer" : `the ${ROUTE_META[primary!.route].label.toLowerCase()}` } : undefined,
+    });
     const finalBody = body ?? template.body;
     const check = validateLetter(finalBody, fresh.citations ?? {});
     if (check.unknown.length) throw new ToolGuardError(`Unknown citation ids ${check.unknown.join(", ")}: only cite ids returned by tools.`);
 
-    // Replace an earlier unsent claim draft (e.g. after a manager rejection).
+    // Replace an earlier unsent draft of the same claim (same route).
     await ctx.db
       .update(drafts)
       .set({ status: "rejected" })
-      .where(and(eq(drafts.caseId, ctx.caseId), eq(drafts.kind, "claim_letter"), eq(drafts.status, "draft")));
+      .where(and(eq(drafts.caseId, ctx.caseId), eq(drafts.kind, "claim_letter"), eq(drafts.route, chosen.route), eq(drafts.status, "draft")));
     const id = `dr-${nanoid(8)}`;
     await ctx.db.insert(drafts).values({
       id,
@@ -119,15 +127,15 @@ export const draftClaimLetter = defineTool({
       recipientEmail: to.email,
       subject: subject ?? template.subject,
       body: finalBody,
-      amountEur: chosen.recoverableEur,
+      amountEur,
       citations: [...check.used, ...toCitations, ...check.assumptions],
       annexes: template.annexes,
       status: "draft",
     });
-    await patchRecord(ctx.db, ctx.caseId, { claim: { draftId: id, route: chosen.route, amountEur: chosen.recoverableEur } });
+    if (!isSecondary) await patchRecord(ctx.db, ctx.caseId, { claim: { draftId: id, route: chosen.route, amountEur } });
     return {
-      output: { draftId: id, route: chosen.route, amountEur: chosen.recoverableEur, to: { name: to.name, email: to.email }, subject: subject ?? template.subject, citationCoverage: check.coverage, assumptions: check.uncited, annexes: template.annexes },
-      summary: `Claim letter to ${to.name} for ${formatEUR(chosen.recoverableEur)} drafted with ${check.used.length} citations${check.uncited.length ? ` and ${check.uncited.length} flagged assumption(s)` : ", every statement sourced"}.`,
+      output: { draftId: id, route: chosen.route, role: isSecondary ? "secondary" : "primary", amountEur, to: { name: to.name, email: to.email }, subject: subject ?? template.subject, citationCoverage: check.coverage, assumptions: check.uncited, annexes: template.annexes },
+      summary: `${isSecondary ? "Secondary claim letter" : "Claim letter"} to ${to.name} for ${formatEUR(amountEur)} drafted with ${check.used.length} citations${check.uncited.length ? ` and ${check.uncited.length} flagged assumption(s)` : ", every statement sourced"}.`,
       citations: [...check.used, ...toCitations, ...check.assumptions],
     };
   },
