@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowDownLeft, ArrowUpRight, FileText, Paperclip, PenLine } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, BellRing, FileText, Paperclip, PenLine, Repeat2 } from "lucide-react";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -33,15 +33,45 @@ const STATUS_STYLE: Record<string, string> = {
   rejected: "bg-muted text-subtle line-through",
 };
 
+export interface FollowUpInfo {
+  appealDraftIds: string[];
+  remindersSent: number[];
+}
+
+/** Appeals are known from the case record; reminders are reply drafts whose subject says so. */
+function followUpKind(kind: string, subject: string, draftId: string | null, f: FollowUpInfo): "appeal" | "reminder" | null {
+  if (draftId && f.appealDraftIds.includes(draftId)) return "appeal";
+  if (kind === "reply" && /remind/i.test(subject)) return "reminder";
+  if (kind === "reply" && /appeal/i.test(subject)) return "appeal";
+  return null;
+}
+
+function FollowUpTag({ kind }: { kind: "appeal" | "reminder" }) {
+  const Icon = kind === "appeal" ? Repeat2 : BellRing;
+  return (
+    <span className="inline-flex h-5 items-center gap-1 rounded-full bg-warning-soft px-2 text-[11px] font-medium text-warning-fg ring-1 ring-warning/25 ring-inset">
+      <Icon className="size-3" aria-hidden="true" />
+      {kind === "appeal" ? "Appeal" : "Reminder"}
+    </span>
+  );
+}
+
 /** The simulated Outbox as a conversation: what we sent, what came back, and drafts in progress. */
-export function CorrespondenceThread({ caseId, messages, drafts }: { caseId: string; messages: Message[]; drafts: PendingDraft[] }) {
+export function CorrespondenceThread({ caseId, messages, drafts, followUp = { appealDraftIds: [], remindersSent: [] } }: { caseId: string; messages: Message[]; drafts: PendingDraft[]; followUp?: FollowUpInfo }) {
   if (!messages.length && !drafts.length) return <p className="text-sm text-muted-foreground">Nothing drafted or sent yet.</p>;
   return (
     <div className="flex flex-col gap-3">
+      {(followUp.appealDraftIds.length > 0 || followUp.remindersSent.length > 0) && (
+        <p className="text-xs text-muted-foreground">
+          Follow-up: {followUp.appealDraftIds.length > 0 ? "1 appeal" : "no appeal"}
+          {followUp.remindersSent.length > 0 ? `, reminders after ${followUp.remindersSent.join(" and ")} days without a reply` : ""}.
+        </p>
+      )}
       {messages.length > 0 && (
         <ol className="flex flex-col gap-2.5">
           {messages.map((m) => {
             const out = m.direction === "out";
+            const tag = out ? followUpKind("reply", m.subject, m.draftId, followUp) ?? (followUp.appealDraftIds.includes(m.draftId ?? "") ? "appeal" : null) : null;
             return (
               <li key={m.id} className={cn("flex", out ? "justify-end" : "justify-start")}>
                 <details className={cn("group w-full max-w-[44rem] rounded-2xl border px-4 py-3", out ? "rounded-br-md border-ai-from/20 bg-ai-soft/50" : "rounded-bl-md border-border bg-card")}>
@@ -53,7 +83,10 @@ export function CorrespondenceThread({ caseId, messages, drafts }: { caseId: str
                       </span>
                       <span className="num">{formatDateTime(m.at)} UTC</span>
                     </div>
-                    <div className="mt-1 text-sm font-medium">{m.subject}</div>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm font-medium">
+                      {m.subject}
+                      {tag && <FollowUpTag kind={tag} />}
+                    </div>
                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground group-open:hidden">{m.body.replace(/\s+/g, " ")}</p>
                   </summary>
                   <pre className="mt-2 font-sans text-sm whitespace-pre-wrap text-foreground/90">{m.body}</pre>
@@ -78,11 +111,16 @@ export function CorrespondenceThread({ caseId, messages, drafts }: { caseId: str
       {drafts.length > 0 && (
         <div className="flex flex-col gap-2">
           <div className="eyebrow text-muted-foreground">Drafts</div>
-          {drafts.map((d) => (
+          {drafts.map((d) => {
+            const tag = followUpKind(d.kind, d.subject, d.id, followUp);
+            return (
             <div key={d.id} className="flex items-center gap-3 rounded-xl border border-dashed border-border px-4 py-3 text-sm">
               {d.kind === "claim_letter" ? <FileText className="size-4 text-muted-foreground" aria-hidden="true" /> : <PenLine className="size-4 text-muted-foreground" aria-hidden="true" />}
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium">{d.subject}</span>
+                <span className="flex items-center gap-2 font-medium">
+                  <span className="truncate">{d.subject}</span>
+                  {tag && <FollowUpTag kind={tag} />}
+                </span>
                 <span className="text-xs text-muted-foreground">
                   To {d.recipientName} · {d.citations} citations
                 </span>
@@ -94,7 +132,8 @@ export function CorrespondenceThread({ caseId, messages, drafts }: { caseId: str
                 </Link>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

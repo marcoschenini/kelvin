@@ -27,11 +27,12 @@ import { AgentPanel, type PersistedRun } from "@/components/agent/agent-panel";
 import { AgentRunProvider, type LiveStep } from "@/components/agent/agent-run-context";
 import { RouteLabel } from "@/components/case/case-list";
 import { CaseWorkflow } from "@/components/case/case-workflow";
+import { QaDecisionCard } from "@/components/case/qa-decision-card";
 import { CorrespondenceThread } from "@/components/case/correspondence";
 import { getDb } from "@/lib/db/client";
 import { awaitingReplyFrom } from "@/lib/counterparties/scripted";
 import { JourneyMap } from "@/components/case/journey-map";
-import { DeadlineList, RecoveryRoutes } from "@/components/case/recovery-routes";
+import { ClaimPlan, DeadlineList, RecoveryRoutes } from "@/components/case/recovery-routes";
 import { TemperatureChart } from "@/components/case/temperature-chart";
 import { CitationViewerProvider } from "@/components/documents/citation-viewer";
 import { AiEyebrow, AiTile } from "@/components/kit/badges";
@@ -123,6 +124,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
   const record = c.record as CaseRecord;
   const qaRow = decisionRows.find((d) => d.gate === "qa");
   const qa: "pending" | "released" | "rejected" = qaRow ? (qaRow.decision === "released" ? "released" : "rejected") : "pending";
+  const released = qa === "released" || record.qaAssessment?.verdict === "usable";
   const journey = buildJourney(record);
   const main = record.excursions?.find((e) => e.direction === "high") ?? record.excursions?.[0];
   const attr = record.custody?.attribution;
@@ -245,9 +247,9 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
               <div className={cn("flex items-center gap-4 rounded-xl p-4", top ? "border-ai shadow-glow" : "border border-border bg-card shadow-card")}>
                 <AiTile size="md" />
                 <div className="min-w-0">
-                  <div className="text-xs text-muted-foreground">{qa === "released" ? "Outcome" : "Recommended route"}</div>
+                  <div className="text-xs text-muted-foreground">{released ? "Outcome" : "Recommended route"}</div>
                   <div className="num truncate font-semibold">
-                    {qa === "released" ? "No claim: product released" : top ? `${ROUTE_META[top.route].label} · ${formatEUR(top.recoverableEur)}` : "Pending"}
+                    {released ? "No claim: product released" : top ? `${ROUTE_META[top.route].label} · ${formatEUR(top.recoverableEur)}` : "Pending"}
                   </div>
                   <div className="truncate text-xs text-muted-foreground">
                     {top ? `${Math.round(top.probability * 100)}% likely · ${qa === "pending" ? "if QA rejects" : "QA rejected"}` : STATUS_META[c.status].description}
@@ -278,6 +280,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
                     awaitingReplyFrom={waitingFor}
                     recoveredEur={c.recoveredEur}
                     closedReason={c.closedReason}
+                    agentUnsure={record.qaAssessment?.verdict === "unsure"}
                   />
                   <div className="max-h-[60vh] overflow-y-auto pr-1 xl:max-h-[calc(100dvh-22rem)]">
                     <AgentPanel runs={persistedRuns} />
@@ -300,8 +303,13 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
               </Card>
             )}
 
+            {record.qaAssessment && (
+              <QaDecisionCard assessment={record.qaAssessment} humanQa={qa !== "pending" ? qa : null} className="xl:col-start-1" citation={record.qaAssessment.citationId ? record.citations?.[record.qaAssessment.citationId] : undefined} />
+            )}
+
             {record.ranking && (
               <Card title="Recovery routes" description="Ranked by expected recoverable amount; caps, deductibles and deadlines come from the rules engine" icon={Send} className="xl:col-span-2">
+                {record.claimPlan && record.claimPlan.length > 0 && <ClaimPlan plan={record.claimPlan} extraCosts={record.extraCosts ?? []} />}
                 <RecoveryRoutes ranking={record.ranking} citations={routeCitations(record)} qaPending={qa === "pending"} />
                 {record.deadlines && (
                   <div className="mt-5">
@@ -346,6 +354,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
               <CorrespondenceThread
                 caseId={c.id}
                 messages={outbox.map((m) => ({ id: m.id, direction: m.direction, counterparty: m.counterparty, fromAddress: m.fromAddress, toAddress: m.toAddress, subject: m.subject, body: m.body, attachments: m.attachments, at: m.at.toISOString(), draftId: m.draftId }))}
+                followUp={{ appealDraftIds: (record.followUp?.appeals ?? []).map((a) => a.draftId), remindersSent: record.followUp?.remindersSent ?? [] }}
                 drafts={drafts.filter((d) => d.status !== "sent").map((d) => ({ id: d.id, kind: d.kind, status: d.status, subject: d.subject, recipientName: d.recipientName, body: d.body, citations: (d.citations as unknown[]).length }))}
               />
             </Card>

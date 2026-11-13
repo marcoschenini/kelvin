@@ -88,6 +88,7 @@ export function CaseWorkflow({
   awaitingReplyFrom,
   recoveredEur,
   closedReason,
+  agentUnsure = false,
 }: {
   caseId: string;
   status: CaseStatus;
@@ -97,6 +98,8 @@ export function CaseWorkflow({
   awaitingReplyFrom: string | null;
   recoveredEur: number | null;
   closedReason: string | null;
+  /** The quality agent could not decide on its own; a human QA must. */
+  agentUnsure?: boolean;
 }) {
   const persona = usePersona();
   const router = useRouter();
@@ -126,7 +129,7 @@ export function CaseWorkflow({
       >
         <div className="flex items-center gap-2 font-semibold">
           <CircleCheck className={cn("size-5", recovered || status === "closed_no_claim" ? "text-success" : "text-muted-foreground")} aria-hidden="true" />
-          {status === "closed_recovered" ? "Recovered in full" : status === "closed_settled" ? "Settled" : status === "closed_no_claim" ? "Closed: no claim" : "Closed: rejected"}
+          {status === "closed_recovered" ? "Recovered in full" : status === "closed_settled" ? "Settled" : status === "closed_no_claim" ? "Closed: no claim" : status === "closed_not_approved" ? "Closed: not approved by the manager" : "Closed: rejected"}
         </div>
         {recoveredEur != null && recoveredEur > 0 && <div className="num mt-1 text-2xl font-semibold tracking-tight text-success-fg">{formatEUR(recoveredEur)}</div>}
         {closedReason && <p className="mt-1 text-sm text-muted-foreground">{closedReason}</p>}
@@ -154,7 +157,9 @@ export function CaseWorkflow({
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="font-semibold">Is the product still usable?</div>
-              <p className="mt-0.5 text-sm text-muted-foreground">Quality Assurance decides disposition. The agent never does.</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {agentUnsure ? "The quality agent is unsure (too close to the limit). A human QA decides." : "Quality Assurance decides disposition."}
+              </p>
             </div>
             <HumanDecisionBadge />
           </div>
