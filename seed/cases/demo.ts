@@ -134,6 +134,7 @@ export const CASE_A: CaseSpec = {
     units: 240,
     unitPriceEur: 360,
     packaging: "2 x active container (2-8 °C)",
+    stability: { maxTempC: 25, maxMinutesOutOfRange: 1440 },
   },
   valueEur: 86_400,
   weightKg: 64,
@@ -210,6 +211,7 @@ export const CASE_B: CaseSpec = {
     units: 1_000,
     unitPriceEur: 200,
     packaging: "4 x active container (2-8 °C)",
+    stability: { maxTempC: 10, maxMinutesOutOfRange: 30 },
   },
   valueEur: 200_000,
   weightKg: 120,
@@ -315,6 +317,7 @@ export const CASE_C: CaseSpec = {
     units: 2_500,
     unitPriceEur: 140,
     packaging: "6 x active container (2-8 °C)",
+    stability: { maxTempC: 10, maxMinutesOutOfRange: 60 },
   },
   valueEur: 350_000,
   weightKg: 180,
@@ -507,10 +510,3 @@ Operations Manager, Polder Freight Solutions`,
 };
 
 export const DEMO_CASES: CaseSpec[] = [CASE_A, CASE_B, CASE_C];
-
-/* TEMPORARY stand-in (backend owns this file): stability data per demo case. */
-import { stabilityEmail } from "./stability-email";
-CASE_A.product.stability = { maxTempC: 25, maxMinutesOutOfRange: 1440 };
-CASE_B.product.stability = { maxTempC: 10, maxMinutesOutOfRange: 30 };
-CASE_C.product.stability = { maxTempC: 10, maxMinutesOutOfRange: 60 };
-for (const s of [CASE_A, CASE_B, CASE_C]) s.emails.push(stabilityEmail(s, s.product.stability!));

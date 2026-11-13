@@ -101,8 +101,17 @@ export interface CaseSpec {
   scenario: "demo" | "eval";
   title: string;
   shipmentRef: string;
-  product: { name: string; description: string; batch: string; units: number; unitPriceEur: number; packaging: string; stability?: StabilityAllowance };
-  /** Eligible extra costs; each must be backed by a seeded document line to cite */
+  product: {
+    name: string;
+    description: string;
+    batch: string;
+    units: number;
+    unitPriceEur: number;
+    packaging: string;
+    /** Manufacturer stability allowance; seeded as an email "Stability data" so the quality agent can cite it. Omit to simulate missing data. */
+    stability?: StabilityAllowance;
+  };
+  /** Eligible extra costs (disposal, re-shipment…). Each is backed by a line in a seeded email "Additional costs". */
   extraCosts?: ExtraCost[];
   /** Defaults to units × unitPrice */
   valueEur: number;

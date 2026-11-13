@@ -53,6 +53,62 @@ export async function recordQaDecision(
   return { id, at };
 }
 
+export const QUALITY_AGENT = { type: "agent" as const, name: "Quality agent", role: "Quality agent" };
+
+/**
+ * The quality agent decides clear cases against the stability allowance; unclear
+ * ones go to a human QA. Always logs the reasoning (audit event + record).
+ *  usable  → no claim, case closed with the reasoning
+ *  damaged → qa "rejected" by the Quality agent, claim path (claim_prepared)
+ *  unsure  → awaiting_qa; never auto-closed
+ */
+export async function recordAgentQaDecision(
+  db: DB,
+  caseId: string,
+  a: QaAssessment,
+  opts: { citationId?: string; runId?: string } = {},
+): Promise<void> {
+  const [row] = await db.select({ status: cases.status }).from(cases).where(eq(cases.id, caseId));
+  if (!row) throw new GateError("Case not found");
+  if (row.status !== "investigating") throw new GateError(`The quality agent can only decide while investigating (case is ${row.status}).`);
+  const at = new Date();
+  const reasoning = a.reasons.join(" ");
+  await db.insert(auditEvents).values({
+    caseId,
+    at,
+    actorType: QUALITY_AGENT.type,
+    actorName: QUALITY_AGENT.name,
+    actorRole: QUALITY_AGENT.role,
+    eventType: "qa_assessment",
+    input: { peakC: a.peakC, minutesOutOfRange: a.minutesOutOfRange, allowance: a.allowance },
+    output: { verdict: a.verdict, basis: a.basis, reasons: a.reasons },
+    runId: opts.runId,
+  });
+  const record = await getRecord(db, caseId);
+  const qaAssessment = { ...a, by: "quality_agent" as const, at: at.toISOString(), ...(opts.citationId ? { citationId: opts.citationId } : {}) };
+  const qaStatus = a.verdict === "usable" ? "released" : a.verdict === "damaged" ? "rejected" : "pending";
+  await patchRecord(db, caseId, {
+    qaAssessment,
+    qa:
+      a.verdict === "unsure"
+        ? (record.qa ?? { status: "pending" })
+        : { ...(record.qa ?? {}), status: qaStatus, by: QUALITY_AGENT.name, at: at.toISOString(), note: reasoning, ...(opts.citationId ? { citationId: opts.citationId } : {}) },
+  });
+  const actor = { type: QUALITY_AGENT.type, name: QUALITY_AGENT.name, role: QUALITY_AGENT.role };
+  if (a.verdict === "usable") {
+    await transition(db, caseId, "no_claim", actor, { reason: `Quality agent: product usable. ${reasoning}`, runId: opts.runId });
+    await transition(db, caseId, "closed_no_claim", actor, {
+      reason: reasoning,
+      runId: opts.runId,
+      patch: { closedReason: `Product within its stability allowance: no damage, no claim. ${reasoning}` },
+    });
+  } else if (a.verdict === "damaged") {
+    await transition(db, caseId, "claim_prepared", actor, { reason: `Quality agent: product damaged. ${reasoning}`, runId: opts.runId });
+  } else {
+    await transition(db, caseId, "awaiting_qa", actor, { reason: `Quality agent unsure, human QA must decide. ${reasoning}`, runId: opts.runId });
+  }
+}
+
 export async function recordApproval(
   db: DB,
   caseId: string,
@@ -103,9 +159,11 @@ export async function recordApproval(
     input: { draftId: draft.id, kind: draft.kind, decision: args.decision, reason: args.reason ?? null, edited: args.decision === "approved_with_edits" },
     output: { decisionId: id },
   });
-  if (draft.kind === "claim_letter" && args.decision === "rejected") {
-    await transition(db, caseId, "closed_not_approved", { type: "human", name: args.actor.name, role: args.actor.title }, { reason: `Claim rejected by manager: ${args.reason}`, patch: { closedReason: `Not approved: ${args.reason}` } });
-    await patchRecord(db, caseId, { outcome: { result: "not_approved", claimedEur: draft.amountEur ?? null, recoveredEur: null, recoveryPct: null, payer: (draft.route as never) ?? null, daysToClose: null, closedAt: at.toISOString() } });
+  const [caseRow] = await db.select({ status: cases.status }).from(cases).where(eq(cases.id, caseId));
+  if (draft.kind === "claim_letter" && args.decision === "rejected" && caseRow?.status === "awaiting_approval") {
+    // A rejected claim letter closes the case; the reason stays in the audit log and in record.outcome.
+    const reason = `Claim not approved by ${args.actor.name} (${args.actor.title}): ${args.reason}`;
+    await transition(db, caseId, "closed_not_approved", { type: "human", name: args.actor.name, role: args.actor.title }, { reason, patch: { closedReason: reason } });
   }
   return { id, at, draftKind: draft.kind };
 }
@@ -157,33 +215,4 @@ export async function recordSettlement(db: DB, caseId: string, args: { decision:
     await patchRecord(db, caseId, { negotiation: null });
   }
   return { id, at };
-}
-
-/**
- * TEMPORARY stand-in (backend owns this file). The quality agent's decision:
- * usable closes the case, damaged records a rejection, unsure waits for a human.
- */
-export async function recordAgentQaDecision(db: DB, caseId: string, a: QaAssessment): Promise<void> {
-  const actor = { type: "agent" as const, name: "Quality agent" };
-  const at = new Date();
-  const [row] = await db.select({ status: cases.status }).from(cases).where(eq(cases.id, caseId));
-  if (!row) throw new GateError("Case not found");
-  if (!["investigating", "awaiting_qa"].includes(row.status)) throw new GateError(`The quality agent cannot decide when the case is ${row.status}.`);
-  if (a.verdict === "unsure") {
-    await transition(db, caseId, "awaiting_qa", actor, { reason: a.reasons.join(" ") });
-    return;
-  }
-  const existing = await db.select({ id: decisions.id }).from(decisions).where(and(eq(decisions.caseId, caseId), eq(decisions.gate, "qa")));
-  if (existing.length) throw new GateError("QA has already decided on this case.");
-  const decision = a.verdict === "usable" ? "released" : "rejected";
-  const note = a.reasons.join(" ");
-  const id = `dec-${nanoid(8)}`;
-  await db.insert(decisions).values({ id, caseId, gate: "qa", decision, note, actorName: "Quality agent", actorRole: "AI quality agent", at });
-  await db.insert(auditEvents).values({ caseId, at, actorType: "agent", actorName: "Quality agent", eventType: "qa_decision", input: { verdict: a.verdict, basis: a.basis }, output: { decisionId: id, reasons: a.reasons } });
-  const record = await getRecord(db, caseId);
-  await patchRecord(db, caseId, { qa: { ...(record.qa ?? {}), status: decision, by: "Quality agent", at: at.toISOString(), note } });
-  if (a.verdict === "usable") {
-    await transition(db, caseId, "no_claim", actor, { reason: note });
-    await transition(db, caseId, "closed_no_claim", actor, { reason: note, patch: { closedReason: note } });
-  }
 }

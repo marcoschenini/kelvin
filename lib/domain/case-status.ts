@@ -35,8 +35,8 @@ export const STATUS_META: Record<CaseStatus, { label: string; tone: Tone; descri
   closed_no_claim: { label: "Closed · No claim", tone: "success", description: "Closed with reason logged" },
   closed_recovered: { label: "Closed · Recovered", tone: "success", description: "Full amount recovered" },
   closed_settled: { label: "Closed · Settled", tone: "success", description: "Settled for a partial amount" },
-  closed_not_approved: { label: "Closed · Not approved", tone: "neutral", description: "Manager did not approve the claim" },
   closed_rejected: { label: "Closed · Rejected", tone: "neutral", description: "Counterparty rejected the claim" },
+  closed_not_approved: { label: "Closed · Not approved", tone: "neutral", description: "Manager did not approve the claim; closed with the reason logged" },
 };
 
 export function isClosed(status: CaseStatus): boolean {

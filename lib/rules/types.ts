@@ -25,8 +25,47 @@ export interface PolicyTermsParsed {
   preservationDuty: boolean;
 }
 
+export interface StabilityAllowance {
+  maxTempC: number;
+  maxMinutesOutOfRange: number;
+  citationHint?: string;
+}
+export type QaVerdict = "usable" | "damaged" | "unsure";
+export interface QaAssessment {
+  verdict: QaVerdict;
+  peakC: number | null;
+  minutesOutOfRange: number;
+  allowance: StabilityAllowance | null;
+  /** Human-readable, each a full sentence */
+  reasons: string[];
+  basis: "within_allowance" | "beyond_allowance" | "no_stability_data" | "near_limit";
+}
+export interface ExtraCost {
+  label: string;
+  eur: number;
+  citationHint?: string;
+}
+export interface ClaimPlanItem {
+  route: RecoveryRoute;
+  role: "primary" | "secondary";
+  amountEur: number;
+  reason: string;
+  order: number;
+}
+export interface CaseOutcome {
+  result: "no_claim" | "recovered" | "settled" | "rejected" | "not_approved";
+  claimedEur: number | null;
+  recoveredEur: number | null;
+  recoveryPct: number | null;
+  payer: RecoveryRoute | null;
+  daysToClose: number | null;
+  closedAt: string;
+}
+
 export interface LiabilityInput {
+  /** Goods value; eligible extraCosts are added before caps are applied */
   lossEur: number;
+  extraCosts?: ExtraCost[];
   weightKg: number;
   /** null = NVD */
   declaredValueEur: number | null;
@@ -37,7 +76,6 @@ export interface LiabilityInput {
   qa: QaStatus;
   contract: ContractTermsParsed;
   policy: PolicyTermsParsed;
-  extraCosts?: ExtraCost[];
 }
 
 export interface RouteLiability {
@@ -75,27 +113,4 @@ export interface RankedRoute extends RouteLiability {
   recommended: boolean;
   reasons: string[];
   noticeDeadline: Deadline | null;
-}
-
-/* ---- workflow v2 (TEMPORARY stand-in: backend owns this file) ---- */
-export interface StabilityAllowance { maxTempC: number; maxMinutesOutOfRange: number; citationHint?: string }
-export type QaVerdict = "usable" | "damaged" | "unsure";
-export interface QaAssessment {
-  verdict: QaVerdict;
-  peakC: number | null;
-  minutesOutOfRange: number;
-  allowance: StabilityAllowance | null;
-  reasons: string[];
-  basis: "within_allowance" | "beyond_allowance" | "no_stability_data" | "near_limit";
-}
-export interface ExtraCost { label: string; eur: number; citationHint?: string }
-export interface ClaimPlanItem { route: RecoveryRoute; role: "primary" | "secondary"; amountEur: number; reason: string; order: number }
-export interface CaseOutcome {
-  result: "no_claim" | "recovered" | "settled" | "rejected" | "not_approved";
-  claimedEur: number | null;
-  recoveredEur: number | null;
-  recoveryPct: number | null;
-  payer: RecoveryRoute | null;
-  daysToClose: number | null;
-  closedAt: string;
 }

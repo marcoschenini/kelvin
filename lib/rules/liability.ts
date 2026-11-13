@@ -7,8 +7,10 @@ import type { LiabilityInput, RouteLiability } from "./types";
  * Recoverable € per route, applying caps, deductibles and exclusions.
  * Recoverable assumes the route succeeds; probability is handled in ranking.
  */
-export function computeLiability(rawInput: LiabilityInput, cfg: RulesConfig): RouteLiability[] {
-  const input: LiabilityInput = { ...rawInput, lossEur: rawInput.lossEur + (rawInput.extraCosts ?? []).reduce((s, c) => s + c.eur, 0) };
+export function computeLiability(raw: LiabilityInput, cfg: RulesConfig): RouteLiability[] {
+  // Loss = goods value + eligible, documented extra costs; caps apply to the total.
+  const extra = (raw.extraCosts ?? []).reduce((s, c) => s + (c.eur > 0 ? c.eur : 0), 0);
+  const input: LiabilityInput = extra ? { ...raw, lossEur: raw.lossEur + extra } : raw;
   const qaBlocker =
     input.qa === "released" ? ["QA released the product: no damage, nothing to recover."] : [];
   const qaCondition = input.qa === "pending" ? ["QA must reject the batch for the goods to count as damaged."] : [];

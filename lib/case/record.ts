@@ -3,7 +3,18 @@ import type { DB } from "@/lib/db/client";
 import { cases } from "@/lib/db/schema";
 import { citationKey, type Citation } from "@/lib/domain/citation";
 import type { CustodyParty } from "@/lib/domain/parties";
-import type { CaseOutcome, ClaimPlanItem, ContractTermsParsed, Deadline, ExtraCost, QaAssessment, PolicyTermsParsed, QaStatus, RankedRoute, RouteLiability } from "@/lib/rules/types";
+import type {
+  CaseOutcome,
+  ClaimPlanItem,
+  ContractTermsParsed,
+  Deadline,
+  ExtraCost,
+  PolicyTermsParsed,
+  QaAssessment,
+  QaStatus,
+  RankedRoute,
+  RouteLiability,
+} from "@/lib/rules/types";
 
 /** The shared case record every tool reads from and writes to (cases.record jsonb). */
 
@@ -82,6 +93,16 @@ export interface CaseRecord {
   contract?: { terms: ContractTermsParsed; clauses: Record<string, ClauseRef>; documentId: string | null; reference: string | null };
   policy?: { terms: PolicyTermsParsed; clauses: Record<string, ClauseRef>; documentId: string | null; policyNumber: string | null };
   qa?: { status: QaStatus; by?: string; at?: string; note?: string; citationId?: string };
+  /** Quality agent's assessment against the stability allowance (with reasoning) */
+  qaAssessment?: QaAssessment & { by: "quality_agent"; at: string; citationId?: string };
+  /** Primary claim, plus a secondary one against the party in custody when the insurer is primary */
+  claimPlan?: ClaimPlanItem[];
+  /** Eligible, documented extra costs added to the loss before caps */
+  extraCosts?: ExtraCost[];
+  /** Appeals (max one) and reminders after a claim was sent */
+  followUp?: { appeals: { draftId: string; at: string }[]; remindersSent: number[]; lastReplyAt?: string | null };
+  /** Result record, written on every closing transition */
+  outcome?: CaseOutcome;
   liability?: RouteLiability[];
   deadlines?: Deadline[];
   ranking?: RankedRoute[];
@@ -95,11 +116,6 @@ export interface CaseRecord {
   negotiation?: { route: string; offerEur: number; claimEur: number; messageId: string; counterDraftId: string; counterparty: string } | null;
   /** Incoming Outbox messages already processed by handle_reply */
   handledMessageIds?: string[];
-  qaAssessment?: QaAssessment & { by: "quality_agent"; at: string; citationId?: string };
-  claimPlan?: ClaimPlanItem[];
-  extraCosts?: ExtraCost[];
-  followUp?: { appeals: { draftId: string; at: string }[]; remindersSent: number[]; lastReplyAt?: string | null };
-  outcome?: CaseOutcome;
 }
 
 /** Serialises record writes per case: the model may call tools in parallel. */

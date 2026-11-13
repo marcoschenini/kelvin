@@ -27,9 +27,11 @@ export interface RulesConfig {
   earlyNoticeThresholdDays: number;
   /** Deadlines under this many days are "at risk" (red) */
   atRiskDays: number;
-  /** TEMPORARY (backend owns): quality agent uncertainty margin around the allowance, % */
+  /** Quality agent: within +/- this % of a stability limit the verdict is "unsure" (human QA decides) */
   qaUncertaintyMarginPct: number;
+  /** Days without a reply after which a reminder is drafted */
   reminderDays: number[];
+  /** Appeals allowed after a rejection or part-payment */
   maxAppeals: number;
   /** Heuristic success probabilities used to rank routes by expected recovery */
   probability: {
