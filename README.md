@@ -34,17 +34,30 @@ npm run dev                  # http://localhost:3000
 - [x] M5 — Human gates, approval screen, Outbox, simulated counterparties
 - [x] M6 — Evaluation harness and page (24 answer-keyed cases)
 - [ ] M7 — Demo + Replay mode, polish, 5-minute demo script
-- [ ] M8 — Deploy to Vercel
+- [x] M8 — Supabase (shared Postgres + Storage) and Vercel deploy
 
 ## Public demo (Vercel)
 
-On Vercel (`VERCEL` is set) the app runs in **public-demo mode**: the embedded database lives in `/tmp` and is seeded with cases A, B and C automatically when it starts empty, so no database or secrets are needed. Data is per server instance and resets after a cold start. Add `ANTHROPIC_API_KEY` in the Vercel project settings to switch the agent from the deterministic planner to the live model. Run the same mode locally with `npm run build && npm run start:demo` (port 3200).
+On Vercel (`VERCEL` is set) the app runs in **public-demo mode**: the embedded database lives in `/tmp` and is seeded with cases A, B and C automatically when it starts empty, so no database or secrets are needed. Data is per server instance and resets after a cold start, unless Supabase mode is configured (below). Add `ANTHROPIC_API_KEY` in the Vercel project settings to switch the agent from the deterministic planner to the live model. Run the same mode locally with `npm run build && npm run start:demo` (port 3200).
 
 ## Data
 
 - **Local mode (default):** embedded Postgres (PGlite) in `.data/pglite`, documents in `.data/files`. No setup needed; migrations run on first use.
-- **Supabase mode:** set `DB_MODE=supabase` and `DATABASE_URL` (milestone 8).
+- **Supabase mode:** hosted Postgres for every table and a private Storage bucket for documents. Every Vercel instance and every developer pointed at it sees the same cases, runs and audit trail.
 - **Safety in the database itself:** `audit_events` rejects UPDATE/DELETE (trigger); an outgoing Outbox row must reference an approval decision (CHECK constraint).
+
+### Set up Supabase
+
+1. Create a Supabase project (free tier is enough).
+2. Fill in `.env.local` (see `.env.example`):
+   - `DB_MODE=supabase`
+   - `DATABASE_URL`: Connect → **Transaction pooler** (port 6543), with the database password filled in.
+   - `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`: Project Settings → API. The key stays on the server; documents reach the browser only through `/api/documents`.
+3. Run `npm run seed`. It applies the migrations, creates the `kelvin-documents` bucket and seeds cases A, B and C.
+4. On Vercel, add the same four variables (Production and Preview) and redeploy.
+5. Keep the functions next to the database: `vercel.json` pins them to Paris (`cdg1`) because the project is in `eu-west-3`. If the database moves to another region, change both. From Washington (Vercel’s default) every query crosses the Atlantic and an investigation takes about 3× longer.
+
+Reset demo (Settings) now resets the shared data for everyone using that project. Settings → Data shows which mode is active. To keep your own sandbox, leave `DB_MODE=local`.
 
 ## Demo cases
 
