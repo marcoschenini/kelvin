@@ -10,6 +10,8 @@ Newest first. One entry per request: date — request — who did what — verdi
 - **ai-engineer** (Sonnet): `assess_quality`, same-run claim path, secondary claim letter, appeal and reminders, 3 new eval cases (27/27), recordings regenerated.
 - **frontend** (Sonnet): QA decision card, claim plan, approval summary, follow-up tags, recovery KPIs and track record.
 - **Chief integration:** primary-only close on a rejected claim letter, claimed = plan total, quality agent metric on the eval page, AGENTS.md rule. Gate: lint ✓, typecheck ✓, 120/120 tests ✓, eval 27/27 ✓, build ✓ (fonts mocked in the sandbox).
+- **qa-reviewer (Opus): PASS WITH NOTES.** Two major findings were fixed: a secondary claim could be sent before the primary and mark the case "sent"; the reject dialog said a secondary letter closes the case. Minor findings fixed: pending drafts are withdrawn on a not-approved close; QA status on the case page; assess_quality needs rank_routes first; a freezing excursion is treated as damaged; primary sent first. Re-verified: PASS. Accepted limits: claimed = plan total even if the secondary is rejected; one appeal per case; daysToClose uses the real clock.
+- **Final gate:** 124/124 tests, eval 27/27, build ✓.
 
 ## 2026-11-13 — Automatic merge on green checks
 

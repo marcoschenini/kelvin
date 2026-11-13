@@ -167,11 +167,11 @@ export async function recordApproval(
     // A rejected claim letter closes the case; the reason stays in the audit log and in record.outcome.
     const reason = `Claim not approved by ${args.actor.name} (${args.actor.title}): ${args.reason}`;
     await transition(db, caseId, "closed_not_approved", { type: "human", name: args.actor.name, role: args.actor.title }, { reason, patch: { closedReason: reason } });
-    // The case is closed: withdraw every other draft still waiting, so nothing on it can be approved or sent later.
+    // The case is closed: withdraw every other unsent draft (waiting or approved), so nothing on it can be approved or sent later.
     const pending = await db
       .select({ id: drafts.id })
       .from(drafts)
-      .where(and(eq(drafts.caseId, caseId), inArray(drafts.status, ["draft", "awaiting_approval"])));
+      .where(and(eq(drafts.caseId, caseId), inArray(drafts.status, ["draft", "awaiting_approval", "approved"])));
     if (pending.length) {
       await db.update(drafts).set({ status: "rejected", updatedAt: new Date() }).where(inArray(drafts.id, pending.map((p) => p.id)));
       await db.insert(auditEvents).values({

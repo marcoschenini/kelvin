@@ -103,6 +103,9 @@ export async function runScript(kind: RunKind, ctx: AgentContext, say: (text: st
       .select()
       .from(drafts)
       .where(and(eq(drafts.caseId, ctx.caseId), eq(drafts.status, "approved")));
+    // The primary claim letter goes first: a secondary claim (claim plan) is only sent after it.
+    const primaryId = (await getRecord(ctx.db, ctx.caseId)).claim?.draftId;
+    approved.sort((a, b) => Number(b.id === primaryId) - Number(a.id === primaryId));
     for (const d of approved) {
       say(`Sending the approved ${d.kind.replace(/_/g, " ")} to ${d.recipientName}.`);
       await call("send_via_outbox", { draftId: d.id });
