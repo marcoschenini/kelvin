@@ -12,11 +12,19 @@ const EPS = 1e-9;
  *  - both clearly below their limits           → usable
  */
 export function assessStability(
-  input: { peakC: number | null; minutesOutOfRange: number; allowance: StabilityAllowance | null },
+  input: { peakC: number | null; minutesOutOfRange: number; allowance: StabilityAllowance | null; belowRange?: boolean },
   cfg: RulesConfig,
 ): QaAssessment {
   const { peakC, minutesOutOfRange: minutes, allowance } = input;
   const base = { peakC, minutesOutOfRange: minutes, allowance };
+  if (input.belowRange) {
+    return {
+      ...base,
+      verdict: "damaged",
+      basis: "no_stability_data",
+      reasons: ["The logger shows readings below 2 °C. The stability allowance on file only covers warm excursions, so freezing cannot be shown to be harmless."],
+    };
+  }
   if (!allowance) {
     return {
       ...base,

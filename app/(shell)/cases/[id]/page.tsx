@@ -123,7 +123,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
   ]);
   const record = c.record as CaseRecord;
   const qaRow = decisionRows.find((d) => d.gate === "qa");
-  const qa: "pending" | "released" | "rejected" = qaRow ? (qaRow.decision === "released" ? "released" : "rejected") : "pending";
+  const qa: "pending" | "released" | "rejected" = qaRow ? (qaRow.decision === "released" ? "released" : "rejected") : (record.qa?.status ?? "pending");
   const released = qa === "released" || record.qaAssessment?.verdict === "usable";
   const journey = buildJourney(record);
   const main = record.excursions?.find((e) => e.direction === "high") ?? record.excursions?.[0];

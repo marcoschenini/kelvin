@@ -20,6 +20,11 @@ describe("assessStability", () => {
   it("case C: 15 °C for 225 min against 10 °C / 60 min is damaged", () => {
     expect(assessStability({ peakC: 15, minutesOutOfRange: 225, allowance: { maxTempC: 10, maxMinutesOutOfRange: 60 } }, cfg).verdict).toBe("damaged");
   });
+  it("a freezing excursion is outside a heat-only allowance: damaged", () => {
+    const a = assessStability({ peakC: null, minutesOutOfRange: 10, allowance: B, belowRange: true }, cfg);
+    expect(a.verdict).toBe("damaged");
+    expect(a.basis).toBe("no_stability_data");
+  });
   it("no stability data is damaged (claim path)", () => {
     const a = assessStability({ peakC: 9, minutesOutOfRange: 10, allowance: null }, cfg);
     expect(a.verdict).toBe("damaged");

@@ -48,6 +48,7 @@ async function Content({ params }: { params: Promise<{ id: string; draftId: stri
         registry: record.citations ?? {},
         qaReasoning: record.qaAssessment?.reasons?.[0] ?? record.qa?.note ?? null,
         qaVerdict: record.qaAssessment?.verdict ?? null,
+        primaryClaimDraftId: record.claim?.draftId ?? null,
       }}
     />
   );

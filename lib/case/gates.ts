@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import type { DB } from "@/lib/db/client";
 import { auditEvents, cases, decisions, drafts } from "@/lib/db/schema";
@@ -167,6 +167,22 @@ export async function recordApproval(
     // A rejected claim letter closes the case; the reason stays in the audit log and in record.outcome.
     const reason = `Claim not approved by ${args.actor.name} (${args.actor.title}): ${args.reason}`;
     await transition(db, caseId, "closed_not_approved", { type: "human", name: args.actor.name, role: args.actor.title }, { reason, patch: { closedReason: reason } });
+    // The case is closed: withdraw every other draft still waiting, so nothing on it can be approved or sent later.
+    const pending = await db
+      .select({ id: drafts.id })
+      .from(drafts)
+      .where(and(eq(drafts.caseId, caseId), inArray(drafts.status, ["draft", "awaiting_approval"])));
+    if (pending.length) {
+      await db.update(drafts).set({ status: "rejected", updatedAt: new Date() }).where(inArray(drafts.id, pending.map((p) => p.id)));
+      await db.insert(auditEvents).values({
+        caseId,
+        actorType: "system",
+        actorName: "Kelvin",
+        eventType: "drafts_withdrawn",
+        input: { draftIds: pending.map((p) => p.id) },
+        output: { reason: "Case closed as not approved" },
+      });
+    }
   }
   return { id, at, draftKind: draft.kind };
 }

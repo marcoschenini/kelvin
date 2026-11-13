@@ -215,3 +215,40 @@ describe("reminders and rejection", () => {
     expect(audit.some((a) => a.eventType === "status_changed" && JSON.stringify(a.output).includes("Amount needs a second look"))).toBe(true);
   });
 });
+
+describe("claim plan gates (B: insurer primary + airline secondary)", () => {
+  const drafts = async (id: string) => db.select().from(schema.drafts).where(eq(schema.drafts.caseId, id));
+  const primaryId = async (id: string) => ((await status(id)).record as { claim?: { draftId: string } }).claim!.draftId;
+
+  it("rejecting only the secondary claim letter keeps the case open", async () => {
+    const id = "demo-b";
+    await m.seedDemoCase(db, "B", NOW);
+    await run(id, "investigate");
+    const p = await primaryId(id);
+    const secondary = (await drafts(id)).find((d) => d.kind === "claim_letter" && d.id !== p)!;
+    await m.gates.recordApproval(db, id, { draftId: secondary.id, decision: "rejected", reason: "Not worth it", actor: m.getPersona("tom") });
+    expect((await status(id)).status).toBe("awaiting_approval");
+  });
+
+  it("a secondary claim cannot go out before the primary, and does not mark the case as sent", async () => {
+    const id = "demo-b";
+    await m.seedDemoCase(db, "B", NOW);
+    await run(id, "investigate");
+    const p = await primaryId(id);
+    const secondary = (await drafts(id)).find((d) => d.kind === "claim_letter" && d.id !== p)!;
+    await m.gates.recordApproval(db, id, { draftId: secondary.id, decision: "approved", actor: m.getPersona("tom") });
+    await run(id, "follow_up");
+    expect((await status(id)).status).toBe("awaiting_approval");
+    const out = await db.select().from(schema.outboxMessages).where(eq(schema.outboxMessages.caseId, id));
+    expect(out.some((o) => o.draftId === secondary.id)).toBe(false);
+  });
+
+  it("rejecting the primary closes the case and withdraws every other pending draft", async () => {
+    const id = "demo-b";
+    await m.seedDemoCase(db, "B", NOW);
+    await run(id, "investigate");
+    await m.gates.recordApproval(db, id, { draftId: await primaryId(id), decision: "rejected", reason: "Policy excess unclear", actor: m.getPersona("tom") });
+    expect((await status(id)).status).toBe("closed_not_approved");
+    expect((await drafts(id)).filter((d) => d.status === "awaiting_approval" || d.status === "draft")).toHaveLength(0);
+  });
+});

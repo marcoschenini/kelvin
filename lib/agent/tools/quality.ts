@@ -27,6 +27,7 @@ export const assessQuality = defineTool({
     const [row, record] = await Promise.all([getCaseRow(ctx.db, ctx.caseId), getRecord(ctx.db, ctx.caseId)]);
     if (!record.excursions) throw new ToolGuardError("Run parse_logger first: the quality agent needs the measured excursion.");
     if (!record.excursions.length) throw new ToolGuardError("There is no excursion in the logger data: nothing for the quality agent to assess.");
+    if (!record.ranking) throw new ToolGuardError("Run rank_routes (and draft any protective notice it requires) before the quality agent: once it decides, protective notices can no longer be drafted.");
     if (row.status !== "investigating") throw new ToolGuardError(`The quality agent can only assess while investigating (case is ${row.status}).`);
     const prior = await ctx.db.select({ id: decisions.id }).from(decisions).where(and(eq(decisions.caseId, ctx.caseId), eq(decisions.gate, "qa")));
     if (prior.length) throw new ToolGuardError("A QA decision already exists for this case.");
@@ -48,7 +49,7 @@ export const assessQuality = defineTool({
     const high = record.excursions.filter((x) => x.direction === "high");
     const peakC = high.length ? Math.max(...high.map((x) => x.peakC)) : null;
     const minutes = record.excursions.reduce((s, x) => s + x.minutes, 0);
-    const assessment = assessStability({ peakC, minutesOutOfRange: minutes, allowance: allowance ? { ...allowance, citationHint: reg?.id } : null }, ctx.rules);
+    const assessment = assessStability({ peakC, minutesOutOfRange: minutes, allowance: allowance ? { ...allowance, citationHint: reg?.id } : null, belowRange: record.excursions.some((x) => x.direction !== "high") }, ctx.rules);
 
     await recordAgentQaDecision(ctx.db, ctx.caseId, assessment, { citationId: reg?.id, runId: ctx.runId });
     const after = await getCaseRow(ctx.db, ctx.caseId);

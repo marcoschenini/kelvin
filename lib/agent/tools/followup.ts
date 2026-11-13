@@ -111,6 +111,11 @@ export const sendViaOutbox = defineTool({
       throw new ToolGuardError("Not approved: a manager must approve this draft before anything is sent.");
     }
     const row = await getCaseRow(ctx.db, ctx.caseId);
+    const primaryDraftId = (await getRecord(ctx.db, ctx.caseId)).claim?.draftId;
+    const isSecondaryClaim = draft.kind === "claim_letter" && !!primaryDraftId && primaryDraftId !== draft.id;
+    if (isSecondaryClaim && row.status !== "sent" && row.status !== "in_negotiation") {
+      throw new ToolGuardError("Send the primary claim first: a secondary claim (claim plan) goes out only after the primary claim letter has been approved and sent.");
+    }
     const id = `msg-${nanoid(8)}`;
     // Keep the thread in order even when the case clock is fixed (evaluation, tests).
     const thread = await ctx.db.select({ at: outboxMessages.at }).from(outboxMessages).where(eq(outboxMessages.caseId, ctx.caseId));
@@ -130,7 +135,7 @@ export const sendViaOutbox = defineTool({
       at: sentAt,
     });
     await ctx.db.update(drafts).set({ status: "sent", updatedAt: new Date() }).where(eq(drafts.id, draftId));
-    if (draft.kind === "claim_letter" && row.status === "awaiting_approval") {
+    if (draft.kind === "claim_letter" && !isSecondaryClaim && row.status === "awaiting_approval") {
       const tr = await transition(ctx.db, ctx.caseId, "sent", AGENT, { reason: `Claim sent to ${draft.recipientName}`, runId: ctx.runId });
       ctx.emit({ type: "status", from: tr.from, to: tr.to, reason: "Claim sent" });
     }

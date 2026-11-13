@@ -48,6 +48,8 @@ export interface ApprovalContext {
   /** First reason of the quality agent (or the human QA note). */
   qaReasoning?: string | null;
   qaVerdict?: "usable" | "damaged" | "unsure" | null;
+  /** Draft id of the primary claim letter (claim plan); rejecting it closes the case. */
+  primaryClaimDraftId?: string | null;
 }
 
 const KIND_LABEL: Record<string, string> = {
@@ -111,7 +113,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
     });
   }, [actionable, body, canApprove, ctx.caseId, draft.id, edited, handoff, pending, router, subject]);
 
-  const closesCase = draft.kind === "claim_letter";
+  const closesCase = draft.kind === "claim_letter" && (!ctx.primaryClaimDraftId || ctx.primaryClaimDraftId === draft.id);
   const reject = () =>
     start(async () => {
       const r = await approvalAction(ctx.caseId, { draftId: draft.id, decision: "rejected", reason });
