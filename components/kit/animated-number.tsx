@@ -15,14 +15,15 @@ export function AnimatedNumber({
   duration = 0.65,
 }: {
   value: number;
-  format?: "number" | "eur";
+  format?: "number" | "eur" | "pct" | "days";
   className?: string;
   duration?: number;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true });
   const reduce = useReducedMotion();
-  const fmt = format === "eur" ? formatEUR : (n: number) => formatNumber(n);
+  const fmt =
+    format === "eur" ? formatEUR : format === "pct" ? (n: number) => `${Math.round(n)}%` : format === "days" ? (n: number) => `${n.toFixed(1)} days` : (n: number) => formatNumber(n);
   const prev = useRef(0);
 
   useEffect(() => {

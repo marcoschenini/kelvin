@@ -75,3 +75,26 @@ export interface RankedRoute extends RouteLiability {
   reasons: string[];
   noticeDeadline: Deadline | null;
 }
+
+// TEMPORARY (frontend stub of the workflow-v2 contract; backend's version wins)
+export interface StabilityAllowance { maxTempC: number; maxMinutesOutOfRange: number; citationHint?: string }
+export type QaVerdict = "usable" | "damaged" | "unsure";
+export interface QaAssessment {
+  verdict: QaVerdict;
+  peakC: number | null;
+  minutesOutOfRange: number;
+  allowance: StabilityAllowance | null;
+  reasons: string[];
+  basis: "within_allowance" | "beyond_allowance" | "no_stability_data" | "near_limit";
+}
+export interface ExtraCost { label: string; eur: number; citationHint?: string }
+export interface ClaimPlanItem { route: RecoveryRoute; role: "primary" | "secondary"; amountEur: number; reason: string; order: number }
+export interface CaseOutcome {
+  result: "no_claim" | "recovered" | "settled" | "rejected" | "not_approved";
+  claimedEur: number | null;
+  recoveredEur: number | null;
+  recoveryPct: number | null;
+  payer: RecoveryRoute | null;
+  daysToClose: number | null;
+  closedAt: string;
+}

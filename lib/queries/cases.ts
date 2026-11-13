@@ -3,6 +3,7 @@ import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { agentRuns, agentSteps, auditEvents, cases, decisions, documents, drafts, outboxMessages, type CaseRow } from "@/lib/db/schema";
 import { isClosed } from "@/lib/domain/case-status";
+import type { RecoveryRoute } from "@/lib/domain/parties";
 import { daysUntil } from "@/lib/format";
 
 /** Read models for pages. Callers must `await connection()` first (Cache Components). */
@@ -33,6 +34,10 @@ export interface InboxKpis {
   recoveredEur: number;
   deadlinesAtRisk: number;
   awaitingHuman: number;
+  /** TEMPORARY stub: backend computes these. */
+  recoveryRatePct: number | null;
+  avgDaysToClose: number | null;
+  trackRecord: { payer: RecoveryRoute; claims: number; recoveredEur: number; recoveryPct: number | null }[];
 }
 
 export function computeKpis(items: CaseListItem[]): InboxKpis {
@@ -43,6 +48,9 @@ export function computeKpis(items: CaseListItem[]): InboxKpis {
     recoveredEur: items.reduce((s, c) => s + (c.recoveredEur ?? 0), 0),
     deadlinesAtRisk: open.filter((c) => c.daysLeft != null && c.daysLeft < 3).length,
     awaitingHuman: open.filter((c) => c.status === "awaiting_qa" || c.status === "awaiting_approval").length,
+    recoveryRatePct: null,
+    avgDaysToClose: null,
+    trackRecord: [],
   };
 }
 

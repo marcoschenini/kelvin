@@ -15,8 +15,9 @@ export function KpiTile({
   className,
 }: {
   label: string;
-  value: number;
-  format?: "number" | "eur";
+  /** null renders an em dash (nothing to measure yet). */
+  value: number | null;
+  format?: "number" | "eur" | "pct" | "days";
   hint?: React.ReactNode;
   icon: LucideIcon;
   tone?: Tone;
@@ -30,6 +31,11 @@ export function KpiTile({
         <span className="text-[13px] font-medium text-muted-foreground">{label}</span>
         <IconTile icon={icon} tone={tone} size="sm" />
       </div>
+      {value == null ? (
+        <span className="num mt-2 block text-[1.75rem] leading-none font-semibold tracking-[-0.02em] text-subtle" aria-label="Not available yet">
+          —
+        </span>
+      ) : (
       <AnimatedNumber
         value={value}
         format={format}
@@ -39,6 +45,7 @@ export function KpiTile({
           emphasis === "success" && "text-success-fg",
         )}
       />
+      )}
       {hint && <div className="mt-2 text-xs text-muted-foreground">{hint}</div>}
     </div>
   );

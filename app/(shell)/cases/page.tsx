@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { AlarmClock, Euro, FolderOpen, HandCoins, Inbox, Play, Plus } from "lucide-react";
+import { AlarmClock, CalendarCheck, Euro, FolderOpen, HandCoins, Inbox, Percent, Play, Plus } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/shell/page-header";
 import { CaseList, CaseListSkeleton } from "@/components/case/case-list";
+import { TrackRecord } from "@/components/case/track-record";
 import { KpiTile } from "@/components/kit/kpi-tile";
 import { EmptyState } from "@/components/kit/surfaces";
 import { buttonVariants } from "@/components/ui/button";
@@ -17,7 +18,7 @@ async function InboxContent() {
   const k = computeKpis(items);
   return (
     <>
-      <section aria-label="Key figures" className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <section aria-label="Key figures" className="grid grid-cols-2 gap-4 xl:grid-cols-3">
         <KpiTile
           label="Open cases"
           value={k.openCases}
@@ -43,6 +44,8 @@ async function InboxContent() {
           hint="Notice due in under 3 days"
           emphasis={k.deadlinesAtRisk > 0 ? "danger" : undefined}
         />
+        <KpiTile label="Recovery rate" value={k.recoveryRatePct} format="pct" icon={Percent} tone="success" hint="Recovered of claimed, closed cases" />
+        <KpiTile label="Avg days to close" value={k.avgDaysToClose} format="days" icon={CalendarCheck} tone="cold" hint="From alert to closing" />
       </section>
 
       {items.length ? (
@@ -60,6 +63,7 @@ async function InboxContent() {
           }
         />
       )}
+      {items.length > 0 && <TrackRecord rows={k.trackRecord} />}
     </>
   );
 }
@@ -67,8 +71,8 @@ async function InboxContent() {
 function InboxSkeleton() {
   return (
     <>
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="rounded-xl border border-border bg-card p-5 shadow-card">
             <Skeleton className="h-3.5 w-24" />
             <Skeleton className="mt-4 h-7 w-28" />
