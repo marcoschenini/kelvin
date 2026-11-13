@@ -23,7 +23,13 @@ export async function qaStatus(db: DB, caseId: string): Promise<{ status: QaStat
     .where(and(eq(decisions.caseId, caseId), eq(decisions.gate, "qa")))
     .orderBy(desc(decisions.at))
     .limit(1);
-  if (!d) return { status: "pending" };
+  if (!d) {
+    // The quality agent's decision lives in the case record, not in the human decisions table.
+    const [row] = await db.select({ record: cases.record }).from(cases).where(eq(cases.id, caseId));
+    const qa = (row?.record as CaseRecord | undefined)?.qa;
+    if (qa && (qa.status === "released" || qa.status === "rejected")) return { status: qa.status, by: qa.by, at: qa.at ? new Date(qa.at) : undefined, note: qa.note };
+    return { status: "pending" };
+  }
   return { status: d.decision === "released" ? "released" : "rejected", decisionId: d.id, by: `${d.actorName} (${d.actorRole})`, at: d.at, note: d.note };
 }
 

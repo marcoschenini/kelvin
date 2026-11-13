@@ -2,7 +2,6 @@ import type { CustodyParty, RecoveryRoute } from "@/lib/domain/parties";
 import type { CaseSpec, EmailSpec } from "../spec";
 import type { ExtraCost, StabilityAllowance } from "@/lib/rules/types";
 import { CASE_B, CASE_C, fraBosChain } from "./demo";
-import { extraCostsEmail, stabilityEmail } from "./stability-email";
 
 /**
  * Evaluation set: 24 shipments that each change one or two facts against the
@@ -123,11 +122,9 @@ function build(v: Variant): EvalCase {
   };
   const allowance = allowanceFor(v);
   spec.product = { ...spec.product, stability: allowance };
-  spec.emails = [alarmEmail(spec, discoveredAfterH), stabilityEmail(spec, allowance)];
-  if (v.extraCosts?.length) {
-    spec.extraCosts = v.extraCosts;
-    spec.emails.push(extraCostsEmail(spec, v.extraCosts));
-  }
+  // The seed generator turns product.stability and extraCosts into the cited emails.
+  spec.emails = [alarmEmail(spec, discoveredAfterH)];
+  if (v.extraCosts?.length) spec.extraCosts = v.extraCosts;
   return { spec, key: v.key };
 }
 

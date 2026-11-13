@@ -87,7 +87,7 @@ export async function deliverDueReplies(db: DB, caseId: string, now = new Date()
     const route = (draft?.route as RecoveryRoute | null) ?? (row?.recommendedRoute as RecoveryRoute | null) ?? null;
     // Where is this counterparty in the claim conversation?
     const claimSent = all.find((x) => x.direction === "out" && x.toAddress === m.toAddress && x.subject.startsWith("Claim for"));
-    const stage = claimSent ? all.filter((x) => x.direction === "in" && x.fromAddress === m.toAddress && x.at >= claimSent.at).length : 0;
+    const stage = claimSent ? all.filter((x) => x.direction === "in" && x.fromAddress === m.toAddress && x.at >= claimSent.at && !/Notice|Notification/.test(x.subject)).length : 0;
     const ranked = record.ranking?.find((r) => r.route === route);
     const notice = all.find((x) => x.direction === "out" && x.toAddress === m.toAddress && x !== claimSent && /^Notice/.test(x.subject));
     const noticeLapsed = kind === "claim_letter" && !!ranked?.noticeDeadline && ranked.noticeDeadline.daysLeft < 0 && !notice;

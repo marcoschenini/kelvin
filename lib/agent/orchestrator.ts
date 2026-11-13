@@ -234,7 +234,7 @@ export async function runAgent(opts: RunOptions): Promise<RunResult> {
     // The quality agent found the product damaged: the claim path continues in the same run, no human QA step.
     if (kind === "investigate") {
       const [row, record] = await Promise.all([getCaseRow(db, caseId), getRecord(db, caseId)]);
-      if (row.status === "investigating" && record.qaAssessment?.verdict === "damaged") await runPhase("prepare_claim");
+      if (row.status === "claim_prepared" && record.qaAssessment?.verdict === "damaged") await runPhase("prepare_claim");
     }
   } catch (e) {
     status = "failed";

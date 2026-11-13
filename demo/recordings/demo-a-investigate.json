@@ -4,22 +4,22 @@
  "kind": "investigate",
  "mode": "deterministic",
  "model": null,
- "recordedAt": "2026-11-13T14:10:14.845Z",
+ "recordedAt": "2026-11-13T14:16:02.779Z",
  "events": [
   {
    "t": 1,
    "event": {
     "type": "run_started",
-    "runId": "run-jqRiFKS7kZ",
+    "runId": "run-LtIhCaZ9m9",
     "caseId": "demo-a",
     "kind": "investigate",
     "mode": "deterministic",
     "model": null,
-    "at": "2026-11-13T14:10:12.330Z"
+    "at": "2026-11-13T14:16:01.134Z"
    }
   },
   {
-   "t": 27,
+   "t": 18,
    "event": {
     "type": "status",
     "from": "new",
@@ -28,24 +28,24 @@
    }
   },
   {
-   "t": 27,
+   "t": 18,
    "event": {
     "type": "text",
     "delta": "Reading the temperature logger to see what actually happened.\n"
    }
   },
   {
-   "t": 29,
+   "t": 19,
    "event": {
     "type": "step_started",
     "seq": 2,
     "tool": "parse_logger",
     "input": {},
-    "at": "2026-11-13T14:10:12.358Z"
+    "at": "2026-11-13T14:16:01.152Z"
    }
   },
   {
-   "t": 77,
+   "t": 44,
    "event": {
     "type": "step_finished",
     "seq": 2,
@@ -91,18 +91,18 @@
       "documentId": "demo-a-logger"
      }
     ],
-    "durationMs": 46
+    "durationMs": 22
    }
   },
   {
-   "t": 78,
+   "t": 44,
    "event": {
     "type": "text",
     "delta": "Reading the air waybill for weight and declared value, and the invoice for the value of the goods.\n"
    }
   },
   {
-   "t": 78,
+   "t": 45,
    "event": {
     "type": "step_started",
     "seq": 4,
@@ -110,11 +110,11 @@
     "input": {
      "kind": "awb"
     },
-    "at": "2026-11-13T14:10:12.407Z"
+    "at": "2026-11-13T14:16:01.178Z"
    }
   },
   {
-   "t": 1814,
+   "t": 1278,
    "event": {
     "type": "step_finished",
     "seq": 4,
@@ -160,11 +160,11 @@
       "documentId": "demo-a-awb"
      }
     ],
-    "durationMs": 1733
+    "durationMs": 1230
    }
   },
   {
-   "t": 1814,
+   "t": 1278,
    "event": {
     "type": "step_started",
     "seq": 5,
@@ -172,11 +172,11 @@
     "input": {
      "kind": "invoice"
     },
-    "at": "2026-11-13T14:10:14.143Z"
+    "at": "2026-11-13T14:16:02.411Z"
    }
   },
   {
-   "t": 1897,
+   "t": 1324,
    "event": {
     "type": "step_finished",
     "seq": 5,
@@ -215,18 +215,18 @@
       "documentId": "demo-a-invoice"
      }
     ],
-    "durationMs": 82
+    "durationMs": 44
    }
   },
   {
-   "t": 1908,
+   "t": 1325,
    "event": {
     "type": "text",
     "delta": "Skimming the correspondence for context.\n"
    }
   },
   {
-   "t": 1909,
+   "t": 1326,
    "event": {
     "type": "step_started",
     "seq": 7,
@@ -234,11 +234,11 @@
     "input": {
      "kind": "email"
     },
-    "at": "2026-11-13T14:10:14.238Z"
+    "at": "2026-11-13T14:16:02.459Z"
    }
   },
   {
-   "t": 1931,
+   "t": 1350,
    "event": {
     "type": "step_finished",
     "seq": 7,
@@ -275,11 +275,11 @@
        "documentId": "demo-a-email-03",
        "kind": "email",
        "email": {
-        "from": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>",
+        "from": "\"Quality Assurance, Rheinfeld\" <qa@rheinfeld-bio.example>",
         "to": "\"Rheinfeld Biologics GmbH\" <logistics@rheinfeld-bio.example>",
         "date": "Thu, 12 Nov 2026 16:00:00 +0000",
         "subject": "Stability data - Lumetrazumab 200 mg/10 mL",
-        "body": "Dear team,\n\nfor Lumetrazumab 200 mg/10 mL (batch LMZ-2609-031) the validated stability data allows temperature excursions up to 25 °C for a cumulative 1,440 minutes outside 2-8 °C.\n\nElena"
+        "body": "Dear colleagues,\n\nthe stability data for Lumetrazumab 200 mg/10 mL (batch LMZ-2609-031) is on file.\n\nStability allowance: up to 25 °C for a cumulative 1440 minutes outside 2–8 °C.\n\nAny excursion beyond this allowance means the batch cannot be released.\n\nQuality Assurance, Rheinfeld Biologics GmbH"
        },
        "citation": "S6"
       }
@@ -306,33 +306,33 @@
       "id": "S6",
       "kind": "email",
       "label": "Email 12 Nov 2026 16:00",
-      "quote": "Dear team,\n\nfor Lumetrazumab 200 mg/10 mL (batch LMZ-2609-031) the validated stability data allows temperature excursions up to 25 °C for a cumulative 1,440 minutes outside 2-8 °C.\n\nElena",
-      "title": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>: Stability data - Lumetrazumab 200 mg/10 mL",
+      "quote": "Dear colleagues,\n\nthe stability data for Lumetrazumab 200 mg/10 mL (batch LMZ-2609-031) is on file.\n\nStability allowance: up to 25 °C for a cumulative 1440 minutes outside 2–8 °C.\n\nAny excursion beyon",
+      "title": "\"Quality Assurance, Rheinfeld\" <qa@rheinfeld-bio.example>: Stability data - Lumetrazumab 200 mg/10 mL",
       "documentId": "demo-a-email-03"
      }
     ],
-    "durationMs": 12
+    "durationMs": 22
    }
   },
   {
-   "t": 1931,
+   "t": 1350,
    "event": {
     "type": "text",
     "delta": "Matching the excursion to the custody timeline to see who held the cargo when it got warm.\n"
    }
   },
   {
-   "t": 1932,
+   "t": 1355,
    "event": {
     "type": "step_started",
     "seq": 9,
     "tool": "build_custody_timeline",
     "input": {},
-    "at": "2026-11-13T14:10:14.261Z"
+    "at": "2026-11-13T14:16:02.488Z"
    }
   },
   {
-   "t": 1959,
+   "t": 1381,
    "event": {
     "type": "step_finished",
     "seq": 9,
@@ -457,28 +457,28 @@
       "documentId": "demo-a-handling_events"
      }
     ],
-    "durationMs": 18
+    "durationMs": 24
    }
   },
   {
-   "t": 1959,
+   "t": 1381,
    "event": {
     "type": "text",
     "delta": "Checking the forwarder contract for temperature duties, liability caps and notice periods.\n"
    }
   },
   {
-   "t": 1960,
+   "t": 1382,
    "event": {
     "type": "step_started",
     "seq": 11,
     "tool": "check_contract",
     "input": {},
-    "at": "2026-11-13T14:10:14.289Z"
+    "at": "2026-11-13T14:16:02.515Z"
    }
   },
   {
-   "t": 2141,
+   "t": 1452,
    "event": {
     "type": "step_finished",
     "seq": 11,
@@ -664,28 +664,28 @@
       "documentId": "demo-a-contract"
      }
     ],
-    "durationMs": 178
+    "durationMs": 66
    }
   },
   {
-   "t": 2141,
+   "t": 1452,
    "event": {
     "type": "text",
     "delta": "Checking the cargo policy for cover, exclusions, deductible and notice period.\n"
    }
   },
   {
-   "t": 2142,
+   "t": 1453,
    "event": {
     "type": "step_started",
     "seq": 13,
     "tool": "check_policy",
     "input": {},
-    "at": "2026-11-13T14:10:14.471Z"
+    "at": "2026-11-13T14:16:02.586Z"
    }
   },
   {
-   "t": 2265,
+   "t": 1508,
    "event": {
     "type": "step_finished",
     "seq": 13,
@@ -852,28 +852,28 @@
       "documentId": "demo-a-policy"
      }
     ],
-    "durationMs": 95
+    "durationMs": 50
    }
   },
   {
-   "t": 2265,
+   "t": 1508,
    "event": {
     "type": "text",
     "delta": "Applying the liability limits per route.\n"
    }
   },
   {
-   "t": 2266,
+   "t": 1509,
    "event": {
     "type": "step_started",
     "seq": 15,
     "tool": "compute_liability",
     "input": {},
-    "at": "2026-11-13T14:10:14.595Z"
+    "at": "2026-11-13T14:16:02.642Z"
    }
   },
   {
-   "t": 2331,
+   "t": 1534,
    "event": {
     "type": "step_finished",
     "seq": 15,
@@ -1016,28 +1016,28 @@
       "documentId": "demo-a-policy"
      }
     ],
-    "durationMs": 52
+    "durationMs": 22
    }
   },
   {
-   "t": 2331,
+   "t": 1534,
    "event": {
     "type": "text",
     "delta": "Working out every deadline and how many days are left.\n"
    }
   },
   {
-   "t": 2332,
+   "t": 1535,
    "event": {
     "type": "step_started",
     "seq": 17,
     "tool": "compute_deadlines",
     "input": {},
-    "at": "2026-11-13T14:10:14.661Z"
+    "at": "2026-11-13T14:16:02.668Z"
    }
   },
   {
-   "t": 2357,
+   "t": 1556,
    "event": {
     "type": "step_finished",
     "seq": 17,
@@ -1045,7 +1045,7 @@
     "status": "ok",
     "summary": "Forwarder notice 19 Nov 2026 (6 days left); Carrier notice 26 Nov 2026 (13 days left); Insurer notice 12 Dec 2026 (29 days left)",
     "output": {
-     "now": "2026-11-13T14:10:12.330Z",
+     "now": "2026-11-13T14:16:01.134Z",
      "deadlines": [
       {
        "id": "contract_notice",
@@ -1142,28 +1142,28 @@
       "documentId": "demo-a-policy"
      }
     ],
-    "durationMs": 22
+    "durationMs": 19
    }
   },
   {
-   "t": 2357,
+   "t": 1556,
    "event": {
     "type": "text",
     "delta": "Ranking the recovery routes by expected recoverable amount.\n"
    }
   },
   {
-   "t": 2359,
+   "t": 1556,
    "event": {
     "type": "step_started",
     "seq": 19,
     "tool": "rank_routes",
     "input": {},
-    "at": "2026-11-13T14:10:14.688Z"
+    "at": "2026-11-13T14:16:02.689Z"
    }
   },
   {
-   "t": 2401,
+   "t": 1576,
    "event": {
     "type": "step_finished",
     "seq": 19,
@@ -1233,7 +1233,7 @@
        "route": "forwarder",
        "role": "primary",
        "amountEur": 644.435456,
-       "reason": "Excursion in forwarder custody, in breach of its cold-room duty",
+       "reason": "Recommended route: Excursion in forwarder custody, in breach of its cold-room duty.",
        "order": 1
       }
      ]
@@ -1295,28 +1295,28 @@
       "documentId": "demo-a-policy"
      }
     ],
-    "durationMs": 37
+    "durationMs": 17
    }
   },
   {
-   "t": 2401,
+   "t": 1576,
    "event": {
     "type": "text",
     "delta": "Checking whether anything is missing from the file.\n"
    }
   },
   {
-   "t": 2402,
+   "t": 1577,
    "event": {
     "type": "step_started",
     "seq": 21,
     "tool": "request_missing_info",
     "input": {},
-    "at": "2026-11-13T14:10:14.731Z"
+    "at": "2026-11-13T14:16:02.710Z"
    }
   },
   {
-   "t": 2432,
+   "t": 1592,
    "event": {
     "type": "step_finished",
     "seq": 21,
@@ -1331,28 +1331,28 @@
      "valueSource": "invoice"
     },
     "citations": [],
-    "durationMs": 23
+    "durationMs": 13
    }
   },
   {
-   "t": 2432,
+   "t": 1592,
    "event": {
     "type": "text",
     "delta": "Handing the measured excursion to the quality agent: it compares peak temperature and minutes out of range with the manufacturer's stability data.\n"
    }
   },
   {
-   "t": 2433,
+   "t": 1593,
    "event": {
     "type": "step_started",
     "seq": 23,
     "tool": "assess_quality",
     "input": {},
-    "at": "2026-11-13T14:10:14.762Z"
+    "at": "2026-11-13T14:16:02.726Z"
    }
   },
   {
-   "t": 2481,
+   "t": 1633,
    "event": {
     "type": "status",
     "from": "investigating",
@@ -1361,13 +1361,13 @@
    }
   },
   {
-   "t": 2497,
+   "t": 1637,
    "event": {
     "type": "step_finished",
     "seq": 23,
     "tool": "assess_quality",
     "status": "ok",
-    "summary": "Quality agent: usable. The excursion (9.2 °C, 25 min) is within the stability allowance (25 °C, 1440 min). The case closes with no claim.",
+    "summary": "Quality agent: usable. The logger shows a peak of 9.2 °C and 25 min outside 2–8 °C, clearly within the stability allowance of up to 25 °C for a cumulative 1440 min. The product stays within its stability data, so there is no damage and nothing to claim. The case closes with no claim.",
     "output": {
      "verdict": "usable",
      "basis": "within_allowance",
@@ -1379,7 +1379,8 @@
       "citationHint": "S27"
      },
      "reasons": [
-      "The excursion (9.2 °C, 25 min) is within the stability allowance (25 °C, 1440 min)."
+      "The logger shows a peak of 9.2 °C and 25 min outside 2–8 °C, clearly within the stability allowance of up to 25 °C for a cumulative 1440 min.",
+      "The product stays within its stability data, so there is no damage and nothing to claim."
      ],
      "citationId": "S27"
     },
@@ -1388,27 +1389,27 @@
       "id": "S27",
       "kind": "email",
       "label": "Stability data 12 Nov 2026",
-      "quote": "Dear team, for Lumetrazumab 200 mg/10 mL (batch LMZ-2609-031) the validated stability data allows temperature excursions up to 25 °C for a cumulative 1,440 minutes outside 2-8 °C.",
-      "title": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>: Stability data - Lumetrazumab 200 mg/10 mL",
+      "quote": "Stability allowance: up to 25 °C for a cumulative 1440 minutes outside 2–8 °C.",
+      "title": "\"Quality Assurance, Rheinfeld\" <qa@rheinfeld-bio.example>: Stability data - Lumetrazumab 200 mg/10 mL",
       "documentId": "demo-a-email-03"
      }
     ],
-    "durationMs": 60
+    "durationMs": 43
    }
   },
   {
-   "t": 2501,
+   "t": 1638,
    "event": {
     "type": "text",
     "delta": "The excursion happened while NordStar Logistics GmbH held the cargo. The quality agent found the product usable, so there is no damage and the case is closed with no claim.\n"
    }
   },
   {
-   "t": 2516,
+   "t": 1646,
    "event": {
     "type": "run_finished",
     "status": "completed",
-    "durationMs": 2516,
+    "durationMs": 1646,
     "finalStatus": "closed_no_claim"
    }
   }

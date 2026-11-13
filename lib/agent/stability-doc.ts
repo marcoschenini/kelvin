@@ -11,7 +11,7 @@ export function isStabilityEmail(subject: string): boolean {
 }
 
 export function isExtraCostsEmail(subject: string): boolean {
-  return /^(re:\s*)?extra costs?/i.test(subject.trim());
+  return /^(re:\s*)?(extra|additional) costs?/i.test(subject.trim());
 }
 
 /** "... allows temperature excursions up to 25 °C for a cumulative 1,440 minutes ..." */
@@ -24,11 +24,11 @@ export function parseStabilityAllowance(body: string): { allowance: StabilityAll
   return { allowance: { maxTempC: Number(temp[1]), maxMinutesOutOfRange: Number(mins[1].replace(/,/g, "")) }, sentence: sentence.trim() };
 }
 
-/** Lines of the form "- Disposal of the damaged batch: EUR 12,000". */
+/** Lines of the form "Extra cost: Disposal of the damaged batch: EUR 12,000." (or "- label: EUR 12,000"). */
 export function parseExtraCosts(body: string): (ExtraCost & { line: string })[] {
   const out: (ExtraCost & { line: string })[] = [];
   for (const l of body.split(/\r?\n/)) {
-    const m = l.match(/^\s*[-*]\s*(.+?):\s*(?:€|EUR\s?)([\d,]+(?:\.\d+)?)\s*$/);
+    const m = l.match(/^\s*(?:[-*]|Extra cost:)\s*(.+?):\s*(?:€|EUR\s?)([\d,]+(?:\.\d+)?)\.?\s*$/);
     if (m) out.push({ label: m[1].trim(), eur: Number(m[2].replace(/,/g, "")), line: l.trim() });
   }
   return out;

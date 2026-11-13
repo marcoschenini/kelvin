@@ -4,22 +4,22 @@
  "kind": "investigate",
  "mode": "deterministic",
  "model": null,
- "recordedAt": "2026-11-13T14:10:15.917Z",
+ "recordedAt": "2026-11-13T14:16:03.461Z",
  "events": [
   {
-   "t": 1,
+   "t": 3,
    "event": {
     "type": "run_started",
-    "runId": "run-p0hh5miNXD",
+    "runId": "run-4wn1uTbgr9",
     "caseId": "demo-b",
     "kind": "investigate",
     "mode": "deterministic",
     "model": null,
-    "at": "2026-11-13T14:10:15.074Z"
+    "at": "2026-11-13T14:16:02.893Z"
    }
   },
   {
-   "t": 7,
+   "t": 14,
    "event": {
     "type": "status",
     "from": "new",
@@ -28,24 +28,24 @@
    }
   },
   {
-   "t": 7,
+   "t": 14,
    "event": {
     "type": "text",
     "delta": "Reading the temperature logger to see what actually happened.\n"
    }
   },
   {
-   "t": 18,
+   "t": 15,
    "event": {
     "type": "step_started",
     "seq": 2,
     "tool": "parse_logger",
     "input": {},
-    "at": "2026-11-13T14:10:15.091Z"
+    "at": "2026-11-13T14:16:02.905Z"
    }
   },
   {
-   "t": 36,
+   "t": 25,
    "event": {
     "type": "step_finished",
     "seq": 2,
@@ -91,18 +91,18 @@
       "documentId": "demo-b-logger"
      }
     ],
-    "durationMs": 16
+    "durationMs": 8
    }
   },
   {
-   "t": 39,
+   "t": 25,
    "event": {
     "type": "text",
     "delta": "Reading the air waybill for weight and declared value, and the invoice for the value of the goods.\n"
    }
   },
   {
-   "t": 40,
+   "t": 26,
    "event": {
     "type": "step_started",
     "seq": 4,
@@ -110,11 +110,11 @@
     "input": {
      "kind": "awb"
     },
-    "at": "2026-11-13T14:10:15.113Z"
+    "at": "2026-11-13T14:16:02.916Z"
    }
   },
   {
-   "t": 68,
+   "t": 48,
    "event": {
     "type": "step_finished",
     "seq": 4,
@@ -160,11 +160,11 @@
       "documentId": "demo-b-awb"
      }
     ],
-    "durationMs": 24
+    "durationMs": 18
    }
   },
   {
-   "t": 68,
+   "t": 48,
    "event": {
     "type": "step_started",
     "seq": 5,
@@ -172,11 +172,11 @@
     "input": {
      "kind": "invoice"
     },
-    "at": "2026-11-13T14:10:15.141Z"
+    "at": "2026-11-13T14:16:02.938Z"
    }
   },
   {
-   "t": 94,
+   "t": 70,
    "event": {
     "type": "step_finished",
     "seq": 5,
@@ -215,18 +215,18 @@
       "documentId": "demo-b-invoice"
      }
     ],
-    "durationMs": 22
+    "durationMs": 20
    }
   },
   {
-   "t": 96,
+   "t": 71,
    "event": {
     "type": "text",
     "delta": "Skimming the correspondence for context.\n"
    }
   },
   {
-   "t": 97,
+   "t": 72,
    "event": {
     "type": "step_started",
     "seq": 7,
@@ -234,11 +234,11 @@
     "input": {
      "kind": "email"
     },
-    "at": "2026-11-13T14:10:15.170Z"
+    "at": "2026-11-13T14:16:02.962Z"
    }
   },
   {
-   "t": 113,
+   "t": 82,
    "event": {
     "type": "step_finished",
     "seq": 7,
@@ -287,11 +287,11 @@
        "documentId": "demo-b-email-04",
        "kind": "email",
        "email": {
-        "from": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>",
+        "from": "\"Quality Assurance, Rheinfeld\" <qa@rheinfeld-bio.example>",
         "to": "\"Rheinfeld Biologics GmbH\" <logistics@rheinfeld-bio.example>",
         "date": "Tue, 03 Nov 2026 16:00:00 +0000",
         "subject": "Stability data - Orenvacept 40 mg pre-filled syringe",
-        "body": "Dear team,\n\nfor Orenvacept 40 mg pre-filled syringe (batch ORV-2608-112) the validated stability data allows temperature excursions up to 10 °C for a cumulative 30 minutes outside 2-8 °C.\n\nElena"
+        "body": "Dear colleagues,\n\nthe stability data for Orenvacept 40 mg pre-filled syringe (batch ORV-2608-112) is on file.\n\nStability allowance: up to 10 °C for a cumulative 30 minutes outside 2–8 °C.\n\nAny excursion beyond this allowance means the batch cannot be released.\n\nQuality Assurance, Rheinfeld Biologics GmbH"
        },
        "citation": "S7"
       }
@@ -326,33 +326,33 @@
       "id": "S7",
       "kind": "email",
       "label": "Email 03 Nov 2026 16:00",
-      "quote": "Dear team,\n\nfor Orenvacept 40 mg pre-filled syringe (batch ORV-2608-112) the validated stability data allows temperature excursions up to 10 °C for a cumulative 30 minutes outside 2-8 °C.\n\nElena",
-      "title": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>: Stability data - Orenvacept 40 mg pre-filled syringe",
+      "quote": "Dear colleagues,\n\nthe stability data for Orenvacept 40 mg pre-filled syringe (batch ORV-2608-112) is on file.\n\nStability allowance: up to 10 °C for a cumulative 30 minutes outside 2–8 °C.\n\nAny excursi",
+      "title": "\"Quality Assurance, Rheinfeld\" <qa@rheinfeld-bio.example>: Stability data - Orenvacept 40 mg pre-filled syringe",
       "documentId": "demo-b-email-04"
      }
     ],
-    "durationMs": 14
+    "durationMs": 8
    }
   },
   {
-   "t": 113,
+   "t": 82,
    "event": {
     "type": "text",
     "delta": "Matching the excursion to the custody timeline to see who held the cargo when it got warm.\n"
    }
   },
   {
-   "t": 115,
+   "t": 83,
    "event": {
     "type": "step_started",
     "seq": 9,
     "tool": "build_custody_timeline",
     "input": {},
-    "at": "2026-11-13T14:10:15.188Z"
+    "at": "2026-11-13T14:16:02.973Z"
    }
   },
   {
-   "t": 146,
+   "t": 109,
    "event": {
     "type": "step_finished",
     "seq": 9,
@@ -478,28 +478,28 @@
       "documentId": "demo-b-handling_report"
      }
     ],
-    "durationMs": 26
+    "durationMs": 25
    }
   },
   {
-   "t": 146,
+   "t": 109,
    "event": {
     "type": "text",
     "delta": "Checking the forwarder contract for temperature duties, liability caps and notice periods.\n"
    }
   },
   {
-   "t": 147,
+   "t": 110,
    "event": {
     "type": "step_started",
     "seq": 11,
     "tool": "check_contract",
     "input": {},
-    "at": "2026-11-13T14:10:15.220Z"
+    "at": "2026-11-13T14:16:03.000Z"
    }
   },
   {
-   "t": 234,
+   "t": 159,
    "event": {
     "type": "step_finished",
     "seq": 11,
@@ -685,28 +685,28 @@
       "documentId": "demo-b-contract"
      }
     ],
-    "durationMs": 84
+    "durationMs": 47
    }
   },
   {
-   "t": 234,
+   "t": 159,
    "event": {
     "type": "text",
     "delta": "Checking the cargo policy for cover, exclusions, deductible and notice period.\n"
    }
   },
   {
-   "t": 236,
+   "t": 160,
    "event": {
     "type": "step_started",
     "seq": 13,
     "tool": "check_policy",
     "input": {},
-    "at": "2026-11-13T14:10:15.309Z"
+    "at": "2026-11-13T14:16:03.050Z"
    }
   },
   {
-   "t": 291,
+   "t": 190,
    "event": {
     "type": "step_finished",
     "seq": 13,
@@ -873,28 +873,28 @@
       "documentId": "demo-b-policy"
      }
     ],
-    "durationMs": 50
+    "durationMs": 27
    }
   },
   {
-   "t": 291,
+   "t": 190,
    "event": {
     "type": "text",
     "delta": "Applying the liability limits per route.\n"
    }
   },
   {
-   "t": 292,
+   "t": 191,
    "event": {
     "type": "step_started",
     "seq": 15,
     "tool": "compute_liability",
     "input": {},
-    "at": "2026-11-13T14:10:15.365Z"
+    "at": "2026-11-13T14:16:03.081Z"
    }
   },
   {
-   "t": 312,
+   "t": 209,
    "event": {
     "type": "step_finished",
     "seq": 15,
@@ -1035,28 +1035,28 @@
       "documentId": "demo-b-policy"
      }
     ],
-    "durationMs": 14
+    "durationMs": 16
    }
   },
   {
-   "t": 312,
+   "t": 209,
    "event": {
     "type": "text",
     "delta": "Working out every deadline and how many days are left.\n"
    }
   },
   {
-   "t": 313,
+   "t": 210,
    "event": {
     "type": "step_started",
     "seq": 17,
     "tool": "compute_deadlines",
     "input": {},
-    "at": "2026-11-13T14:10:15.386Z"
+    "at": "2026-11-13T14:16:03.100Z"
    }
   },
   {
-   "t": 337,
+   "t": 220,
    "event": {
     "type": "step_finished",
     "seq": 17,
@@ -1064,7 +1064,7 @@
     "status": "ok",
     "summary": "Forwarder notice 10 Nov 2026 (3 days overdue); Carrier notice 17 Nov 2026 (4 days left); Insurer notice 12 Dec 2026 (29 days left)",
     "output": {
-     "now": "2026-11-13T14:10:15.074Z",
+     "now": "2026-11-13T14:16:02.893Z",
      "deadlines": [
       {
        "id": "contract_notice",
@@ -1161,28 +1161,28 @@
       "documentId": "demo-b-policy"
      }
     ],
-    "durationMs": 23
+    "durationMs": 9
    }
   },
   {
-   "t": 337,
+   "t": 220,
    "event": {
     "type": "text",
     "delta": "Ranking the recovery routes by expected recoverable amount.\n"
    }
   },
   {
-   "t": 338,
+   "t": 221,
    "event": {
     "type": "step_started",
     "seq": 19,
     "tool": "rank_routes",
     "input": {},
-    "at": "2026-11-13T14:10:15.411Z"
+    "at": "2026-11-13T14:16:03.111Z"
    }
   },
   {
-   "t": 388,
+   "t": 245,
    "event": {
     "type": "step_finished",
     "seq": 19,
@@ -1261,14 +1261,14 @@
        "route": "insurer",
        "role": "primary",
        "amountEur": 190000,
-       "reason": "Temperature deviation is covered by the policy",
+       "reason": "Recommended route: Temperature deviation is covered by the policy.",
        "order": 1
       },
       {
        "route": "carrier",
        "role": "secondary",
-       "amountEur": 3771.456,
-       "reason": "Party in custody at the excursion, for the uninsured part (deductible and uninsured share)",
+       "amountEur": 3771.46,
+       "reason": "Party in custody at the excursion: claim towards the uninsured part (€10,000 of deductible and uninsured share), limited to its own cap of €3,771.",
        "order": 2
       }
      ]
@@ -1339,18 +1339,18 @@
       "documentId": "demo-b-policy"
      }
     ],
-    "durationMs": 48
+    "durationMs": 22
    }
   },
   {
-   "t": 388,
+   "t": 245,
    "event": {
     "type": "text",
     "delta": "The carrier notice deadline is 4 days away and QA has not decided, so I am drafting a protective notice to reserve our rights.\n"
    }
   },
   {
-   "t": 389,
+   "t": 246,
    "event": {
     "type": "step_started",
     "seq": 21,
@@ -1358,11 +1358,11 @@
     "input": {
      "route": "carrier"
     },
-    "at": "2026-11-13T14:10:15.462Z"
+    "at": "2026-11-13T14:16:03.136Z"
    }
   },
   {
-   "t": 434,
+   "t": 268,
    "event": {
     "type": "step_finished",
     "seq": 21,
@@ -1370,7 +1370,7 @@
     "status": "ok",
     "summary": "Protective notice to Boreal Air Cargo drafted, due 17 Nov 2026 (4 days left). Waiting for manager approval.",
     "output": {
-     "draftId": "dr-18rq1F46",
+     "draftId": "dr-ZcJryVJq",
      "route": "carrier",
      "to": {
       "name": "Boreal Air Cargo",
@@ -1441,28 +1441,28 @@
       "documentId": "demo-b-awb"
      }
     ],
-    "durationMs": 43
+    "durationMs": 20
    }
   },
   {
-   "t": 434,
+   "t": 268,
    "event": {
     "type": "text",
     "delta": "Checking whether anything is missing from the file.\n"
    }
   },
   {
-   "t": 435,
+   "t": 269,
    "event": {
     "type": "step_started",
     "seq": 23,
     "tool": "request_missing_info",
     "input": {},
-    "at": "2026-11-13T14:10:15.508Z"
+    "at": "2026-11-13T14:16:03.159Z"
    }
   },
   {
-   "t": 463,
+   "t": 283,
    "event": {
     "type": "step_finished",
     "seq": 23,
@@ -1477,34 +1477,43 @@
      "valueSource": "invoice"
     },
     "citations": [],
-    "durationMs": 26
+    "durationMs": 13
    }
   },
   {
-   "t": 463,
+   "t": 283,
    "event": {
     "type": "text",
     "delta": "Handing the measured excursion to the quality agent: it compares peak temperature and minutes out of range with the manufacturer's stability data.\n"
    }
   },
   {
-   "t": 464,
+   "t": 284,
    "event": {
     "type": "step_started",
     "seq": 25,
     "tool": "assess_quality",
     "input": {},
-    "at": "2026-11-13T14:10:15.537Z"
+    "at": "2026-11-13T14:16:03.174Z"
    }
   },
   {
-   "t": 519,
+   "t": 324,
+   "event": {
+    "type": "status",
+    "from": "investigating",
+    "to": "claim_prepared",
+    "reason": "Quality agent: damaged"
+   }
+  },
+  {
+   "t": 331,
    "event": {
     "type": "step_finished",
     "seq": 25,
     "tool": "assess_quality",
     "status": "ok",
-    "summary": "Quality agent: damaged. The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min). The claim path opens.",
+    "summary": "Quality agent: damaged. The logger shows a peak of 13 °C and 90 min outside 2–8 °C, beyond the stability allowance of up to 10 °C for a cumulative 30 min: the peak of 13 °C is above the 10 °C limit and the 90 min outside range exceed the 30 min limit. The product can no longer be shown to be within its stability data, so the claim path applies. The claim path opens.",
     "output": {
      "verdict": "damaged",
      "basis": "beyond_allowance",
@@ -1516,7 +1525,8 @@
       "citationHint": "S30"
      },
      "reasons": [
-      "The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min)."
+      "The logger shows a peak of 13 °C and 90 min outside 2–8 °C, beyond the stability allowance of up to 10 °C for a cumulative 30 min: the peak of 13 °C is above the 10 °C limit and the 90 min outside range exceed the 30 min limit.",
+      "The product can no longer be shown to be within its stability data, so the claim path applies."
      ],
      "citationId": "S30"
     },
@@ -1525,8 +1535,8 @@
       "id": "S30",
       "kind": "email",
       "label": "Stability data 3 Nov 2026",
-      "quote": "Dear team, for Orenvacept 40 mg pre-filled syringe (batch ORV-2608-112) the validated stability data allows temperature excursions up to 10 °C for a cumulative 30 minutes outside 2-8 °C.",
-      "title": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>: Stability data - Orenvacept 40 mg pre-filled syringe",
+      "quote": "Stability allowance: up to 10 °C for a cumulative 30 minutes outside 2–8 °C.",
+      "title": "\"Quality Assurance, Rheinfeld\" <qa@rheinfeld-bio.example>: Stability data - Orenvacept 40 mg pre-filled syringe",
       "documentId": "demo-b-email-04"
      }
     ],
@@ -1534,31 +1544,31 @@
    }
   },
   {
-   "t": 520,
+   "t": 332,
    "event": {
     "type": "text",
     "delta": "The excursion happened while Boreal Air Cargo held the cargo. The best route is the insurer for €190,000. A protective notice is ready for approval. The quality agent found the product damaged, so I prepare the claim for manager approval.\n"
    }
   },
   {
-   "t": 532,
+   "t": 343,
    "event": {
     "type": "text",
     "delta": "The product is confirmed damaged, so I am re-ranking the routes and building the claim plan.\n"
    }
   },
   {
-   "t": 533,
+   "t": 344,
    "event": {
     "type": "step_started",
     "seq": 28,
     "tool": "rank_routes",
     "input": {},
-    "at": "2026-11-13T14:10:15.606Z"
+    "at": "2026-11-13T14:16:03.234Z"
    }
   },
   {
-   "t": 557,
+   "t": 374,
    "event": {
     "type": "step_finished",
     "seq": 28,
@@ -1630,14 +1640,14 @@
        "route": "insurer",
        "role": "primary",
        "amountEur": 190000,
-       "reason": "Temperature deviation is covered by the policy",
+       "reason": "Recommended route: Temperature deviation is covered by the policy.",
        "order": 1
       },
       {
        "route": "carrier",
        "role": "secondary",
-       "amountEur": 3771.456,
-       "reason": "Party in custody at the excursion, for the uninsured part (deductible and uninsured share)",
+       "amountEur": 3771.46,
+       "reason": "Party in custody at the excursion: claim towards the uninsured part (€10,000 of deductible and uninsured share), limited to its own cap of €3,771.",
        "order": 2
       }
      ]
@@ -1708,28 +1718,28 @@
       "documentId": "demo-b-policy"
      }
     ],
-    "durationMs": 19
+    "durationMs": 27
    }
   },
   {
-   "t": 557,
+   "t": 374,
    "event": {
     "type": "text",
     "delta": "Drafting the claim letter for the recommended route, citing every statement.\n"
    }
   },
   {
-   "t": 558,
+   "t": 375,
    "event": {
     "type": "step_started",
     "seq": 30,
     "tool": "draft_claim_letter",
     "input": {},
-    "at": "2026-11-13T14:10:15.631Z"
+    "at": "2026-11-13T14:16:03.265Z"
    }
   },
   {
-   "t": 586,
+   "t": 418,
    "event": {
     "type": "step_finished",
     "seq": 30,
@@ -1737,7 +1747,7 @@
     "status": "ok",
     "summary": "Claim letter to Meridian Marine & Cargo Insurance SE for €190,000 drafted with 12 citations, every statement sourced.",
     "output": {
-     "draftId": "dr-iQOGUHOR",
+     "draftId": "dr-l2ia6EsZ",
      "route": "insurer",
      "role": "primary",
      "amountEur": 190000,
@@ -1801,8 +1811,8 @@
       "id": "S31",
       "kind": "record",
       "label": "QA decision 13 Nov 2026",
-      "quote": "The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min).",
-      "title": "Quality disposition: rejected by Quality agent (AI quality agent). Note: The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min)."
+      "quote": "The logger shows a peak of 13 °C and 90 min outside 2–8 °C, beyond the stability allowance of up to 10 °C for a cumulative 30 min: the peak of 13 °C is above the 10 °C limit and the 90 min outside range exceed the 30 min limit. The product can no longer be shown to be within its stability data, so the claim path applies.",
+      "title": "Quality disposition: rejected by Quality agent. Note: The logger shows a peak of 13 °C and 90 min outside 2–8 °C, beyond the stability allowance of up to 10 °C for a cumulative 30 min: the peak of 13 °C is above the 10 °C limit and the 90 min outside range exceed the 30 min limit. The product can no longer be shown to be within its stability data, so the claim path applies."
      },
      {
       "id": "S20",
@@ -1877,18 +1887,18 @@
       "documentId": "demo-b-policy"
      }
     ],
-    "durationMs": 26
+    "durationMs": 40
    }
   },
   {
-   "t": 588,
+   "t": 419,
    "event": {
     "type": "text",
     "delta": "The carrier held the cargo and is liable for the part the insurance does not cover, so I am drafting a secondary claim for €3,771.\n"
    }
   },
   {
-   "t": 589,
+   "t": 420,
    "event": {
     "type": "step_started",
     "seq": 32,
@@ -1896,11 +1906,11 @@
     "input": {
      "route": "carrier"
     },
-    "at": "2026-11-13T14:10:15.662Z"
+    "at": "2026-11-13T14:16:03.310Z"
    }
   },
   {
-   "t": 619,
+   "t": 451,
    "event": {
     "type": "step_finished",
     "seq": 32,
@@ -1908,10 +1918,10 @@
     "status": "ok",
     "summary": "Secondary claim letter to Boreal Air Cargo for €3,771 drafted with 5 citations, every statement sourced.",
     "output": {
-     "draftId": "dr-7xgPckyE",
+     "draftId": "dr-L-xduPxO",
      "route": "carrier",
      "role": "secondary",
-     "amountEur": 3771.456,
+     "amountEur": 3771.46,
      "to": {
       "name": "Boreal Air Cargo",
       "email": "cargo.claims@borealaircargo.example"
@@ -1970,8 +1980,8 @@
       "id": "S31",
       "kind": "record",
       "label": "QA decision 13 Nov 2026",
-      "quote": "The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min).",
-      "title": "Quality disposition: rejected by Quality agent (AI quality agent). Note: The excursion (13 °C, 90 min) is beyond the stability allowance (10 °C, 30 min)."
+      "quote": "The logger shows a peak of 13 °C and 90 min outside 2–8 °C, beyond the stability allowance of up to 10 °C for a cumulative 30 min: the peak of 13 °C is above the 10 °C limit and the 90 min outside range exceed the 30 min limit. The product can no longer be shown to be within its stability data, so the claim path applies.",
+      "title": "Quality disposition: rejected by Quality agent. Note: The logger shows a peak of 13 °C and 90 min outside 2–8 °C, beyond the stability allowance of up to 10 °C for a cumulative 30 min: the peak of 13 °C is above the 10 °C limit and the 90 min outside range exceed the 30 min limit. The product can no longer be shown to be within its stability data, so the claim path applies."
      },
      {
       "id": "S29",
@@ -1983,28 +1993,28 @@
       "documentId": "demo-b-awb"
      }
     ],
-    "durationMs": 28
+    "durationMs": 29
    }
   },
   {
-   "t": 619,
+   "t": 451,
    "event": {
     "type": "text",
     "delta": "Building the evidence pack with the chart, logger extract and cited pages.\n"
    }
   },
   {
-   "t": 620,
+   "t": 452,
    "event": {
     "type": "step_started",
     "seq": 34,
     "tool": "build_evidence_pack",
     "input": {},
-    "at": "2026-11-13T14:10:15.693Z"
+    "at": "2026-11-13T14:16:03.342Z"
    }
   },
   {
-   "t": 794,
+   "t": 562,
    "event": {
     "type": "step_finished",
     "seq": 34,
@@ -2017,27 +2027,18 @@
      "appendedSourcePages": 5
     },
     "citations": [],
-    "durationMs": 172
+    "durationMs": 106
    }
   },
   {
-   "t": 794,
+   "t": 562,
    "event": {
     "type": "text",
     "delta": "The claim for €190,000 to Meridian Marine & Cargo Insurance SE is ready. A manager must approve it before anything is sent.\n"
    }
   },
   {
-   "t": 825,
-   "event": {
-    "type": "status",
-    "from": "investigating",
-    "to": "claim_prepared",
-    "reason": "Claim letter and evidence pack prepared"
-   }
-  },
-  {
-   "t": 841,
+   "t": 570,
    "event": {
     "type": "status",
     "from": "claim_prepared",
@@ -2046,11 +2047,11 @@
    }
   },
   {
-   "t": 844,
+   "t": 571,
    "event": {
     "type": "run_finished",
     "status": "completed",
-    "durationMs": 844,
+    "durationMs": 571,
     "finalStatus": "awaiting_approval"
    }
   }

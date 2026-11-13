@@ -4,22 +4,22 @@
  "kind": "investigate",
  "mode": "deterministic",
  "model": null,
- "recordedAt": "2026-11-13T14:10:16.799Z",
+ "recordedAt": "2026-11-13T14:16:04.026Z",
  "events": [
   {
-   "t": 13,
+   "t": 1,
    "event": {
     "type": "run_started",
-    "runId": "run-nIv7Jc8C4q",
+    "runId": "run-Ysk0NUib8W",
     "caseId": "demo-c",
     "kind": "investigate",
     "mode": "deterministic",
     "model": null,
-    "at": "2026-11-13T14:10:16.160Z"
+    "at": "2026-11-13T14:16:03.595Z"
    }
   },
   {
-   "t": 22,
+   "t": 5,
    "event": {
     "type": "status",
     "from": "new",
@@ -28,24 +28,24 @@
    }
   },
   {
-   "t": 22,
+   "t": 5,
    "event": {
     "type": "text",
     "delta": "Reading the temperature logger to see what actually happened.\n"
    }
   },
   {
-   "t": 23,
+   "t": 6,
    "event": {
     "type": "step_started",
     "seq": 2,
     "tool": "parse_logger",
     "input": {},
-    "at": "2026-11-13T14:10:16.170Z"
+    "at": "2026-11-13T14:16:03.600Z"
    }
   },
   {
-   "t": 39,
+   "t": 14,
    "event": {
     "type": "step_finished",
     "seq": 2,
@@ -91,18 +91,18 @@
       "documentId": "demo-c-logger"
      }
     ],
-    "durationMs": 9
+    "durationMs": 6
    }
   },
   {
-   "t": 40,
+   "t": 14,
    "event": {
     "type": "text",
     "delta": "Reading the air waybill for weight and declared value, and the invoice for the value of the goods.\n"
    }
   },
   {
-   "t": 41,
+   "t": 15,
    "event": {
     "type": "step_started",
     "seq": 4,
@@ -110,11 +110,11 @@
     "input": {
      "kind": "awb"
     },
-    "at": "2026-11-13T14:10:16.188Z"
+    "at": "2026-11-13T14:16:03.609Z"
    }
   },
   {
-   "t": 88,
+   "t": 47,
    "event": {
     "type": "step_finished",
     "seq": 4,
@@ -160,11 +160,11 @@
       "documentId": "demo-c-awb"
      }
     ],
-    "durationMs": 45
+    "durationMs": 30
    }
   },
   {
-   "t": 88,
+   "t": 47,
    "event": {
     "type": "step_started",
     "seq": 5,
@@ -172,11 +172,11 @@
     "input": {
      "kind": "invoice"
     },
-    "at": "2026-11-13T14:10:16.235Z"
+    "at": "2026-11-13T14:16:03.641Z"
    }
   },
   {
-   "t": 125,
+   "t": 63,
    "event": {
     "type": "step_finished",
     "seq": 5,
@@ -215,18 +215,18 @@
       "documentId": "demo-c-invoice"
      }
     ],
-    "durationMs": 29
+    "durationMs": 14
    }
   },
   {
-   "t": 126,
+   "t": 64,
    "event": {
     "type": "text",
     "delta": "Skimming the correspondence for context.\n"
    }
   },
   {
-   "t": 127,
+   "t": 65,
    "event": {
     "type": "step_started",
     "seq": 7,
@@ -234,11 +234,11 @@
     "input": {
      "kind": "email"
     },
-    "at": "2026-11-13T14:10:16.274Z"
+    "at": "2026-11-13T14:16:03.659Z"
    }
   },
   {
-   "t": 144,
+   "t": 72,
    "event": {
     "type": "step_finished",
     "seq": 7,
@@ -287,11 +287,11 @@
        "documentId": "demo-c-email-04",
        "kind": "email",
        "email": {
-        "from": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>",
+        "from": "\"Quality Assurance, Rheinfeld NL\" <qa@rheinfeld-bio.example>",
         "to": "\"Rheinfeld Biologics B.V.\" <logistics-nl@rheinfeld-bio.example>",
         "date": "Wed, 11 Nov 2026 16:00:00 +0000",
         "subject": "Stability data - Ventralix quadrivalent vaccine",
-        "body": "Dear team,\n\nfor Ventralix quadrivalent vaccine (batch VTX-2610-007) the validated stability data allows temperature excursions up to 10 °C for a cumulative 60 minutes outside 2-8 °C.\n\nElena"
+        "body": "Dear colleagues,\n\nthe stability data for Ventralix quadrivalent vaccine (batch VTX-2610-007) is on file.\n\nStability allowance: up to 10 °C for a cumulative 60 minutes outside 2–8 °C.\n\nAny excursion beyond this allowance means the batch cannot be released.\n\nQuality Assurance, Rheinfeld Biologics B.V."
        },
        "citation": "S7"
       }
@@ -326,33 +326,33 @@
       "id": "S7",
       "kind": "email",
       "label": "Email 11 Nov 2026 16:00",
-      "quote": "Dear team,\n\nfor Ventralix quadrivalent vaccine (batch VTX-2610-007) the validated stability data allows temperature excursions up to 10 °C for a cumulative 60 minutes outside 2-8 °C.\n\nElena",
-      "title": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>: Stability data - Ventralix quadrivalent vaccine",
+      "quote": "Dear colleagues,\n\nthe stability data for Ventralix quadrivalent vaccine (batch VTX-2610-007) is on file.\n\nStability allowance: up to 10 °C for a cumulative 60 minutes outside 2–8 °C.\n\nAny excursion be",
+      "title": "\"Quality Assurance, Rheinfeld NL\" <qa@rheinfeld-bio.example>: Stability data - Ventralix quadrivalent vaccine",
       "documentId": "demo-c-email-04"
      }
     ],
-    "durationMs": 15
+    "durationMs": 6
    }
   },
   {
-   "t": 144,
+   "t": 72,
    "event": {
     "type": "text",
     "delta": "Matching the excursion to the custody timeline to see who held the cargo when it got warm.\n"
    }
   },
   {
-   "t": 145,
+   "t": 73,
    "event": {
     "type": "step_started",
     "seq": 9,
     "tool": "build_custody_timeline",
     "input": {},
-    "at": "2026-11-13T14:10:16.292Z"
+    "at": "2026-11-13T14:16:03.667Z"
    }
   },
   {
-   "t": 168,
+   "t": 94,
    "event": {
     "type": "step_finished",
     "seq": 9,
@@ -478,28 +478,28 @@
       "documentId": "demo-c-handling_report"
      }
     ],
-    "durationMs": 21
+    "durationMs": 18
    }
   },
   {
-   "t": 168,
+   "t": 94,
    "event": {
     "type": "text",
     "delta": "Checking the forwarder contract for temperature duties, liability caps and notice periods.\n"
    }
   },
   {
-   "t": 169,
+   "t": 94,
    "event": {
     "type": "step_started",
     "seq": 11,
     "tool": "check_contract",
     "input": {},
-    "at": "2026-11-13T14:10:16.316Z"
+    "at": "2026-11-13T14:16:03.688Z"
    }
   },
   {
-   "t": 232,
+   "t": 141,
    "event": {
     "type": "step_finished",
     "seq": 11,
@@ -684,28 +684,28 @@
       "documentId": "demo-c-contract"
      }
     ],
-    "durationMs": 60
+    "durationMs": 44
    }
   },
   {
-   "t": 232,
+   "t": 141,
    "event": {
     "type": "text",
     "delta": "Checking the cargo policy for cover, exclusions, deductible and notice period.\n"
    }
   },
   {
-   "t": 233,
+   "t": 142,
    "event": {
     "type": "step_started",
     "seq": 13,
     "tool": "check_policy",
     "input": {},
-    "at": "2026-11-13T14:10:16.380Z"
+    "at": "2026-11-13T14:16:03.736Z"
    }
   },
   {
-   "t": 272,
+   "t": 172,
    "event": {
     "type": "step_finished",
     "seq": 13,
@@ -856,28 +856,28 @@
       "documentId": "demo-c-policy"
      }
     ],
-    "durationMs": 37
+    "durationMs": 28
    }
   },
   {
-   "t": 272,
+   "t": 172,
    "event": {
     "type": "text",
     "delta": "Applying the liability limits per route.\n"
    }
   },
   {
-   "t": 272,
+   "t": 173,
    "event": {
     "type": "step_started",
     "seq": 15,
     "tool": "compute_liability",
     "input": {},
-    "at": "2026-11-13T14:10:16.419Z"
+    "at": "2026-11-13T14:16:03.767Z"
    }
   },
   {
-   "t": 285,
+   "t": 184,
    "event": {
     "type": "step_finished",
     "seq": 15,
@@ -1009,28 +1009,28 @@
       "documentId": "demo-c-policy"
      }
     ],
-    "durationMs": 10
+    "durationMs": 9
    }
   },
   {
-   "t": 285,
+   "t": 184,
    "event": {
     "type": "text",
     "delta": "Working out every deadline and how many days are left.\n"
    }
   },
   {
-   "t": 286,
+   "t": 185,
    "event": {
     "type": "step_started",
     "seq": 17,
     "tool": "compute_deadlines",
     "input": {},
-    "at": "2026-11-13T14:10:16.433Z"
+    "at": "2026-11-13T14:16:03.779Z"
    }
   },
   {
-   "t": 298,
+   "t": 195,
    "event": {
     "type": "step_finished",
     "seq": 17,
@@ -1038,7 +1038,7 @@
     "status": "ok",
     "summary": "Forwarder notice 18 Nov 2026 (5 days left); Carrier notice 25 Nov 2026 (12 days left); Insurer notice 11 Dec 2026 (28 days left)",
     "output": {
-     "now": "2026-11-13T14:10:16.160Z",
+     "now": "2026-11-13T14:16:03.595Z",
      "deadlines": [
       {
        "id": "contract_notice",
@@ -1135,28 +1135,28 @@
       "documentId": "demo-c-policy"
      }
     ],
-    "durationMs": 11
+    "durationMs": 9
    }
   },
   {
-   "t": 298,
+   "t": 195,
    "event": {
     "type": "text",
     "delta": "Ranking the recovery routes by expected recoverable amount.\n"
    }
   },
   {
-   "t": 299,
+   "t": 196,
    "event": {
     "type": "step_started",
     "seq": 19,
     "tool": "rank_routes",
     "input": {},
-    "at": "2026-11-13T14:10:16.446Z"
+    "at": "2026-11-13T14:16:03.790Z"
    }
   },
   {
-   "t": 328,
+   "t": 218,
    "event": {
     "type": "step_finished",
     "seq": 19,
@@ -1232,7 +1232,7 @@
        "route": "forwarder",
        "role": "primary",
        "amountEur": 350000,
-       "reason": "Excursion in forwarder custody, in breach of its cold-room duty",
+       "reason": "Recommended route: Excursion in forwarder custody, in breach of its cold-room duty.",
        "order": 1
       }
      ]
@@ -1303,18 +1303,18 @@
       "documentId": "demo-c-policy"
      }
     ],
-    "durationMs": 27
+    "durationMs": 20
    }
   },
   {
-   "t": 328,
+   "t": 218,
    "event": {
     "type": "text",
     "delta": "The forwarder notice deadline is 5 days away and QA has not decided, so I am drafting a protective notice to reserve our rights.\n"
    }
   },
   {
-   "t": 333,
+   "t": 219,
    "event": {
     "type": "step_started",
     "seq": 21,
@@ -1322,11 +1322,11 @@
     "input": {
      "route": "forwarder"
     },
-    "at": "2026-11-13T14:10:16.480Z"
+    "at": "2026-11-13T14:16:03.813Z"
    }
   },
   {
-   "t": 352,
+   "t": 240,
    "event": {
     "type": "step_finished",
     "seq": 21,
@@ -1334,7 +1334,7 @@
     "status": "ok",
     "summary": "Protective notice to Polder Freight Solutions B.V. drafted, due 18 Nov 2026 (5 days left). Waiting for manager approval.",
     "output": {
-     "draftId": "dr-59iB9kD7",
+     "draftId": "dr-1i_5zlv6",
      "route": "forwarder",
      "to": {
       "name": "Polder Freight Solutions B.V.",
@@ -1423,28 +1423,28 @@
       "documentId": "demo-c-contract"
      }
     ],
-    "durationMs": 18
+    "durationMs": 20
    }
   },
   {
-   "t": 352,
+   "t": 240,
    "event": {
     "type": "text",
     "delta": "Checking whether anything is missing from the file.\n"
    }
   },
   {
-   "t": 353,
+   "t": 241,
    "event": {
     "type": "step_started",
     "seq": 23,
     "tool": "request_missing_info",
     "input": {},
-    "at": "2026-11-13T14:10:16.500Z"
+    "at": "2026-11-13T14:16:03.835Z"
    }
   },
   {
-   "t": 364,
+   "t": 260,
    "event": {
     "type": "step_finished",
     "seq": 23,
@@ -1459,34 +1459,43 @@
      "valueSource": "invoice"
     },
     "citations": [],
-    "durationMs": 10
+    "durationMs": 17
    }
   },
   {
-   "t": 364,
+   "t": 260,
    "event": {
     "type": "text",
     "delta": "Handing the measured excursion to the quality agent: it compares peak temperature and minutes out of range with the manufacturer's stability data.\n"
    }
   },
   {
-   "t": 365,
+   "t": 261,
    "event": {
     "type": "step_started",
     "seq": 25,
     "tool": "assess_quality",
     "input": {},
-    "at": "2026-11-13T14:10:16.512Z"
+    "at": "2026-11-13T14:16:03.855Z"
    }
   },
   {
-   "t": 397,
+   "t": 284,
+   "event": {
+    "type": "status",
+    "from": "investigating",
+    "to": "claim_prepared",
+    "reason": "Quality agent: damaged"
+   }
+  },
+  {
+   "t": 288,
    "event": {
     "type": "step_finished",
     "seq": 25,
     "tool": "assess_quality",
     "status": "ok",
-    "summary": "Quality agent: damaged. The excursion (15 °C, 225 min) is beyond the stability allowance (10 °C, 60 min). The claim path opens.",
+    "summary": "Quality agent: damaged. The logger shows a peak of 15 °C and 225 min outside 2–8 °C, beyond the stability allowance of up to 10 °C for a cumulative 60 min: the peak of 15 °C is above the 10 °C limit and the 225 min outside range exceed the 60 min limit. The product can no longer be shown to be within its stability data, so the claim path applies. The claim path opens.",
     "output": {
      "verdict": "damaged",
      "basis": "beyond_allowance",
@@ -1498,7 +1507,8 @@
       "citationHint": "S29"
      },
      "reasons": [
-      "The excursion (15 °C, 225 min) is beyond the stability allowance (10 °C, 60 min)."
+      "The logger shows a peak of 15 °C and 225 min outside 2–8 °C, beyond the stability allowance of up to 10 °C for a cumulative 60 min: the peak of 15 °C is above the 10 °C limit and the 225 min outside range exceed the 60 min limit.",
+      "The product can no longer be shown to be within its stability data, so the claim path applies."
      ],
      "citationId": "S29"
     },
@@ -1507,40 +1517,40 @@
       "id": "S29",
       "kind": "email",
       "label": "Stability data 11 Nov 2026",
-      "quote": "Dear team, for Ventralix quadrivalent vaccine (batch VTX-2610-007) the validated stability data allows temperature excursions up to 10 °C for a cumulative 60 minutes outside 2-8 °C.",
-      "title": "\"Elena Weber (QA Lead)\" <qa@rheinfeld-bio.example>: Stability data - Ventralix quadrivalent vaccine",
+      "quote": "Stability allowance: up to 10 °C for a cumulative 60 minutes outside 2–8 °C.",
+      "title": "\"Quality Assurance, Rheinfeld NL\" <qa@rheinfeld-bio.example>: Stability data - Ventralix quadrivalent vaccine",
       "documentId": "demo-c-email-04"
      }
     ],
-    "durationMs": 27
+    "durationMs": 26
    }
   },
   {
-   "t": 399,
+   "t": 289,
    "event": {
     "type": "text",
     "delta": "The excursion happened while Polder Freight Solutions B.V. held the cargo. The best route is the forwarder for €350,000. A protective notice is ready for approval. The quality agent found the product damaged, so I prepare the claim for manager approval.\n"
    }
   },
   {
-   "t": 412,
+   "t": 297,
    "event": {
     "type": "text",
     "delta": "The product is confirmed damaged, so I am re-ranking the routes and building the claim plan.\n"
    }
   },
   {
-   "t": 412,
+   "t": 298,
    "event": {
     "type": "step_started",
     "seq": 28,
     "tool": "rank_routes",
     "input": {},
-    "at": "2026-11-13T14:10:16.559Z"
+    "at": "2026-11-13T14:16:03.892Z"
    }
   },
   {
-   "t": 436,
+   "t": 315,
    "event": {
     "type": "step_finished",
     "seq": 28,
@@ -1609,7 +1619,7 @@
        "route": "forwarder",
        "role": "primary",
        "amountEur": 350000,
-       "reason": "Excursion in forwarder custody, in breach of its cold-room duty",
+       "reason": "Recommended route: Excursion in forwarder custody, in breach of its cold-room duty.",
        "order": 1
       }
      ]
@@ -1680,28 +1690,28 @@
       "documentId": "demo-c-policy"
      }
     ],
-    "durationMs": 22
+    "durationMs": 15
    }
   },
   {
-   "t": 436,
+   "t": 315,
    "event": {
     "type": "text",
     "delta": "Drafting the claim letter for the recommended route, citing every statement.\n"
    }
   },
   {
-   "t": 437,
+   "t": 315,
    "event": {
     "type": "step_started",
     "seq": 30,
     "tool": "draft_claim_letter",
     "input": {},
-    "at": "2026-11-13T14:10:16.584Z"
+    "at": "2026-11-13T14:16:03.909Z"
    }
   },
   {
-   "t": 485,
+   "t": 339,
    "event": {
     "type": "step_finished",
     "seq": 30,
@@ -1709,7 +1719,7 @@
     "status": "ok",
     "summary": "Claim letter to Polder Freight Solutions B.V. for €350,000 drafted with 10 citations, every statement sourced.",
     "output": {
-     "draftId": "dr-nmlCMEQS",
+     "draftId": "dr-k_DpQOT-",
      "route": "forwarder",
      "role": "primary",
      "amountEur": 350000,
@@ -1772,8 +1782,8 @@
       "id": "S30",
       "kind": "record",
       "label": "QA decision 13 Nov 2026",
-      "quote": "The excursion (15 °C, 225 min) is beyond the stability allowance (10 °C, 60 min).",
-      "title": "Quality disposition: rejected by Quality agent (AI quality agent). Note: The excursion (15 °C, 225 min) is beyond the stability allowance (10 °C, 60 min)."
+      "quote": "The logger shows a peak of 15 °C and 225 min outside 2–8 °C, beyond the stability allowance of up to 10 °C for a cumulative 60 min: the peak of 15 °C is above the 10 °C limit and the 225 min outside range exceed the 60 min limit. The product can no longer be shown to be within its stability data, so the claim path applies.",
+      "title": "Quality disposition: rejected by Quality agent. Note: The logger shows a peak of 15 °C and 225 min outside 2–8 °C, beyond the stability allowance of up to 10 °C for a cumulative 60 min: the peak of 15 °C is above the 10 °C limit and the 225 min outside range exceed the 60 min limit. The product can no longer be shown to be within its stability data, so the claim path applies."
      },
      {
       "id": "S11",
@@ -1830,28 +1840,28 @@
       "documentId": "demo-c-contract"
      }
     ],
-    "durationMs": 40
+    "durationMs": 22
    }
   },
   {
-   "t": 486,
+   "t": 340,
    "event": {
     "type": "text",
     "delta": "Building the evidence pack with the chart, logger extract and cited pages.\n"
    }
   },
   {
-   "t": 486,
+   "t": 340,
    "event": {
     "type": "step_started",
     "seq": 32,
     "tool": "build_evidence_pack",
     "input": {},
-    "at": "2026-11-13T14:10:16.633Z"
+    "at": "2026-11-13T14:16:03.934Z"
    }
   },
   {
-   "t": 633,
+   "t": 420,
    "event": {
     "type": "step_finished",
     "seq": 32,
@@ -1864,27 +1874,18 @@
      "appendedSourcePages": 5
     },
     "citations": [],
-    "durationMs": 145
+    "durationMs": 79
    }
   },
   {
-   "t": 633,
+   "t": 420,
    "event": {
     "type": "text",
     "delta": "The claim for €350,000 to Polder Freight Solutions B.V. is ready. A manager must approve it before anything is sent.\n"
    }
   },
   {
-   "t": 644,
-   "event": {
-    "type": "status",
-    "from": "investigating",
-    "to": "claim_prepared",
-    "reason": "Claim letter and evidence pack prepared"
-   }
-  },
-  {
-   "t": 651,
+   "t": 431,
    "event": {
     "type": "status",
     "from": "claim_prepared",
@@ -1893,11 +1894,11 @@
    }
   },
   {
-   "t": 652,
+   "t": 432,
    "event": {
     "type": "run_finished",
     "status": "completed",
-    "durationMs": 652,
+    "durationMs": 432,
     "finalStatus": "awaiting_approval"
    }
   }

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { decisions } from "@/lib/db/schema";
 import { formatDate } from "@/lib/format";
 import { recordAgentQaDecision } from "@/lib/case/gates";
-import { getRecord, patchRecord, registerCitations } from "@/lib/case/record";
+import { getRecord, registerCitations } from "@/lib/case/record";
 import { assessStability } from "@/lib/rules/stability";
 import type { Citation } from "@/lib/domain/citation";
 import type { StabilityAllowance } from "@/lib/rules/types";
@@ -27,7 +27,7 @@ export const assessQuality = defineTool({
     const [row, record] = await Promise.all([getCaseRow(ctx.db, ctx.caseId), getRecord(ctx.db, ctx.caseId)]);
     if (!record.excursions) throw new ToolGuardError("Run parse_logger first: the quality agent needs the measured excursion.");
     if (!record.excursions.length) throw new ToolGuardError("There is no excursion in the logger data: nothing for the quality agent to assess.");
-    if (!["investigating", "awaiting_qa"].includes(row.status)) throw new ToolGuardError(`The quality agent can only assess while investigating (case is ${row.status}).`);
+    if (row.status !== "investigating") throw new ToolGuardError(`The quality agent can only assess while investigating (case is ${row.status}).`);
     const prior = await ctx.db.select({ id: decisions.id }).from(decisions).where(and(eq(decisions.caseId, ctx.caseId), eq(decisions.gate, "qa")));
     if (prior.length) throw new ToolGuardError("A QA decision already exists for this case.");
 
@@ -50,11 +50,9 @@ export const assessQuality = defineTool({
     const minutes = record.excursions.reduce((s, x) => s + x.minutes, 0);
     const assessment = assessStability({ peakC, minutesOutOfRange: minutes, allowance: allowance ? { ...allowance, citationHint: reg?.id } : null }, ctx.rules);
 
-    await recordAgentQaDecision(ctx.db, ctx.caseId, assessment);
+    await recordAgentQaDecision(ctx.db, ctx.caseId, assessment, { citationId: reg?.id, runId: ctx.runId });
     const after = await getCaseRow(ctx.db, ctx.caseId);
     if (after.status !== row.status) ctx.emit({ type: "status", from: row.status, to: after.status, reason: `Quality agent: ${assessment.verdict}` });
-    const at = ctx.now.toISOString();
-    await patchRecord(ctx.db, ctx.caseId, { qaAssessment: { ...assessment, by: "quality_agent", at, citationId: reg?.id } });
 
     const next = { usable: "The case closes with no claim.", damaged: "The claim path opens.", unsure: "A human QA must decide; the case waits." }[assessment.verdict];
     return {
