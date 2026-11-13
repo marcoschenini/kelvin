@@ -2,6 +2,15 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-13 — Workflow v2 from Vito's board
+
+- **Request (Vito):** make Kelvin follow his workflow board (all 7 differences).
+- **Chief:** spec `docs/team/specs/2026-11-13-workflow-v2.md`; decided the two open questions with the board's proposed answers.
+- **backend** (Sonnet): stability, claim plan, follow-up and outcome rules; closed_not_approved; agent QA gate; stability emails in seed; KPIs (113 tests).
+- **ai-engineer** (Sonnet): `assess_quality`, same-run claim path, secondary claim letter, appeal and reminders, 3 new eval cases (27/27), recordings regenerated.
+- **frontend** (Sonnet): QA decision card, claim plan, approval summary, follow-up tags, recovery KPIs and track record.
+- **Chief integration:** primary-only close on a rejected claim letter, claimed = plan total, quality agent metric on the eval page, AGENTS.md rule. Gate: lint ✓, typecheck ✓, 120/120 tests ✓, eval 27/27 ✓, build ✓ (fonts mocked in the sandbox).
+
 ## 2026-11-13 — Automatic merge on green checks
 
 - **Request (Vito):** make the approval/merge step automatic. Marco enabled auto-merge and a `master` ruleset requiring the `verify` check.
