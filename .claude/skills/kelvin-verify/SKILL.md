@@ -11,6 +11,7 @@ Run from the root of the checkout being verified (main checkout or a worktree un
 
 ```bash
 npm run lint          # ESLint
+npx next typegen      # generates .next/types (PageProps, RouteContext, LayoutProps); without it typecheck fails on a fresh checkout or worktree
 npm run typecheck     # tsc --noEmit
 npm test              # Vitest: rules, status machine, demo outcomes A/B/C, eval 24/24, DB safety
 npm run build         # next build --webpack (keep the flag)
@@ -27,6 +28,8 @@ npm run agent -- B --deterministic --qa rejected --approve   # optional end-to-e
 
 ## Interpreting failures
 - `Cannot open database … lock`: a dev server or another script holds `.data/`. Stop it and retry; do not delete the lock while a process is alive.
+- `TS2304: Cannot find name 'PageProps' / 'RouteContext' / 'LayoutProps'`: `.next/types` is missing; run `npx next typegen` and retry.
+- `next/font` cannot fetch Inter / JetBrains Mono: the machine has no access to Google Fonts (sandboxed or offline). Report the build as "not verified (environment)", not as a code failure.
 - Build errors about native SWC/Turbopack: the `--webpack` flag was removed; restore it.
 - Typecheck or lint errors in `.claude/worktrees/**`: the exclusions in `tsconfig.json` / `eslint.config.mjs` were removed; restore them.
 - A changed eval or demo number is a regression unless the spec explicitly changes the expected outcome.
