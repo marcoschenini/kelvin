@@ -2,6 +2,11 @@
 
 Lasting choices about how Kelvin is built. Newest first. Format: date — decision — reason.
 
+## 2026-11-13 — Automatic merge
+
+- **PRs merge automatically when the `verify` check is green; no approval required.** Vito and Marco agreed; Marco enabled "Allow auto-merge" and a `master` ruleset (no deletion, no force push, required status check `verify`). — Removes the manual approval step while keeping a gate: nothing with failing lint, typecheck, tests or build reaches `master` and the live site.
+- **`verify` runs in GitHub Actions** (`.github/workflows/verify.yml`): `npm ci`, lint, `next typegen` + typecheck, tests, build, on every PR and on `master`. — Same gate as the `kelvin-verify` skill, on a machine with network access (real Google Fonts).
+
 ## 2026-11-13 — Agent team setup
 
 - **Chief of staff = main session on Opus; five subagents in `.claude/agents/`.** Product & Architect and QA on Opus (judgement-heavy); Frontend, Backend, AI Engineer on Sonnet (implementation). The Chief can run AI Engineer on Opus per task. — Matches the requested roles and keeps cost proportional to difficulty.

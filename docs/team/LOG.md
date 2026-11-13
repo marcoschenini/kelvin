@@ -2,6 +2,11 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-13 — Automatic merge on green checks
+
+- **Request (Vito):** make the approval/merge step automatic. Marco enabled auto-merge and a `master` ruleset requiring the `verify` check.
+- **Chief:** added `.github/workflows/verify.yml` (job `verify`), updated PLAYBOOK step 5 and DECISIONS. Until this PR is on `master` the required check does not exist, so every PR (including M8) is blocked; this PR unblocks them.
+
 ## 2026-11-13 — PR for the agent team (Marco's go-ahead)
 
 - **Request (Marco, via Vito):** put the agents in `.claude/agents/` on `feature/claude-agents`, open a PR to `master`; keep CLAUDE.md and its "Working together" section (team section only appended). Next: M7 Replay mode on `feature/replay-mode`. Marco owns M8 (`lib/db/*`, migrations): ask before touching them.
