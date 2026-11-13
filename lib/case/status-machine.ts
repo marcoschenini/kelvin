@@ -1,7 +1,10 @@
 import { eq } from "drizzle-orm";
 import type { DB } from "@/lib/db/client";
 import { auditEvents, cases, type ActorType } from "@/lib/db/schema";
-import type { CaseStatus } from "@/lib/domain/case-status";
+import { isClosed, type CaseStatus } from "@/lib/domain/case-status";
+import type { RecoveryRoute } from "@/lib/domain/parties";
+import { computeOutcome } from "@/lib/rules/outcome";
+import { getRecord, patchRecord } from "./record";
 
 /**
  * Case status machine, enforced in code (not only in the prompt):
@@ -10,22 +13,28 @@ import type { CaseStatus } from "@/lib/domain/case-status";
  *                     └→ no_claim      └→ claim_prepared → awaiting_approval → sent → in_negotiation
  *                                                      ↑__________________|            → closed_recovered | closed_settled | closed_rejected
  *
+ * The quality agent decides clear cases (usable → no_claim, damaged → claim_prepared)
+ * straight from investigating; unsure cases go to awaiting_qa for a human QA.
+ * A manager rejecting the claim letter closes the case (awaiting_approval → closed_not_approved).
+ *
  * The protective notice is a side branch that never changes the main status;
  * it is only allowed while investigating or awaiting QA.
  */
 export const TRANSITIONS: Record<CaseStatus, readonly CaseStatus[]> = {
   new: ["investigating"],
-  investigating: ["awaiting_qa", "no_claim"],
+  // investigating → claim_prepared only when the quality agent decides "damaged" (recordAgentQaDecision)
+  investigating: ["awaiting_qa", "no_claim", "claim_prepared"],
   awaiting_qa: ["no_claim", "claim_prepared"],
   no_claim: ["closed_no_claim"],
   claim_prepared: ["awaiting_approval"],
-  awaiting_approval: ["sent", "claim_prepared"],
+  awaiting_approval: ["sent", "claim_prepared", "closed_not_approved"],
   sent: ["in_negotiation", "closed_recovered", "closed_settled", "closed_rejected"],
   in_negotiation: ["sent", "closed_recovered", "closed_settled", "closed_rejected"],
   closed_no_claim: [],
   closed_recovered: [],
   closed_settled: [],
   closed_rejected: [],
+  closed_not_approved: [],
 };
 
 export const PROTECTIVE_NOTICE_ALLOWED: readonly CaseStatus[] = ["investigating", "awaiting_qa"];
@@ -62,7 +71,7 @@ export async function transition(
   actor: Actor,
   extra: { reason?: string; runId?: string; patch?: Partial<typeof cases.$inferInsert> } = {},
 ): Promise<{ from: CaseStatus; to: CaseStatus }> {
-  const [row] = await db.select({ status: cases.status }).from(cases).where(eq(cases.id, caseId));
+  const [row] = await db.select().from(cases).where(eq(cases.id, caseId));
   if (!row) throw new Error(`Case ${caseId} not found`);
   const from = row.status;
   if (from === to) return { from, to };
@@ -71,6 +80,24 @@ export async function transition(
     .update(cases)
     .set({ ...(extra.patch ?? {}), status: to, updatedAt: new Date() })
     .where(eq(cases.id, caseId));
+  if (isClosed(to)) {
+    // Every closing transition records the result: claimed vs recovered, recovery %, days to close, payer.
+    const record = await getRecord(db, caseId);
+    const closedAt = new Date();
+    const claimed = extra.patch?.claimAmountEur ?? row.claimAmountEur ?? record.claim?.amountEur ?? null;
+    let recovered = extra.patch?.recoveredEur ?? row.recoveredEur ?? null;
+    if (to === "closed_recovered" && recovered == null) recovered = claimed;
+    const payer = (record.claim?.route ?? row.recommendedRoute ?? null) as RecoveryRoute | null;
+    const outcome = computeOutcome({
+      status: to,
+      claimAmountEur: to === "closed_no_claim" ? null : claimed,
+      recoveredEur: recovered,
+      payer: to === "closed_no_claim" || to === "closed_not_approved" ? null : payer,
+      openedAt: row.discoveredAt ?? row.createdAt,
+      closedAt,
+    });
+    await patchRecord(db, caseId, { outcome });
+  }
   await db.insert(auditEvents).values({
     caseId,
     actorType: actor.type,

@@ -4,7 +4,7 @@ import { loggerCsv } from "./logger";
 import { contractPdf } from "./pdf/contract";
 import { policyPdf } from "./pdf/policy";
 import { awbPdf, handlingReportPdf, invoicePdf } from "./pdf/shipping";
-import type { CaseSpec } from "./spec";
+import type { CaseSpec, EmailSpec } from "./spec";
 import { atHours, deliveryInstant, resolveTemplate } from "./time";
 
 export interface GeneratedFile {
@@ -90,6 +90,59 @@ export async function buildCase(spec: CaseSpec, now: Date): Promise<GeneratedCas
       filename: `email-${n}-${slug(resolved.subject)}.eml`,
       mime: "message/rfc822",
       bytes: enc.encode(emailEml(spec, resolved, delivery, i + 1)),
+      pages: null,
+    });
+  });
+
+  // Appended after the narrative emails so existing document ids never shift.
+  const extra: EmailSpec[] = [];
+  const stab = spec.product.stability;
+  if (stab) {
+    const domain = spec.shipper.email.split("@")[1] ?? "example.com";
+    extra.push({
+      from: { name: `Quality Assurance, ${spec.shipper.short}`, email: `qa@${domain}` },
+      to: spec.shipper,
+      atH: 2,
+      subject: `Stability data - ${spec.product.name}`,
+      body: `Dear colleagues,
+
+the stability data for ${spec.product.name} (batch ${spec.product.batch}) is on file.
+
+Stability allowance: up to ${stab.maxTempC} °C for a cumulative ${stab.maxMinutesOutOfRange} minutes outside 2–8 °C.
+
+Any excursion beyond this allowance means the batch cannot be released.
+
+Quality Assurance, ${spec.shipper.name}`,
+    });
+  }
+  if (spec.extraCosts?.length) {
+    extra.push({
+      from: spec.consignee,
+      to: spec.shipper,
+      atH: 30,
+      subject: `Additional costs - ${spec.shipmentRef}`,
+      body: `Dear colleagues,
+
+the following documented costs arose from the temperature excursion on ${spec.shipmentRef}:
+
+${spec.extraCosts.map((c) => `Extra cost: ${c.label}: EUR ${c.eur.toLocaleString("en-GB")}.`).join("\n")}
+
+Invoices attached on request.
+
+${spec.consignee.name}`,
+    });
+  }
+  const offset = spec.emails.length;
+  extra.forEach((e, i) => {
+    const resolved = { ...e, subject: resolveTemplate(e.subject, delivery), body: resolveTemplate(e.body, delivery) };
+    const n = String(offset + i + 1).padStart(2, "0");
+    add({
+      id: `${spec.id}-email-${n}`,
+      kind: "email",
+      title: resolved.subject,
+      filename: `email-${n}-${slug(resolved.subject)}.eml`,
+      mime: "message/rfc822",
+      bytes: enc.encode(emailEml(spec, resolved, delivery, offset + i + 1)),
       pages: null,
     });
   });

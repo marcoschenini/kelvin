@@ -3,7 +3,11 @@ import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { agentRuns, agentSteps, auditEvents, cases, decisions, documents, drafts, outboxMessages, type CaseRow } from "@/lib/db/schema";
 import { isClosed } from "@/lib/domain/case-status";
+import type { CaseRecord } from "@/lib/case/record";
+import type { RecoveryRoute } from "@/lib/domain/parties";
 import { daysUntil } from "@/lib/format";
+import { DEFAULT_RULES } from "@/lib/rules/config";
+import type { CaseOutcome } from "@/lib/rules/types";
 
 /** Read models for pages. Callers must `await connection()` first (Cache Components). */
 
@@ -27,22 +31,67 @@ export async function listCases(opts: { includeEval?: boolean } = {}): Promise<C
     .map((r) => withDaysLeft(r, now));
 }
 
+export interface PayerTrackRecord {
+  payer: RecoveryRoute;
+  cases: number;
+  claimedEur: number;
+  recoveredEur: number;
+  /** recovered / claimed, 0-100, null when nothing was claimed */
+  recoveryPct: number | null;
+  avgDaysToClose: number | null;
+}
+
 export interface InboxKpis {
   openCases: number;
   atStakeEur: number;
   recoveredEur: number;
   deadlinesAtRisk: number;
   awaitingHuman: number;
+  /** Recovered / claimed over cases that were actually claimed and closed (0-100), null if none */
+  recoveryRatePct: number | null;
+  /** Average days from alarm to close over all closed cases, null if none */
+  avgDaysToClose: number | null;
+  closedCases: number;
+  /** Track record per payer (cases that were claimed from that payer and closed) */
+  trackRecord: PayerTrackRecord[];
 }
 
-export function computeKpis(items: CaseListItem[]): InboxKpis {
+const avg = (xs: number[]) => (xs.length ? Math.round((xs.reduce((a, b) => a + b, 0) / xs.length) * 10) / 10 : null);
+
+export function computeKpis(items: CaseListItem[], opts: { atRiskDays?: number } = {}): InboxKpis {
+  const atRiskDays = opts.atRiskDays ?? DEFAULT_RULES.atRiskDays;
   const open = items.filter((c) => !isClosed(c.status));
+  const outcomes = items
+    .filter((c) => isClosed(c.status))
+    .map((c) => (c.record as CaseRecord | null)?.outcome)
+    .filter((o): o is CaseOutcome => !!o);
+  const claimedOutcomes = outcomes.filter((o) => (o.result === "recovered" || o.result === "settled" || o.result === "rejected") && (o.claimedEur ?? 0) > 0);
+  const claimed = claimedOutcomes.reduce((s, o) => s + (o.claimedEur ?? 0), 0);
+  const recovered = claimedOutcomes.reduce((s, o) => s + (o.recoveredEur ?? 0), 0);
+  const payers = new Map<RecoveryRoute, CaseOutcome[]>();
+  for (const o of claimedOutcomes) if (o.payer) payers.set(o.payer, [...(payers.get(o.payer) ?? []), o]);
+  const trackRecord = [...payers.entries()].map(([payer, list]) => {
+    const c = list.reduce((s, o) => s + (o.claimedEur ?? 0), 0);
+    const r = list.reduce((s, o) => s + (o.recoveredEur ?? 0), 0);
+    return {
+      payer,
+      cases: list.length,
+      claimedEur: c,
+      recoveredEur: r,
+      recoveryPct: c > 0 ? Math.round((r / c) * 1000) / 10 : null,
+      avgDaysToClose: avg(list.map((o) => o.daysToClose).filter((d): d is number => d != null)),
+    };
+  });
   return {
     openCases: open.length,
     atStakeEur: open.reduce((s, c) => s + (c.valueEur ?? 0), 0),
     recoveredEur: items.reduce((s, c) => s + (c.recoveredEur ?? 0), 0),
-    deadlinesAtRisk: open.filter((c) => c.daysLeft != null && c.daysLeft < 3).length,
+    deadlinesAtRisk: open.filter((c) => c.daysLeft != null && c.daysLeft < atRiskDays).length,
     awaitingHuman: open.filter((c) => c.status === "awaiting_qa" || c.status === "awaiting_approval").length,
+    recoveryRatePct: claimed > 0 ? Math.round((recovered / claimed) * 1000) / 10 : null,
+    avgDaysToClose: avg(outcomes.map((o) => o.daysToClose).filter((d): d is number => d != null)),
+    closedCases: outcomes.length,
+    trackRecord,
   };
 }
 
