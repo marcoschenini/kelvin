@@ -55,6 +55,7 @@ On Vercel (`VERCEL` is set) the app runs in **public-demo mode**: the embedded d
    - `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`: Project Settings → API. The key stays on the server; documents reach the browser only through `/api/documents`.
 3. Run `npm run seed`. It applies the migrations, creates the `kelvin-documents` bucket and seeds cases A, B and C.
 4. On Vercel, add the same four variables (Production and Preview) and redeploy.
+5. Keep the functions next to the database: `vercel.json` pins them to Paris (`cdg1`) because the project is in `eu-west-3`. If the database moves to another region, change both. From Washington (Vercel’s default) every query crosses the Atlantic and an investigation takes about 3× longer.
 
 Reset demo (Settings) now resets the shared data for everyone using that project. Settings → Data shows which mode is active. To keep your own sandbox, leave `DB_MODE=local`.
 
