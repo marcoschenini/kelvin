@@ -13,7 +13,10 @@ describe("status machine", () => {
     for (let i = 1; i < noClaim.length; i++) expect(canTransition(noClaim[i - 1], noClaim[i])).toBe(true);
   });
   it("cannot skip the human gates", () => {
-    expect(canTransition("investigating", "claim_prepared")).toBe(false);
+    // investigating -> claim_prepared exists only for the quality agent's "damaged" decision (see gates)
+    expect(canTransition("investigating", "claim_prepared")).toBe(true);
+    expect(canTransition("investigating", "awaiting_approval")).toBe(false);
+    expect(canTransition("investigating", "sent")).toBe(false);
     expect(canTransition("claim_prepared", "sent")).toBe(false);
     expect(canTransition("awaiting_qa", "sent")).toBe(false);
     expect(() => assertTransition("claim_prepared", "sent")).toThrow(TransitionError);
@@ -23,5 +26,9 @@ describe("status machine", () => {
   });
   it("lets a manager send a claim back for redrafting", () => {
     expect(canTransition("awaiting_approval", "claim_prepared")).toBe(true);
+  });
+  it("closes the case when the manager does not approve the claim", () => {
+    expect(canTransition("awaiting_approval", "closed_not_approved")).toBe(true);
+    for (const from of ["new", "investigating", "awaiting_qa", "claim_prepared", "sent", "in_negotiation"] as const) expect(canTransition(from, "closed_not_approved")).toBe(false);
   });
 });

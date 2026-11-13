@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { approvalAction } from "@/lib/actions/gates";
 import type { Citation } from "@/lib/domain/citation";
 import { ROLE_CAN } from "@/lib/domain/personas";
+import { formatDateWithRelative, formatEUR } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { LetterEditor } from "./letter-editor";
 
@@ -44,6 +45,11 @@ export interface ApprovalContext {
   deadline: { label: string; daysLeft: number; dueAt: string } | null;
   evidencePackId: string | null;
   registry: Record<string, Citation>;
+  /** First reason of the quality agent (or the human QA note). */
+  qaReasoning?: string | null;
+  qaVerdict?: "usable" | "damaged" | "unsure" | null;
+  /** Draft id of the primary claim letter (claim plan); rejecting it closes the case. */
+  primaryClaimDraftId?: string | null;
 }
 
 const KIND_LABEL: Record<string, string> = {
@@ -107,11 +113,12 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
     });
   }, [actionable, body, canApprove, ctx.caseId, draft.id, edited, handoff, pending, router, subject]);
 
+  const closesCase = draft.kind === "claim_letter" && (!ctx.primaryClaimDraftId || ctx.primaryClaimDraftId === draft.id);
   const reject = () =>
     start(async () => {
       const r = await approvalAction(ctx.caseId, { draftId: draft.id, decision: "rejected", reason });
       if (!r.ok) return void toast.error("Not rejected", { description: r.error });
-      toast("Draft rejected", { description: "The agent will redraft it." });
+      toast(closesCase ? "Claim not approved" : "Draft rejected", { description: closesCase ? "The case is closed and the reason is in the audit log." : "The agent will redraft it." });
       router.push(`/cases/${ctx.caseId}`);
     });
 
@@ -144,6 +151,32 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
         </div>
         <HumanDecisionBadge label="Manager decision" />
       </div>
+
+      <section aria-label="Summary" className="rounded-xl border border-human/20 bg-human-soft/50 px-4 py-3 text-sm">
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="font-semibold">{draft.recipientName}</span>
+          {draft.amountEur != null && (
+            <>
+              <span aria-hidden="true" className="text-subtle">·</span>
+              <span className="num font-semibold">{formatEUR(draft.amountEur)}</span>
+            </>
+          )}
+          {ctx.deadline && (
+            <>
+              <span aria-hidden="true" className="text-subtle">·</span>
+              <span className="num">
+                {ctx.deadline.label}: {formatDateWithRelative(ctx.deadline.dueAt)}
+              </span>
+            </>
+          )}
+        </p>
+        {ctx.qaReasoning && (
+          <p className="mt-1 text-muted-foreground">
+            <span className="font-medium text-foreground">Quality: </span>
+            {ctx.qaReasoning}
+          </p>
+        )}
+      </section>
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* ---------- letter ---------- */}
@@ -311,16 +344,20 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject this draft</DialogTitle>
-            <DialogDescription>Say what is wrong. The reason is recorded in the audit log and the claim goes back to the agent for redrafting.</DialogDescription>
+            <DialogTitle>{closesCase ? "Reject this claim and close the case" : "Reject this draft"}</DialogTitle>
+            <DialogDescription>
+              {closesCase
+                ? "Rejecting the claim letter closes the case as Not approved. Nothing is sent and the case cannot be reopened. The reason is recorded in the audit log."
+                : "Say what is wrong. The reason is recorded in the audit log and the agent redrafts this message. The case stays open."}
+            </DialogDescription>
           </DialogHeader>
-          <Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Use the invoice value net of VAT" rows={3} aria-label="Reason for rejecting" />
+          <Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Use the invoice value net of VAT" rows={3} aria-label={closesCase ? "Reason for closing the case" : "Reason for rejecting"} />
           <DialogFooter>
             <Button variant="ghost" onClick={() => setRejectOpen(false)}>
               Cancel
             </Button>
             <Button variant="destructive" disabled={!reason.trim() || pending} onClick={reject}>
-              Reject draft
+              {closesCase ? "Reject and close case" : "Reject draft"}
             </Button>
           </DialogFooter>
         </DialogContent>

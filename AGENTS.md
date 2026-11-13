@@ -14,7 +14,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Cache Components is on.** Uncached reads (DB, cookies) must sit inside `<Suspense>` with a skeleton fallback.
 - **shadcn uses Base UI**, not Radix: compose with the `render` prop, not `asChild`.
 - **Design tokens** live in `app/globals.css` (`--ai-*`, `--success*`, `--warning*`, `--danger*`, `--human*`, `--custody-*`). Use the semantic utilities (`bg-ai`, `text-human-fg`, `bg-warning-soft`, `num`) rather than raw colours. Red is for overdue deadlines only.
-- **Rules live in `lib/rules/`**, never in prompts. The agent never decides product disposition and never sends without an approval record.
+- **Rules live in `lib/rules/`**, never in prompts. Product disposition is decided only by the quality agent's rule (`lib/rules/stability.ts`, via the `assess_quality` tool) for clear cases; near-limit cases go to a human QA and are never auto-closed. The agent never sends without an approval record.
 - Visual reference: `docs/agent-schema.png`. Full brief: `docs/BRIEF.md`.
 - **Database:** PGlite is single-process. A lock file in `.data/` stops CLI scripts from opening it while the dev server holds it. Server components and GET handlers call `await connection()` before any query.
 - **Demo data is generated, never hand-edited:** change `seed/cases/*.ts` and re-seed. Document IDs are deterministic (`demo-b-contract`, `demo-b-email-01`) so recordings and citations survive a reset.

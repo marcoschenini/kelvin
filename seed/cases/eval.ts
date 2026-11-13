@@ -1,5 +1,6 @@
 import type { CustodyParty, RecoveryRoute } from "@/lib/domain/parties";
 import type { CaseSpec, EmailSpec } from "../spec";
+import type { ExtraCost, StabilityAllowance } from "@/lib/rules/types";
 import { CASE_B, CASE_C, fraBosChain } from "./demo";
 
 /**
@@ -18,6 +19,12 @@ export interface AnswerKey {
   custody: CustodyParty | null;
   /** Protective notices due at investigation time (QA still pending) */
   notices: RecoveryRoute[];
+  /** What the quality agent decides from the stability data; default: usable if qa is released, else damaged */
+  qaAgent?: "usable" | "damaged" | "unsure";
+  /** Claim amount of the primary letter, written by hand (goods + extra costs, capped) */
+  claimEur?: number;
+  /** The counterparty offers a part-payment: exactly one appeal (a reply draft) must follow */
+  appeal?: boolean;
 }
 
 export interface EvalCase {
@@ -42,6 +49,27 @@ interface Variant {
   missing?: CaseSpec["missing"];
   contract?: Partial<CaseSpec["contract"]>;
   policy?: Partial<CaseSpec["policy"]>;
+  /** Overrides the stability allowance derived from the key */
+  stability?: StabilityAllowance;
+  extraCosts?: ExtraCost[];
+}
+
+/** Demo allowances: B up to 10 °C for 30 min, C up to 10 °C for 60 min. */
+const BASE_ALLOWANCE: Record<Base, StabilityAllowance> = { FRA: { maxTempC: 10, maxMinutesOutOfRange: 30 }, AMS: { maxTempC: 10, maxMinutesOutOfRange: 60 } };
+
+/**
+ * Stability data per variant, so the quality agent reaches the answer key's
+ * disposition. Variants inherit the base case's allowance where the excursion is
+ * clearly beyond it; released variants get an allowance they clearly pass.
+ */
+function allowanceFor(v: Variant): StabilityAllowance {
+  if (v.stability) return v.stability;
+  if (v.key.qa === "released") return { maxTempC: 25, maxMinutesOutOfRange: 1440 };
+  const base = BASE_ALLOWANCE[v.base];
+  const peak = v.peakC ?? 12;
+  const mins = v.minutes ?? 90;
+  if (peak >= base.maxTempC * 1.3 && mins >= base.maxMinutesOutOfRange * 1.5) return base;
+  return { maxTempC: Math.max(8, Math.round(Math.min(base.maxTempC, peak * 0.7) * 10) / 10), maxMinutesOutOfRange: Math.max(1, Math.floor(Math.min(base.maxMinutesOutOfRange, mins * 0.5))) };
 }
 
 function alarmEmail(spec: CaseSpec, atH: number): EmailSpec {
@@ -92,7 +120,11 @@ function build(v: Variant): EvalCase {
       notes: v.key.tests,
     },
   };
+  const allowance = allowanceFor(v);
+  spec.product = { ...spec.product, stability: allowance };
+  // The seed generator turns product.stability and extraCosts into the cited emails.
   spec.emails = [alarmEmail(spec, discoveredAfterH)];
+  if (v.extraCosts?.length) spec.extraCosts = v.extraCosts;
   return { spec, key: v.key };
 }
 
@@ -150,6 +182,14 @@ const VARIANTS: Variant[] = [
     key: { tests: "Under the policy minimum: the carrier's capped amount is all that is left", qa: "rejected", claim: true, route: "carrier", custody: "airline", notices: ["carrier"] } },
   { n: 24, base: "FRA", title: "Import cool-room failure at destination airport", seg: 6, minutes: 150, peakC: 11, deliveredDaysAgo: 3,
     key: { tests: "Airline custody at destination; insurer best; forwarder pass-through notice due", qa: "rejected", claim: true, route: "insurer", custody: "airline", notices: ["forwarder"] } },
+  // --- workflow v2: new answer keys (written by hand, not produced by the engine) ---
+  { n: 25, base: "FRA", title: "Ramp exposure just inside the stability limit", seg: 4, minutes: 90, peakC: 13, deliveredDaysAgo: 10, discoveredAfterH: 211, stability: { maxTempC: 13.5, maxMinutesOutOfRange: 95 },
+    key: { tests: "Within 10% of the stability limit: the quality agent is unsure and a human QA decides (here: rejects)", qaAgent: "unsure", qa: "rejected", claim: true, route: "insurer", custody: "airline", notices: ["carrier"] } },
+  { n: 26, base: "AMS", title: "Hub floor storage with disposal and re-shipment costs", seg: 2, minutes: 225, peakC: 15, deliveredDaysAgo: 2,
+    extraCosts: [{ label: "Disposal of the damaged batch", eur: 12_000 }, { label: "Re-shipment of replacement goods", eur: 8_000 }],
+    key: { tests: "Loss = goods €350,000 + documented extra costs €20,000; the forwarder cap is the whole loss, so the claim is €370,000", claimEur: 370_000, qa: "rejected", claim: true, route: "forwarder", custody: "forwarder", notices: ["forwarder"] } },
+  { n: 27, base: "AMS", title: "Hub floor storage, forwarder offers a part-payment", seg: 2, minutes: 225, peakC: 15, deliveredDaysAgo: 2,
+    key: { tests: "The forwarder offers 90 %: exactly one appeal with extra evidence is drafted, a second is refused", appeal: true, qa: "rejected", claim: true, route: "forwarder", custody: "forwarder", notices: ["forwarder"] } },
 ];
 
 export const EVAL_CASES: EvalCase[] = VARIANTS.map(build);

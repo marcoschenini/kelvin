@@ -1,16 +1,17 @@
 /**
  * Run the agent on a demo case from the terminal.
  *
- *   npm run agent -- B                         investigate case B (live if a key is set, else deterministic)
- *   npm run agent -- B --qa rejected           …then QA rejects (as Elena Weber) and the claim is prepared
- *   npm run agent -- B --qa rejected --approve …then Tom Becker approves everything and the agent sends it
- *   npm run agent -- A --qa released           …QA releases and the case is closed
+ *   npm run agent -- B                         investigate case B: the quality agent decides and the claim is prepared
+ *   npm run agent -- B --approve               …then Tom Becker approves everything and the agent sends it
+ *   npm run agent -- A                         the quality agent finds the product usable and closes the case
+ *   --qa released|rejected                     human QA decision, only used when the quality agent is unsure (case awaiting QA)
  *   flags: --deterministic  --no-seed  --print-letters
  *
  * In local mode stop the dev server first (PGlite is single-process).
  */
 import "./load-env";
 import { and, asc, eq } from "drizzle-orm";
+import { cases } from "@/lib/db/schema";
 import { closeDb, getDb } from "@/lib/db/client";
 import { agentRuns, auditEvents, drafts } from "@/lib/db/schema";
 import { getPersona } from "@/lib/domain/personas";
@@ -76,7 +77,10 @@ async function main() {
   if (first.status === "failed") throw new Error(first.error);
 
   const qa = opt("qa") as "released" | "rejected" | undefined;
-  if (qa) {
+  const [afterInvestigate] = await db.select({ status: cases.status }).from(cases).where(eq(cases.id, caseId));
+  if (qa && afterInvestigate?.status !== "awaiting_qa") {
+    console.log(dim(`--qa ignored: the quality agent already decided (case is ${afterInvestigate?.status}).`));
+  } else if (qa) {
     const elena = getPersona("elena");
     await recordQaDecision(db, caseId, {
       decision: qa,

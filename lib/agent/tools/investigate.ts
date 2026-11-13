@@ -5,9 +5,10 @@ import type { Citation } from "@/lib/domain/citation";
 import type { CustodyParty } from "@/lib/domain/parties";
 import { formatDateTime, formatDuration, formatEUR, formatTemp } from "@/lib/format";
 import { getRecord, patchRecord, registerCitations, type ClauseRef, type CustodySegmentRecord, type ExcursionWindow } from "@/lib/case/record";
-import type { ContractTermsParsed, PolicyTermsParsed } from "@/lib/rules/types";
+import type { ContractTermsParsed, ExtraCost, PolicyTermsParsed } from "@/lib/rules/types";
 import { findClause, findPhrase, parseClauses, quoteOf, type Clause } from "../clauses";
 import { docText, findDocument, findDocuments, getDocumentById, parseAwb, parseEml, parseInvoice, pdfPages } from "../docs";
+import { isExtraCostsEmail, parseExtraCosts } from "../stability-doc";
 import { defineTool, ToolGuardError } from "../tool";
 
 const LOW = 2.0;
@@ -119,12 +120,16 @@ export const extractDocument = defineTool({
     const record = await getRecord(ctx.db, ctx.caseId);
     const shipment = { ...(record.shipment ?? {}), citations: { ...(record.shipment?.citations ?? {}) } };
     const patchCase: Partial<typeof cases.$inferInsert> = {};
+    const costLines: (ExtraCost & { line: string; doc: (typeof docs)[number]; email: ReturnType<typeof parseEml> })[] = [];
 
     for (const doc of docs) {
       if (doc.kind === "email") {
         const e = parseEml(await docText(doc));
         citations.push({ kind: "email", documentId: doc.id, label: `Email ${e.date.slice(5, 22)}`, title: `${e.from}: ${e.subject}`, quote: e.body.slice(0, 200) });
         results.push({ documentId: doc.id, kind: doc.kind, email: e });
+        if (isExtraCostsEmail(e.subject)) {
+          for (const c of parseExtraCosts(e.body)) costLines.push({ doc, email: e, ...c });
+        }
         continue;
       }
       if (doc.kind === "handling_events" || doc.mime !== "application/pdf") {
@@ -176,6 +181,16 @@ export const extractDocument = defineTool({
     }
 
     const registered = await registerCitations(ctx.db, ctx.caseId, citations);
+    if (costLines.length) {
+      // Eligible extra costs documented in the file: each line is its own citation.
+      const costCites = await registerCitations(
+        ctx.db,
+        ctx.caseId,
+        costLines.map((c) => ({ kind: "email" as const, documentId: c.doc.id, label: `Extra cost: ${c.label.slice(0, 24)}`, title: `${c.email.from}: ${c.email.subject}`, quote: c.line })),
+      );
+      await patchRecord(ctx.db, ctx.caseId, { extraCosts: costLines.map((c, i) => ({ label: c.label, eur: c.eur, citationHint: costCites[i].id })) });
+      registered.push(...costCites);
+    }
     const awbIdx = docs.findIndex((d) => d.kind === "awb");
     const invIdx = docs.findIndex((d) => d.kind === "invoice");
     if (awbIdx >= 0) shipment.citations.awb = registered[awbIdx].id!;
@@ -195,7 +210,7 @@ export const extractDocument = defineTool({
       const f = first.fields as unknown as ReturnType<typeof parseInvoice>;
       summary = f.totalEur ? `Commercial invoice ${f.invoiceNo}: total ${formatEUR(f.totalEur)}.` : "Commercial invoice read; total not found.";
     } else if (first?.kind === "email") {
-      summary = `Read ${docs.length} email${docs.length > 1 ? "s" : ""}.`;
+      summary = `Read ${docs.length} email${docs.length > 1 ? "s" : ""}.${costLines.length ? ` Documented extra costs: ${costLines.map((c) => `${c.label} ${formatEUR(c.eur)}`).join(", ")}.` : ""}`;
     }
     return {
       output: { documents: results.map((r, i) => ({ ...r, citation: registered[i]?.id })) },

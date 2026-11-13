@@ -17,6 +17,7 @@ import { createRecorder } from "./recorder";
 import { runScript } from "./script";
 import { executeTool, type AgentContext } from "./tool";
 import { TOOLS_FOR_RUN, getTool } from "./tools";
+import { reminderState } from "./tools/followup";
 
 const AGENT = { type: "agent" as const, name: "Kelvin agent" };
 const MAX_STEPS = 32;
@@ -51,7 +52,7 @@ async function preRun(db: DB, caseId: string, kind: RunKind, runId: string, emit
     },
     prepare_claim: () => {
       if (qa.status !== "rejected") throw new Error("A claim can only be prepared after QA rejects the batch.");
-      if (!["awaiting_qa", "claim_prepared"].includes(row.status)) throw new Error(`Cannot prepare a claim when the case is ${row.status}.`);
+      if (!["investigating", "awaiting_qa", "claim_prepared"].includes(row.status)) throw new Error(`Cannot prepare a claim when the case is ${row.status}.`);
     },
     close: () => {
       if (row.status !== "no_claim") throw new Error(`Only a no-claim case can be closed (case is ${row.status}).`);
@@ -68,7 +69,7 @@ async function preRun(db: DB, caseId: string, kind: RunKind, runId: string, emit
 }
 
 /** Status moves after a run, derived from the case record (the model cannot skip a gate). */
-async function postRun(db: DB, caseId: string, kind: RunKind, runId: string, emit: (e: AgentEvent) => void) {
+async function postRun(db: DB, caseId: string, kind: RunKind, runId: string, emit: (e: AgentEvent) => void, ctx: AgentContext) {
   const row = await getCaseRow(db, caseId);
   const record = await getRecord(db, caseId);
   const move = async (to: CaseStatus, reason: string, patch?: Partial<typeof cases.$inferInsert>) => {
@@ -80,14 +81,20 @@ async function postRun(db: DB, caseId: string, kind: RunKind, runId: string, emi
       await move("no_claim", "No temperature excursion in the logger data");
       await move("closed_no_claim", "No excursion recorded: nothing to claim", { closedReason: "All logger readings within 2–8 °C." });
     } else if (record.excursions?.length) {
-      await move("awaiting_qa", "Investigation complete: Quality Assurance must decide disposition");
+      // The quality agent always decides: if the model skipped assess_quality, the orchestrator runs it.
+      if (!record.qaAssessment && (await qaStatus(db, caseId)).status === "pending") {
+        const r = await executeTool(getTool("assess_quality"), {}, ctx);
+        if (!r.ok) throw new Error(`Quality assessment failed: ${r.error}`);
+      }
     }
   }
   if (kind === "prepare_claim" && record.claim) {
     const [letter] = await db.select().from(drafts).where(eq(drafts.id, record.claim.draftId));
     if (letter && letter.status === "draft" && record.claim.evidencePackId) {
-      if (row.status === "awaiting_qa") await move("claim_prepared", "Claim letter and evidence pack prepared");
+      if (row.status === "awaiting_qa" || row.status === "investigating") await move("claim_prepared", "Claim letter and evidence pack prepared");
       await db.update(drafts).set({ status: "awaiting_approval" }).where(eq(drafts.id, letter.id));
+      // The secondary claim letter(s) of the claim plan wait for approval together with the primary.
+      await db.update(drafts).set({ status: "awaiting_approval" }).where(and(eq(drafts.caseId, caseId), eq(drafts.kind, "claim_letter"), eq(drafts.status, "draft")));
       await move("awaiting_approval", "Waiting for manager approval");
     }
   }
@@ -156,36 +163,41 @@ export async function runAgent(opts: RunOptions): Promise<RunResult> {
 
   let status: RunResult["status"] = "completed";
   let error: string | undefined;
-  try {
-    await preRun(db, caseId, kind, runId, emit);
+  const runPhase = async (phase: RunKind) => {
+    const pctx: AgentContext = { ...ctx, kind: phase };
+    await preRun(db, caseId, phase, runId, emit);
     if (handle) {
       const row = await getCaseRow(db, caseId);
       const docs = await findDocuments(db, caseId);
       const qa = await qaStatus(db, caseId);
       const pending: string[] = [];
-      if (kind === "prepare_claim") {
+      if (phase === "prepare_claim") {
         const rejected = await db
           .select()
           .from(decisions)
           .where(and(eq(decisions.caseId, caseId), eq(decisions.gate, "approval"), eq(decisions.decision, "rejected")));
         rejected.forEach((r) => pending.push(`- The manager rejected a previous draft: "${r.note}". Address this in the new letter (write the body yourself, citing sources).`));
+        const plan = (await getRecord(db, caseId)).claimPlan ?? [];
+        plan.filter((p) => p.role === "secondary").forEach((p) => pending.push(`- The claim plan has a secondary claim against the ${p.route} for the uninsured part: draft it too (draft_claim_letter with route "${p.route}").`));
       }
-      if (kind === "follow_up") {
+      if (phase === "follow_up") {
         const approved = await db.select().from(drafts).where(and(eq(drafts.caseId, caseId), eq(drafts.status, "approved")));
         approved.forEach((d) => pending.push(`- Approved draft ${d.id} (${d.kind}) to ${d.recipientName}: send it.`));
         const record = await getRecord(db, caseId);
         const handled = new Set(record.handledMessageIds ?? []);
         const replies = await db.select().from(outboxMessages).where(and(eq(outboxMessages.caseId, caseId), eq(outboxMessages.direction, "in")));
         replies.filter((m) => !handled.has(m.id)).forEach((m) => pending.push(`- New reply ${m.id} from ${m.counterparty}: "${m.subject}". Handle it.`));
+        const st = await reminderState(pctx);
+        if (st?.due.length) pending.push(`- No reply to the claim after ${Math.max(...st.due)} days: draft a reminder (draft_reminder).`);
       }
       const tools: ToolSet = {};
-      for (const name of TOOLS_FOR_RUN[kind]) {
+      for (const name of TOOLS_FOR_RUN[phase]) {
         const t = getTool(name);
         tools[name] = tool({
           description: t.description,
           inputSchema: t.input,
           execute: async (input: unknown) => {
-            const r = await executeTool(t, input, ctx);
+            const r = await executeTool(t, input, pctx);
             return r.ok
               ? { summary: r.summary, result: r.output, citations: r.citations.map((c) => ({ id: c.id, label: c.label })) }
               : { error: r.error };
@@ -195,7 +207,7 @@ export async function runAgent(opts: RunOptions): Promise<RunResult> {
       const result = streamText({
         model: handle.model,
         system: SYSTEM_PROMPT,
-        prompt: runPrompt(kind, row, docs, { qa: qa.status, now: ctx.now, pending }),
+        prompt: runPrompt(phase, row, docs, { qa: qa.status, now: ctx.now, pending }),
         tools,
         stopWhen: stepCountIs(MAX_STEPS),
         providerOptions: handle.providerOptions as never,
@@ -211,10 +223,19 @@ export async function runAgent(opts: RunOptions): Promise<RunResult> {
         }
       }
     } else {
-      await runScript(kind, ctx, say);
+      await runScript(phase, pctx, say);
     }
     await flushNarration();
-    await postRun(db, caseId, kind, runId, emit);
+    await postRun(db, caseId, phase, runId, emit, pctx);
+  };
+
+  try {
+    await runPhase(kind);
+    // The quality agent found the product damaged: the claim path continues in the same run, no human QA step.
+    if (kind === "investigate") {
+      const [row, record] = await Promise.all([getCaseRow(db, caseId), getRecord(db, caseId)]);
+      if (row.status === "claim_prepared" && record.qaAssessment?.verdict === "damaged") await runPhase("prepare_claim");
+    }
   } catch (e) {
     status = "failed";
     error = e instanceof Error ? e.message : String(e);

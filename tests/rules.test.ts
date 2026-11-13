@@ -144,3 +144,48 @@ describe("protective notices", () => {
     expect(protectiveNoticesNeeded(s.ranked, "pending", wider).map((n) => n.route)).toEqual(["forwarder"]);
   });
 });
+
+describe("protective notices with missing data", () => {
+  it("still needed after QA decided when required data is missing", () => {
+    const { ranked } = scenario("B", "rejected");
+    expect(protectiveNoticesNeeded(ranked, "rejected", cfg, { missingData: true }).map((n) => n.route)).toEqual(["carrier"]);
+    expect(protectiveNoticesNeeded(ranked, "rejected", cfg, { missingData: false })).toEqual([]);
+  });
+  it("never when QA released the product", () => {
+    const { ranked } = scenario("B", "pending");
+    expect(protectiveNoticesNeeded(ranked, "released", cfg, { missingData: true })).toEqual([]);
+  });
+});
+
+describe("extra costs", () => {
+  it("add to the loss before caps; the Montreal and insurer limits still bite", () => {
+    const base = scenario("C", "rejected").input;
+    const withExtra: LiabilityInput = { ...base, extraCosts: [{ label: "Disposal", eur: 5_000 }, { label: "Re-shipment", eur: 15_000 }] };
+    const liab = computeLiability(withExtra, cfg);
+    // forwarder cap = invoice value = loss incl. extra costs
+    expect(liab.find((r) => r.route === "forwarder")!.recoverableEur).toBe(370_000);
+    // insurer: 100% of loss minus deductible 25,000
+    expect(liab.find((r) => r.route === "insurer")!.recoverableEur).toBe(345_000);
+  });
+  it("the Montreal cap does not grow with extra costs", () => {
+    const base = scenario("B", "rejected").input;
+    const a = computeLiability(base, cfg).find((r) => r.route === "carrier")!.recoverableEur;
+    const b = computeLiability({ ...base, extraCosts: [{ label: "Disposal", eur: 4_000 }] }, cfg).find((r) => r.route === "carrier")!.recoverableEur;
+    expect(b).toBe(a);
+  });
+  it("demo numbers do not move without extra costs", () => {
+    const b = computeLiability(scenario("B", "rejected").input, cfg);
+    expect(b.find((r) => r.route === "insurer")!.recoverableEur).toBe(190_000);
+  });
+});
+
+describe("config defaults", () => {
+  it("has defaults for the workflow v2 fields and merges overrides", () => {
+    expect(cfg.qaUncertaintyMarginPct).toBe(10);
+    expect(cfg.reminderDays).toEqual([14, 30]);
+    expect(cfg.maxAppeals).toBe(1);
+    const m = mergeRules({ maxAppeals: 2 });
+    expect(m.maxAppeals).toBe(2);
+    expect(m.reminderDays).toEqual([14, 30]);
+  });
+});

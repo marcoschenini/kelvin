@@ -1,4 +1,5 @@
 import type { CustodyParty, RecoveryRoute } from "@/lib/domain/parties";
+import type { ExtraCost, StabilityAllowance } from "@/lib/rules/types";
 
 /**
  * A CaseSpec describes one synthetic shipment completely. The generator turns it
@@ -100,7 +101,18 @@ export interface CaseSpec {
   scenario: "demo" | "eval";
   title: string;
   shipmentRef: string;
-  product: { name: string; description: string; batch: string; units: number; unitPriceEur: number; packaging: string };
+  product: {
+    name: string;
+    description: string;
+    batch: string;
+    units: number;
+    unitPriceEur: number;
+    packaging: string;
+    /** Manufacturer stability allowance; seeded as an email "Stability data" so the quality agent can cite it. Omit to simulate missing data. */
+    stability?: StabilityAllowance;
+  };
+  /** Eligible extra costs (disposal, re-shipment…). Each is backed by a line in a seeded email "Additional costs". */
+  extraCosts?: ExtraCost[];
   /** Defaults to units × unitPrice */
   valueEur: number;
   weightKg: number;

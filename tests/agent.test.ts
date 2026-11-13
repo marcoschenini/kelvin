@@ -62,15 +62,24 @@ async function caseDrafts(id: string) {
   return db.select().from(schema.drafts).where(eq(schema.drafts.caseId, id));
 }
 
-describe("case B: insurer + protective notice to the airline", () => {
-  it("investigates, attributes the excursion to the airline and drafts a protective notice", async () => {
+describe("case B: quality agent, claim plan and protective notice", () => {
+  it("investigates, attributes the excursion to the airline, drafts the protective notice and the quality agent finds the product damaged", async () => {
     await mod.seedDemoCase(db, "B", NOW);
     const r = await run("demo-b", "investigate");
     expect(r.status).toBe("completed");
-    expect((await caseRow("demo-b")).status).toBe("awaiting_qa");
+    // The quality agent decides without a human click and the claim is prepared in the same run.
+    expect((await caseRow("demo-b")).status).toBe("awaiting_approval");
     const rec = await mod.getRecord(db, "demo-b");
+    expect(rec.qaAssessment?.verdict).toBe("damaged");
+    expect(rec.qaAssessment?.citationId).toBeTruthy();
     expect(rec.custody?.attribution?.role).toBe("airline");
     expect(rec.ranking?.find((x) => x.recommended)?.route).toBe("insurer");
+    expect(rec.claimPlan?.map((c) => [c.route, c.role])).toEqual([
+      ["insurer", "primary"],
+      ["carrier", "secondary"],
+    ]);
+    expect(rec.claimPlan?.[0].amountEur).toBe(190_000);
+    expect(rec.claimPlan?.[1].amountEur).toBeCloseTo(3_771, 0); // 26 SDR/kg × 120 kg × 1.2088 = €3,771.46
     const notices = (await caseDrafts("demo-b")).filter((d) => d.kind === "protective_notice");
     expect(notices.map((n) => n.route)).toEqual(["carrier"]);
     expect(notices[0].status).toBe("awaiting_approval");
@@ -100,19 +109,22 @@ describe("case B: insurer + protective notice to the airline", () => {
     expect(await db.select().from(schema.outboxMessages).where(eq(schema.outboxMessages.caseId, "demo-b"))).toHaveLength(0);
   });
 
-  it("blocks the claim letter until QA rejects, then prepares a fully cited claim", async () => {
-    const elena = mod.getPersona("elena");
-    const tom = mod.getPersona("tom");
-    await expect(mod.recordQaDecision(db, "demo-b", { decision: "rejected", actor: tom })).rejects.toThrow(/cannot make the QA decision/);
-    await mod.recordQaDecision(db, "demo-b", { decision: "rejected", note: "Outside stability data", actor: elena });
-    const r = await run("demo-b", "prepare_claim");
-    expect(r.finalStatus).toBe("awaiting_approval");
-    const [letter] = (await caseDrafts("demo-b")).filter((d) => d.kind === "claim_letter");
-    expect(letter.route).toBe("insurer");
-    expect(letter.amountEur).toBe(190_000);
-    const cits = letter.citations as { kind: string }[];
+  it("the quality agent cannot be called twice and a human cannot override it", async () => {
+    await expect(mod.recordQaDecision(db, "demo-b", { decision: "released", actor: mod.getPersona("elena") })).rejects.toThrow(/only possible while awaiting QA/);
+  });
+
+  it("prepares a fully cited primary claim and a secondary claim to the airline", async () => {
+    const claims = (await caseDrafts("demo-b")).filter((d) => d.kind === "claim_letter");
+    const primary = claims.find((d) => d.route === "insurer")!;
+    const secondary = claims.find((d) => d.route === "carrier")!;
+    expect(primary.amountEur).toBe(190_000);
+    expect(secondary.amountEur).toBeCloseTo(3_771, 0);
+    expect(secondary.recipientName).toMatch(/Boreal/);
+    expect(secondary.status).toBe("awaiting_approval");
+    const cits = primary.citations as { kind: string }[];
     expect(cits.length).toBeGreaterThan(8);
     expect(cits.filter((c) => c.kind === "assumption")).toHaveLength(0);
+    expect((secondary.citations as { kind: string }[]).filter((c) => c.kind === "assumption")).toHaveLength(0);
     const docs = await db.select().from(schema.documents).where(and(eq(schema.documents.caseId, "demo-b"), eq(schema.documents.kind, "evidence_pack")));
     expect(docs).toHaveLength(1);
   });
@@ -126,22 +138,22 @@ describe("case B: insurer + protective notice to the airline", () => {
     const r = await run("demo-b", "follow_up");
     expect(r.finalStatus).toBe("sent");
     const out = await db.select().from(schema.outboxMessages).where(eq(schema.outboxMessages.caseId, "demo-b"));
-    expect(out).toHaveLength(2);
+    expect(out).toHaveLength(3);
     expect(out.every((m) => m.approvalDecisionId && m.simulated)).toBe(true);
   });
 
-  it("logs every tool call to the audit trail", async () => {
+  it("logs every tool call to the audit trail, including the quality agent's reasoning", async () => {
     const audit = await db.select().from(schema.auditEvents).where(eq(schema.auditEvents.caseId, "demo-b"));
     const tools = new Set(audit.filter((a) => a.eventType === "tool_call").map((a) => a.tool));
-    for (const t of ["parse_logger", "build_custody_timeline", "check_contract", "check_policy", "compute_liability", "compute_deadlines", "rank_routes", "draft_protective_notice", "draft_claim_letter", "build_evidence_pack", "send_via_outbox"]) {
+    for (const t of ["parse_logger", "build_custody_timeline", "check_contract", "check_policy", "compute_liability", "compute_deadlines", "rank_routes", "draft_protective_notice", "assess_quality", "draft_claim_letter", "build_evidence_pack", "send_via_outbox"]) {
       expect(tools.has(t)).toBe(true);
     }
-    expect(audit.some((a) => a.eventType === "qa_decision" && a.actorName === "Elena Weber")).toBe(true);
-    expect(audit.filter((a) => a.eventType === "approval_decision").length).toBe(2);
+    expect(audit.some((a) => a.eventType === "qa_assessment" && a.actorName === "Quality agent")).toBe(true);
+    expect(audit.filter((a) => a.eventType === "approval_decision").length).toBe(3);
   });
 });
 
-describe("case C: full claim against the forwarder", () => {
+describe("case C: protective notice on day 2", () => {
   it("recommends the forwarder for the invoice value and drafts a protective notice on day 2", async () => {
     await mod.seedDemoCase(db, "C", NOW);
     await run("demo-c", "investigate");
@@ -156,19 +168,29 @@ describe("case C: full claim against the forwarder", () => {
   });
 });
 
+describe("case C: quality agent and forwarder claim", () => {
+  it("the quality agent finds the product damaged and the claim plan has no secondary", async () => {
+    const rec = await mod.getRecord(db, "demo-c");
+    expect(rec.qaAssessment?.verdict).toBe("damaged");
+    expect(rec.claimPlan?.map((c) => [c.route, c.role, c.amountEur])).toEqual([["forwarder", "primary", 350_000]]);
+    expect((await caseRow("demo-c")).status).toBe("awaiting_approval");
+  });
+});
+
 describe("case A: no claim", () => {
-  it("closes with the reason logged once QA releases", async () => {
+  it("the quality agent releases the product and closes the case with the reasoning, no human click", async () => {
     await mod.seedDemoCase(db, "A", NOW);
-    await run("demo-a", "investigate");
-    expect((await caseDrafts("demo-a")).filter((d) => d.kind === "protective_notice")).toHaveLength(0);
-    await mod.recordQaDecision(db, "demo-a", { decision: "released", note: "Within stability budget", actor: mod.getPersona("elena") });
-    expect((await caseRow("demo-a")).status).toBe("no_claim");
-    const r = await run("demo-a", "close");
+    const r = await run("demo-a", "investigate");
     expect(r.finalStatus).toBe("closed_no_claim");
-    expect((await caseRow("demo-a")).closedReason).toMatch(/QA released/);
+    expect((await caseDrafts("demo-a")).filter((d) => d.kind === "protective_notice")).toHaveLength(0);
+    const rec = await mod.getRecord(db, "demo-a");
+    expect(rec.qaAssessment?.verdict).toBe("usable");
+    expect(rec.outcome?.result).toBe("no_claim");
+    expect((await caseRow("demo-a")).closedReason).toMatch(/stability allowance/i);
+    expect(await db.select().from(schema.decisions).where(eq(schema.decisions.caseId, "demo-a"))).toHaveLength(0);
   });
 
-  it("refuses a claim run on a released case", async () => {
+  it("refuses a claim run on a closed case", async () => {
     const r = await run("demo-a", "prepare_claim");
     expect(r.status).toBe("failed");
     expect(r.error).toMatch(/after QA rejects/);

@@ -46,6 +46,9 @@ async function Content({ params }: { params: Promise<{ id: string; draftId: stri
         deadline: deadline ? { label: deadline.label, daysLeft: deadline.daysLeft, dueAt: deadline.dueAt } : null,
         evidencePackId: docs.find((d) => d.kind === "evidence_pack")?.id ?? null,
         registry: record.citations ?? {},
+        qaReasoning: record.qaAssessment?.reasons?.[0] ?? record.qa?.note ?? null,
+        qaVerdict: record.qaAssessment?.verdict ?? null,
+        primaryClaimDraftId: record.claim?.draftId ?? null,
       }}
     />
   );

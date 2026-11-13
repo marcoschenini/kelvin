@@ -162,24 +162,20 @@ describe("DB_MODE=supabase (postgres-js over the wire)", () => {
     const db = await client.getDb();
     const { resetDemo } = await import("@/seed/seed-db");
     const { runAgent } = await import("@/lib/agent/orchestrator");
-    const { recordQaDecision } = await import("@/lib/case/gates");
-    const { getPersona } = await import("@/lib/domain/personas");
 
     const generated = await resetDemo(db, NOW);
     expect(generated.map((g) => g.spec.code)).toEqual(["A", "B", "C"]);
     // The append-only trigger survives the wire migration.
     await expect(db.update(schema.auditEvents).set({ actorName: "x" })).rejects.toThrow();
 
+    // The quality agent finds B damaged and the claim is prepared in the same investigate run.
     const inv = await runAgent({ db, caseId: "demo-b", kind: "investigate", mode: "deterministic", now: NOW, record: false });
     expect(inv.status).toBe("completed");
-    await recordQaDecision(db, "demo-b", { decision: "rejected", note: "Outside stability data", actor: getPersona("elena") });
-    const claim = await runAgent({ db, caseId: "demo-b", kind: "prepare_claim", mode: "deterministic", now: NOW, record: false });
-    expect(claim.status).toBe("completed");
 
     const [letter] = await db
       .select()
       .from(schema.drafts)
-      .where(and(eq(schema.drafts.caseId, "demo-b"), eq(schema.drafts.kind, "claim_letter")));
+      .where(and(eq(schema.drafts.caseId, "demo-b"), eq(schema.drafts.kind, "claim_letter"), eq(schema.drafts.route, "insurer")));
     expect(letter.route).toBe("insurer");
     expect(letter.amountEur).toBe(190_000);
   }, 120_000);

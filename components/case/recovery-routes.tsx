@@ -10,7 +10,7 @@ import { OpenableCitation } from "@/components/documents/citation-viewer";
 import type { Citation } from "@/lib/domain/citation";
 import { ROUTE_META, type RecoveryRoute } from "@/lib/domain/parties";
 import { formatDateWithRelative, formatEUR } from "@/lib/format";
-import type { Deadline, RankedRoute } from "@/lib/rules/types";
+import type { ClaimPlanItem, Deadline, ExtraCost, RankedRoute } from "@/lib/rules/types";
 import { cn } from "@/lib/utils";
 
 const ORDER: RecoveryRoute[] = ["carrier", "forwarder", "insurer"];
@@ -145,5 +145,48 @@ export function DeadlineList({ deadlines }: { deadlines: Deadline[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/** The claim plan: who is claimed against, in which order, and for how much. */
+export function ClaimPlan({ plan, extraCosts }: { plan: ClaimPlanItem[]; extraCosts: ExtraCost[] }) {
+  const items = [...plan].sort((a, b) => a.order - b.order);
+  const total = items.reduce((s, i) => s + i.amountEur, 0);
+  return (
+    <div className="mb-5 rounded-xl border border-ai-from/20 bg-ai-soft/40 p-4" aria-label="Claim plan">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <AiBadge label="Claim plan" />
+          <span className="text-sm text-muted-foreground">{items.length > 1 ? "Primary claim first, then a secondary claim for the uninsured part." : "One claim."}</span>
+        </div>
+        <span className="num text-sm font-semibold">Total {formatEUR(total)}</span>
+      </div>
+      <ol className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+        {items.map((i) => {
+          const Icon = ROUTE_ICON[i.route];
+          return (
+            <li key={`${i.route}-${i.order}`} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
+              <span className="num grid size-6 shrink-0 place-items-center rounded-full bg-ai text-xs font-semibold text-white" aria-label={`Step ${i.order}`}>
+                {i.order}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-1.5 text-sm font-semibold">
+                  <Icon className="size-3.5 text-muted-foreground" aria-hidden="true" />
+                  {ROUTE_META[i.route].label}
+                  <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10.5px] font-medium text-muted-foreground capitalize">{i.role}</span>
+                </span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">{i.reason}</span>
+              </span>
+              <span className="num text-base font-semibold">{formatEUR(i.amountEur)}</span>
+            </li>
+          );
+        })}
+      </ol>
+      {extraCosts.length > 0 && (
+        <p className="num mt-3 text-xs text-muted-foreground">
+          Includes extra costs: {extraCosts.map((c) => `${c.label} ${formatEUR(c.eur)}`).join(", ")}.
+        </p>
+      )}
+    </div>
   );
 }

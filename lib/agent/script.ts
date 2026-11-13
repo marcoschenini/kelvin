@@ -7,6 +7,7 @@ import { findDocuments } from "./docs";
 import type { RunKind } from "./events";
 import { executeTool, type AgentContext } from "./tool";
 import { getTool } from "./tools";
+import { reminderState } from "./tools/followup";
 
 /**
  * Deterministic planner: the same tools, called in a fixed order with scripted
@@ -52,21 +53,36 @@ export async function runScript(kind: RunKind, ctx: AgentContext, say: (text: st
     }
     say("Checking whether anything is missing from the file.");
     await call("request_missing_info");
+    say("Handing the measured excursion to the quality agent: it compares peak temperature and minutes out of range with the manufacturer's stability data.");
+    const qa = await call("assess_quality");
+    if (!qa.ok) return say(`The quality assessment could not be completed: ${qa.error}`);
     const final = await getRecord(ctx.db, ctx.caseId);
     const top = final.ranking?.find((r) => r.recommended);
     const attr = final.custody?.attribution;
+    const verdict = final.qaAssessment?.verdict;
+    const next =
+      verdict === "usable"
+        ? "The quality agent found the product usable, so there is no damage and the case is closed with no claim."
+        : verdict === "damaged"
+          ? "The quality agent found the product damaged, so I prepare the claim for manager approval."
+          : "The excursion is close to the stability limit, so a human QA must decide whether the product is usable.";
     say(
-      `${attr ? `The excursion happened while ${attr.custodian} held the cargo. ` : ""}${top ? `If QA rejects the batch, the best route is the ${ROUTE_META[top.route].label.toLowerCase()} for ${formatEUR(top.recoverableEur)}. ` : "No route offers a realistic recovery. "}${needs.length ? `A protective notice is ready for approval. ` : ""}Next: Quality Assurance decides whether the product is usable.`,
+      `${attr ? `The excursion happened while ${attr.custodian} held the cargo. ` : ""}${verdict !== "usable" && top ? `The best route is the ${ROUTE_META[top.route].label.toLowerCase()} for ${formatEUR(top.recoverableEur)}. ` : ""}${needs.length ? `A protective notice is ready for approval. ` : ""}${next}`,
     );
     return;
   }
 
   if (kind === "prepare_claim") {
-    say("QA has rejected the batch, so I am re-ranking the routes with the damage confirmed.");
+    say("The product is confirmed damaged, so I am re-ranking the routes and building the claim plan.");
     await call("rank_routes");
     say("Drafting the claim letter for the recommended route, citing every statement.");
     const letter = await call("draft_claim_letter");
     if (!letter.ok) return say(`I could not draft the claim: ${letter.error}`);
+    const plan = (await getRecord(ctx.db, ctx.caseId)).claimPlan ?? [];
+    for (const s of plan.filter((p) => p.role === "secondary")) {
+      say(`The ${ROUTE_META[s.route].label.toLowerCase()} held the cargo and is liable for the part the insurance does not cover, so I am drafting a secondary claim for ${formatEUR(s.amountEur)}.`);
+      await call("draft_claim_letter", { route: s.route });
+    }
     say("Building the evidence pack with the chart, logger extract and cited pages.");
     await call("build_evidence_pack");
     const out = letter.output as { amountEur: number; to: { name: string } };
@@ -87,6 +103,9 @@ export async function runScript(kind: RunKind, ctx: AgentContext, say: (text: st
       .select()
       .from(drafts)
       .where(and(eq(drafts.caseId, ctx.caseId), eq(drafts.status, "approved")));
+    // The primary claim letter goes first: a secondary claim (claim plan) is only sent after it.
+    const primaryId = (await getRecord(ctx.db, ctx.caseId)).claim?.draftId;
+    approved.sort((a, b) => Number(b.id === primaryId) - Number(a.id === primaryId));
     for (const d of approved) {
       say(`Sending the approved ${d.kind.replace(/_/g, " ")} to ${d.recipientName}.`);
       await call("send_via_outbox", { draftId: d.id });
@@ -101,6 +120,10 @@ export async function runScript(kind: RunKind, ctx: AgentContext, say: (text: st
       say(`Reading the reply from ${m.counterparty} and proposing the next step.`);
       await call("handle_reply", { messageId: m.id });
     }
-    if (!approved.length && replies.every((r) => handled.has(r.id))) say("Nothing to send and no new replies.");
+    const st = await reminderState(ctx);
+    if (st?.due.length) {
+      say(`No reply to the claim for ${Math.max(...st.due)} days, so I am drafting a reminder for approval.`);
+      await call("draft_reminder");
+    } else if (!approved.length && replies.every((r) => handled.has(r.id))) say("Nothing to send and no new replies.");
   }
 }

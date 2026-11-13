@@ -2,6 +2,17 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-13 — Workflow v2 from Vito's board
+
+- **Request (Vito):** make Kelvin follow his workflow board (all 7 differences).
+- **Chief:** spec `docs/team/specs/2026-11-13-workflow-v2.md`; decided the two open questions with the board's proposed answers.
+- **backend** (Sonnet): stability, claim plan, follow-up and outcome rules; closed_not_approved; agent QA gate; stability emails in seed; KPIs (113 tests).
+- **ai-engineer** (Sonnet): `assess_quality`, same-run claim path, secondary claim letter, appeal and reminders, 3 new eval cases (27/27), recordings regenerated.
+- **frontend** (Sonnet): QA decision card, claim plan, approval summary, follow-up tags, recovery KPIs and track record.
+- **Chief integration:** primary-only close on a rejected claim letter, claimed = plan total, quality agent metric on the eval page, AGENTS.md rule. Gate: lint ✓, typecheck ✓, 120/120 tests ✓, eval 27/27 ✓, build ✓ (fonts mocked in the sandbox).
+- **qa-reviewer (Opus): PASS WITH NOTES.** Two major findings were fixed: a secondary claim could be sent before the primary and mark the case "sent"; the reject dialog said a secondary letter closes the case. Minor findings fixed: pending drafts are withdrawn on a not-approved close; QA status on the case page; assess_quality needs rank_routes first; a freezing excursion is treated as damaged; primary sent first. Re-verified: PASS. Accepted limits: claimed = plan total even if the secondary is rejected; one appeal per case; daysToClose uses the real clock.
+- **Final gate:** 124/124 tests, eval 27/27, build ✓.
+
 ## 2026-11-13 — Automatic merge on green checks
 
 - **Request (Vito):** make the approval/merge step automatic. Marco enabled auto-merge and a `master` ruleset requiring the `verify` check.

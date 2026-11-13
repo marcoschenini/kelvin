@@ -97,13 +97,21 @@ export function protectiveNotice(ctx: LetterContext & { route: RecoveryRoute; de
   return { subject, body };
 }
 
-export function claimLetter(ctx: LetterContext & { route: RankedRoute; qaCitationId?: string }) {
+/** Secondary claim: the part of the loss the primary route leaves uncovered. */
+export interface SecondaryClaim {
+  amountEur: number;
+  /** Who is claimed first, e.g. "the cargo insurer" */
+  primaryLabel: string;
+}
+
+export function claimLetter(ctx: LetterContext & { route: RankedRoute; qaCitationId?: string; secondary?: SecondaryClaim }) {
   const r = ctx.record;
   const c = r.contract?.clauses ?? {};
   const p = r.policy?.clauses ?? {};
   const route = ctx.route;
-  const amount = route.recoverableEur;
-  const subject = `Claim for temperature damage – ${ctx.row.shipmentRef} – ${formatEUR(amount)}`;
+  const amount = ctx.secondary?.amountEur ?? route.recoverableEur;
+  const extra = r.extraCosts ?? [];
+  const subject = `${ctx.secondary ? "Secondary claim" : "Claim"} for temperature damage – ${ctx.row.shipmentRef} – ${formatEUR(amount)}`;
   const invoice = r.shipment?.citations?.invoice;
   const qa = `Our Quality Assurance has rejected the affected batch as a consequence of this excursion; the goods cannot be used.${t(ctx.qaCitationId)}`;
   const basis: string[] = [];
@@ -111,7 +119,7 @@ export function claimLetter(ctx: LetterContext & { route: RankedRoute; qaCitatio
     if (c.hub_storage) basis.push(`Under clause ${c.hub_storage.clause} of agreement ${r.contract?.reference ?? ""} the goods had to be stored exclusively in qualified cold rooms at your hubs and not staged in ambient areas for more than 30 minutes. They were instead left in an area that is not temperature controlled.${t(c.hub_storage.citationId)}`);
     if (c.liability_basis) basis.push(`Under clause ${c.liability_basis.clause} you are liable for damage resulting from a temperature excursion while the goods are in your custody.${t(c.liability_basis.citationId)}`);
     if (c.damaged_goods) basis.push(`Under clause ${c.damaged_goods.clause}, goods rejected by our Quality Assurance as a result of an excursion are deemed damaged.${t(c.damaged_goods.citationId)}`);
-    if (c.liability_cap) basis.push(`Clause ${c.liability_cap.clause} limits your liability for a breach of clause 3 to the invoice value of the affected goods, which is ${formatEUR(r.shipment?.valueEur ?? amount)}.${ts(c.liability_cap.citationId, invoice)}`);
+    if (c.liability_cap) basis.push(`Clause ${c.liability_cap.clause} limits your liability for a breach of clause 3 to the value of the loss, which is ${formatEUR(route.capEur ?? r.shipment?.valueEur ?? amount)}${extra.length ? " including the documented extra costs" : ""}.${ts(c.liability_cap.citationId, invoice)}`);
   } else if (route.route === "insurer") {
     if (p.temperature_cover) basis.push(`Clause ${p.temperature_cover.clause} of policy ${r.policy?.policyNumber ?? ""} covers physical loss or damage caused by a deviation from the stated temperature range, as recorded by the data logger.${t(p.temperature_cover.citationId)}`);
     if (p.damage_definition) basis.push(`Under clause ${p.damage_definition.clause} goods rejected by our Quality Assurance as a consequence of the deviation are deemed damaged.${t(p.damage_definition.citationId)}`);
@@ -121,6 +129,12 @@ export function claimLetter(ctx: LetterContext & { route: RankedRoute; qaCitatio
   } else {
     basis.push(`Under the Montreal Convention 1999 the carrier is liable for damage to cargo sustained during carriage by air (Art. 18). Without a special declaration of value, liability is limited to ${route.basis}${t(r.shipment?.citations?.awb)}`);
   }
+  const costsParagraph = extra.length
+    ? `The loss comprises the goods and documented extra costs: ${extra.map((c) => `${c.label.toLowerCase()} ${formatEUR(c.eur)}${t(c.citationHint)}`).join("; ")}.`
+    : null;
+  const secondaryParagraph = ctx.secondary
+    ? `This claim is for the part of the loss that is not covered by ${ctx.secondary.primaryLabel}: the deductible and the uninsured share. It is brought in addition to, and not instead of, our claim against ${ctx.secondary.primaryLabel}; any amount received from there will be credited.`
+    : null;
   const annexes = [
     "Data logger file and excursion extract",
     "Air waybill",
@@ -132,9 +146,11 @@ export function claimLetter(ctx: LetterContext & { route: RankedRoute; qaCitatio
   ];
   const body = [
     "Dear Sir or Madam,",
-    `Claim for temperature damage\n${header(ctx)}`,
+    `${ctx.secondary ? "Secondary claim" : "Claim"} for temperature damage\n${header(ctx)}`,
     ...facts(ctx),
     qa,
+    ...(costsParagraph ? [costsParagraph] : []),
+    ...(secondaryParagraph ? [secondaryParagraph] : []),
     ...basis,
     `We therefore claim ${formatEUR(amount)} and ask you to confirm acceptance within 30 days. All our rights remain reserved.`,
     `Annexes:\n${annexes.map((a, i) => `${i + 1}. ${a}`).join("\n")}`,
@@ -145,7 +161,7 @@ export function claimLetter(ctx: LetterContext & { route: RankedRoute; qaCitatio
 
 /* ------------------------------------------------------------ validation */
 
-const SKIP = /^(Dear |Yours |Kind regards|Sincerely|Annexes:|Claim for temperature damage|Notice of |Notification of )/;
+const SKIP = /^(Dear |Yours |Kind regards|Sincerely|Annexes:|(Secondary c|C)laim for temperature damage|Notice of |Notification of )/;
 
 /**
  * Checks a letter's [S#] tags against the registry. Factual paragraphs without
@@ -157,7 +173,7 @@ export function validateLetter(body: string, registry: Record<string, Citation>)
   const unknown = ids.filter((id) => !registry[id]);
   const paragraphs = body.split(/\n\s*\n/).map((p) => p.trim());
   const uncited = paragraphs.filter(
-    (p) => p.length > 60 && !SKIP.test(p) && !/\[S\d+\]/.test(p) && !/^(We therefore claim|The product is under quality assessment|Please preserve|We hereby give)/.test(p),
+    (p) => p.length > 60 && !SKIP.test(p) && !/\[S\d+\]/.test(p) && !/^(We therefore claim|This claim is for the part of the loss|The product is under quality assessment|Please preserve|We hereby give)/.test(p),
   );
   const assumptions: Citation[] = uncited.map((p) => ({
     kind: "assumption",

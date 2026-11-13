@@ -21,7 +21,7 @@ npm run dev                  # http://localhost:3000
 | `npm test` | Vitest unit tests |
 | `npm run seed` | Reset demo data: cases A, B, C anchored to today (stop the dev server first, or use Settings → Reset demo) |
 | `npm run seed -- --files` | Only write the generated documents to `.data/preview/` |
-| `npm run agent -- B --qa rejected --approve` | Run case B end to end in the terminal (add `--deterministic` to skip the model, `--print-letters` to show drafts; stop the dev server first) |
+| `npm run agent -- B --approve` | Run case B end to end in the terminal: the quality agent decides, then all drafts are approved and sent (add `--deterministic` to skip the model, `--print-letters` to show drafts; stop the dev server first) |
 | `npm run eval` | Run the 24 evaluation cases and print the scores (`--deterministic`, `--limit N`; stop the dev server first) |
 | `npm run db:generate` | Generate a Drizzle migration after editing `lib/db/schema.ts` |
 
