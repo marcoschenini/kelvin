@@ -160,7 +160,10 @@ export async function recordApproval(
     output: { decisionId: id },
   });
   const [caseRow] = await db.select({ status: cases.status }).from(cases).where(eq(cases.id, caseId));
-  if (draft.kind === "claim_letter" && args.decision === "rejected" && caseRow?.status === "awaiting_approval") {
+  // Only the primary claim letter closes the case; rejecting a secondary claim (claim plan) rejects that letter only.
+  const primaryDraftId = (await getRecord(db, caseId)).claim?.draftId;
+  const isPrimary = !primaryDraftId || primaryDraftId === draft.id;
+  if (draft.kind === "claim_letter" && args.decision === "rejected" && isPrimary && caseRow?.status === "awaiting_approval") {
     // A rejected claim letter closes the case; the reason stays in the audit log and in record.outcome.
     const reason = `Claim not approved by ${args.actor.name} (${args.actor.title}): ${args.reason}`;
     await transition(db, caseId, "closed_not_approved", { type: "human", name: args.actor.name, role: args.actor.title }, { reason, patch: { closedReason: reason } });

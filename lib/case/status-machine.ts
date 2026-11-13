@@ -84,7 +84,9 @@ export async function transition(
     // Every closing transition records the result: claimed vs recovered, recovery %, days to close, payer.
     const record = await getRecord(db, caseId);
     const closedAt = new Date();
-    const claimed = extra.patch?.claimAmountEur ?? row.claimAmountEur ?? record.claim?.amountEur ?? null;
+    // With a claim plan (primary + secondary), "claimed" is the whole plan, so recovery % compares like with like.
+    const planTotal = record.claimPlan?.length ? record.claimPlan.reduce((sum, p) => sum + p.amountEur, 0) : null;
+    const claimed = planTotal ?? extra.patch?.claimAmountEur ?? row.claimAmountEur ?? record.claim?.amountEur ?? null;
     let recovered = extra.patch?.recoveredEur ?? row.recoveredEur ?? null;
     if (to === "closed_recovered" && recovered == null) recovered = claimed;
     const payer = (record.claim?.route ?? row.recommendedRoute ?? null) as RecoveryRoute | null;

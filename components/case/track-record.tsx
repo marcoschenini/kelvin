@@ -28,7 +28,7 @@ export function TrackRecord({ rows }: { rows: InboxKpis["trackRecord"] }) {
                 <TableCell>
                   <RouteChip route={r.payer} />
                 </TableCell>
-                <TableCell className="num text-right">{r.claims}</TableCell>
+                <TableCell className="num text-right">{r.cases}</TableCell>
                 <TableCell className="num text-right font-medium">{formatEUR(r.recoveredEur)}</TableCell>
                 <TableCell className="num text-right">{r.recoveryPct != null ? `${Math.round(r.recoveryPct)}%` : "—"}</TableCell>
               </TableRow>

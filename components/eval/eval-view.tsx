@@ -138,6 +138,11 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
             <span>
               Protective notices <span className="num font-semibold text-foreground">{pct(s.noticeAccuracy)}</span>
             </span>
+            {s.qaAgentAccuracy != null && (
+              <span>
+                Quality agent <span className="num font-semibold text-foreground">{pct(s.qaAgentAccuracy)}</span>
+              </span>
+            )}
           </div>
         </>
       )}
