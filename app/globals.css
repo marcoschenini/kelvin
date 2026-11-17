@@ -315,6 +315,21 @@
   .eyebrow {
     @apply text-[11px] font-semibold tracking-[0.08em] uppercase;
   }
+  /* A live agent step entering the timeline: short fade and rise (CSS, so it also runs in background tabs) */
+  .kelvin-step-in {
+    animation: kelvin-step-in 220ms cubic-bezier(0.2, 0, 0, 1) both;
+  }
+}
+
+@keyframes kelvin-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

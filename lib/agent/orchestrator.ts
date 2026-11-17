@@ -32,6 +32,11 @@ export interface RunOptions {
   onEvent?: (e: AgentEvent) => void;
   /** Write a recording (default true) */
   record?: boolean;
+  /**
+   * Deterministic mode only: wait this long before each tool call, so people can
+   * follow the steps on screen. The tool durations shown stay the real ones.
+   */
+  paceMs?: number;
 }
 
 export interface RunResult {
@@ -154,7 +159,10 @@ export async function runAgent(opts: RunOptions): Promise<RunResult> {
     rules,
     emit: (e) => emit(e),
     nextSeq: () => ++seq,
-    beforeStep: () => flushNarration(),
+    beforeStep: async () => {
+      await flushNarration();
+      if (!handle && opts.paceMs) await new Promise((r) => setTimeout(r, opts.paceMs));
+    },
   };
   const say = (text: string) => {
     narration += `${text} `;

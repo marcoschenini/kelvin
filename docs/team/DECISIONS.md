@@ -2,6 +2,12 @@
 
 Lasting choices about how Kelvin is built. Newest first. Format: date — decision — reason.
 
+## 2026-11-17 — The agent is visible while it works
+
+- **While a run is going, its steps stream live under the case header** (tool, what Kelvin found, cited sources, narration), with a step count, a timer and the mode. When it ends, one line stays ("Investigation and claim finished · 17 steps in 13 s"), with "Show steps". The history stays in "Analysis details & audit trail". — The brief's core flow is "watch the agent work", and the course is about agents: the output-first page hid the agent entirely (Marco's call, 17 Nov).
+- **Deterministic runs from the UI are paced: 600 ms before each tool call** (`KELVIN_STEP_PACE_MS`, 0 = off). The real tool durations are still the ones shown. — Unpaced, the planner finishes in about 1 s and nothing can be followed; tests and the eval call `runAgent` directly and stay unpaced.
+- **A run cannot be started twice from one page** (synchronous guard in `AgentRunProvider`); a run refused because Kelvin is already working on the case is an info toast, not "Analysis stopped".
+
 ## 2026-11-17 — Visual identity
 
 - **Kelvin red `#B3122E` as the single accent, navy `#0E1B33` ink, Source Serif 4 + Inter, light by default.** — The look of a big pharma company without copying a real company's brand on a public site.

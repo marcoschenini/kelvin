@@ -2,6 +2,12 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-17 — Visible agent
+
+- **Request (Marco):** after a full walkthrough for the demo, make the agent visible while it works (the output-first page showed only "Analysis in progress…", and deterministic runs took ~1 s).
+- **Chief (Marco's session):** live step panel under the case header (`analysis-status.tsx`), finished-run summary with "Show steps", title follows the phase (investigation → claim), pacing for deterministic UI runs (`paceMs` in `runAgent`, `KELVIN_STEP_PACE_MS`), start guard against the double run that produced a false "Analysis stopped" toast. Checked in the browser at 1280 px on cases B and C (local data). Gate: lint ✓, typecheck ✓, 129/129 tests ✓, build ✓.
+- **qa-reviewer (Opus): FAIL → fixed.** Major: a run refused because Kelvin was already working showed a red "stopped" summary; the route now sends `reason: "busy"` and the page shows a neutral info toast. Minor, fixed: closing narration kept in "Show steps"; a stream that ends without `run_finished` shows as stopped, not finished; reduced motion (`motion-safe:animate-ping`, no smooth scroll); title switches at the claim phase's first `rank_routes`; toggle resets per run; valid `<ol>` markup, `aria-controls`, live region mounted from the start; `KELVIN_STEP_PACE_MS` capped at 5 s. Left as is: deterministic UI runs record paced timings in `demo/recordings` (note for M7 Replay); no abort on `streamRun` when leaving the page (pre-existing). Re-checked in the browser; gate green.
+
 ## 2026-11-17 — Pharma redesign
 
 - **Request (Vito):** less "Claude", richer institutional pharma look ("like Eli Lilly"), design system out of the workspace, agent mechanics hidden behind the output.
