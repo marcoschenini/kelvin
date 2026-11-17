@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     "pdfjs-dist",
     "ai",
     "@ai-sdk/anthropic",
+    "@ai-sdk/groq",
     "@ai-sdk/gateway",
     "@vercel/oidc",
     "@openrouter/ai-sdk-provider",

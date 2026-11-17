@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.140",
+    "@ai-sdk/groq": "^3.0.83",
     "@base-ui/react": "^1.9.0",
     "@electric-sql/pglite": "^0.5.15",
     "@openrouter/ai-sdk-provider": "^2.10.0",
