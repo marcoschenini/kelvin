@@ -23,4 +23,21 @@ export const CHAT_TOOL_LABEL: Record<string, string> = {
   next_action: "Checking what is pending",
   list_documents: "Listing the documents",
   what_if: "Re-running the rules with your changes",
+  portfolio_overview: "Looking at all cases",
+  pending_actions: "Checking what is waiting on people",
+  upcoming_deadlines: "Checking deadlines across cases",
+  ask_about_case: "Reading the case",
 };
+
+/** Questions for "All cases" on the Ask Kelvin page, naming the demo cases that exist. */
+export function portfolioSuggestions(codes: string[]): string[] {
+  const has = (c: string) => codes.includes(c);
+  return [
+    "Which cases need my attention?",
+    "How much is at stake?",
+    "What deadlines are coming up?",
+    ...(has("B") ? ["Why does case B go to the insurer?", "What if case B had a declared value of €200,000?"] : []),
+    ...(has("C") ? ["Summarize case C"] : []),
+    ...(has("A") ? ["Why is there no claim on case A?"] : []),
+  ];
+}

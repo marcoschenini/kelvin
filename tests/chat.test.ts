@@ -248,3 +248,47 @@ describe("chat route", () => {
     expect(ev.at(-1)).toEqual({ type: "done", mode: "rules", fallback: "the free AI quota is used up for now" });
   });
 });
+
+/* --------------------------------------------------------------- all cases */
+
+describe("Ask Kelvin across all cases", () => {
+  const portfolio = async () => {
+    const p = await import("@/lib/chat/portfolio");
+    return { p, ctx: await p.loadPortfolio(db, NOW) };
+  };
+
+  it("gives an overview and what is waiting on people", async () => {
+    const { p, ctx } = await portfolio();
+    expect(ctx.cases.map((c) => c.code)).toEqual(["A", "B", "C"]);
+    const o = p.overview(ctx).text;
+    expect(o).toContain("**Case B** (RB-24093)");
+    expect(o).toMatch(/no claim/);
+    const w = p.pending(ctx).text;
+    expect(w).toMatch(/wait for the claims manager's approval/);
+    expect(w).toContain("Case C");
+  });
+
+  it("answers about a case named in the question, without per-case source ids", async () => {
+    const { p, ctx } = await portfolio();
+    const a = await p.portfolioBuiltIn(db, ctx, "Why does case B go to the insurer?");
+    expect(a.text).toContain("**Case B**");
+    expect(a.text).toContain("€190,000");
+    expect(a.text).not.toMatch(/\[S\d+\]/);
+    const w = await p.portfolioBuiltIn(db, ctx, "What if case B had a declared value of €200,000?");
+    expect(w.text).toContain("Carrier: €200,000");
+    const it = await p.portfolioBuiltIn(db, ctx, "Riassumi il caso C");
+    expect(it.text).toContain("**Case C**");
+    expect(it.text).toContain("€350,000");
+  });
+
+  it("serves the all-cases chat route with built-in answers when there is no AI key", async () => {
+    const { POST } = await import("@/app/api/chat/route");
+    const res = await POST(new Request("http://test/api/chat", { method: "POST", body: JSON.stringify({ messages: [{ role: "user", content: "Which cases need my attention?" }] }) }));
+    expect(res.status).toBe(200);
+    const ev = (await res.text()).trim().split("\n").map((l) => JSON.parse(l) as ChatEvent);
+    expect(ev[0]).toEqual({ type: "meta", mode: "rules", model: null });
+    expect(ev.filter((e) => e.type === "text").map((e) => (e as { delta: string }).delta).join("")).toMatch(/approval/);
+    expect(ev.at(-1)).toEqual({ type: "done", mode: "rules" });
+    expect((await POST(new Request("http://test/api/chat", { method: "POST", body: JSON.stringify({ messages: [] }) }))).status).toBe(400);
+  });
+});

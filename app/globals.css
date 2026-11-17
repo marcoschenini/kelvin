@@ -49,6 +49,8 @@
   --color-brand-hover: var(--brand-hover);
   --color-brand-fg: var(--brand-fg);
   --color-brand-soft: var(--brand-soft);
+  --color-mascot: var(--mascot);
+  --color-mascot-ink: var(--mascot-ink);
 
   /* Kelvin semantic colours */
   --color-ai-from: var(--ai-from);
@@ -137,6 +139,9 @@
   --brand-hover: #8e0e24;
   --brand-fg: #b3122e;
   --brand-soft: #fbeaed;
+  /* Ratel, the mascot: cream engraving lines on a navy badge, in both themes */
+  --mascot: #0e1b33;
+  --mascot-ink: #ecefea;
 
   --ai-from: #1b2f57;
   --ai-to: #1b2f57;
@@ -212,6 +217,8 @@
   --brand-hover: #d63a55;
   --brand-fg: #f2879a;
   --brand-soft: #2a1520;
+  --mascot: #1a2a4a;
+  --mascot-ink: #ecefea;
 
   --ai-from: #a9bce0;
   --ai-to: #a9bce0;

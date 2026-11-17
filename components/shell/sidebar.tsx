@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { FilePlus2, FlaskConical, Globe2, Inbox, Menu, Scale, Settings2, type LucideIcon } from "lucide-react";
+import { FilePlus2, FlaskConical, Globe2, Inbox, Menu, MessageSquareText, Scale, Settings2, type LucideIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { KelvinLogo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,7 @@ const SECTIONS: { label: string; items: NavItem[] }[] = [
       { href: "/", label: "Live shipments", icon: Globe2, match: (p) => p === "/" },
       { href: "/cases", label: "Cases", icon: Inbox, match: (p) => p.startsWith("/cases") && p !== "/cases/new" },
       { href: "/cases/new", label: "New case", icon: FilePlus2, match: (p) => p === "/cases/new" },
+      { href: "/ask", label: "Ask Kelvin", icon: MessageSquareText, match: (p) => p.startsWith("/ask") },
     ],
   },
   {

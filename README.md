@@ -92,6 +92,8 @@ Every case has an **Ask Kelvin** button. It answers questions about that case (w
 - **Without a key** it uses built-in answers computed from the case record (`lib/chat/answers.ts`), with questions matched in English or Italian (`lib/chat/intents.ts`). No AI, no cost, always available.
 - **With `GROQ_API_KEY`** (free at console.groq.com) a language model answers free-form questions, calling read-only tools that return those same built-in answers (`lib/chat/llm.ts`). If the model fails or the free quota runs out before it writes anything, the chat falls back to the built-in answer and says so.
 - Answers cite sources as [S#]; only ids from the case's citation registry become clickable chips.
+- **Ask Kelvin page** (`/ask`, in the sidebar): pick **All cases** (what needs attention, what is at stake, upcoming deadlines, and questions about a case by name, e.g. "why does case B go to the insurer?") or one case. The case panel's expand button opens the same case there (`/ask?case=demo-b`). Same modes and fallback (`app/api/chat`, `lib/chat/portfolio.ts`).
+- **Ratel**, the mascot, sits in the chat header and next to each answer, and thinks (paw on chin) while Kelvin answers.
 
 ## Stack
 
