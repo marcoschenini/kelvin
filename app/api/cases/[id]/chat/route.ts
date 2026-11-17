@@ -35,7 +35,8 @@ const Body = z.object({
 function citedSources(ctx: ChatContext, text: string, allowed?: Set<string>): Record<string, Citation> {
   const reg = ctx.record.citations ?? {};
   const items: Record<string, Citation> = {};
-  for (const m of text.matchAll(/\[(S\d+)\]/g)) if (reg[m[1]] && (!allowed || allowed.has(m[1]))) items[m[1]] = reg[m[1]];
+  // Some models write 【S3】 (wide brackets) instead of [S3]: accept both.
+  for (const m of text.matchAll(/[[【](S\d+)[\]】]/g)) if (reg[m[1]] && (!allowed || allowed.has(m[1]))) items[m[1]] = reg[m[1]];
   return items;
 }
 
