@@ -89,7 +89,7 @@ export function deriveRecommendation({
       return {
         verdict: { label: "No claim", tone: "success" },
         headline: "Case closed: no claim",
-        rationale: "The product stayed within its stability allowance, so there is no loss to recover.",
+        rationale: record.closingNote ?? "The product stayed within its stability allowance, so there is no loss to recover.",
         amount: { label: "To recover", value: 0, tone: "success", parts: [], note: valueEur != null ? `Shipment value ${formatEUR(valueEur)} preserved` : null },
         quality,
         ready: true,
