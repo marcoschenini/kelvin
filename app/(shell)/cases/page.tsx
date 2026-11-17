@@ -18,7 +18,7 @@ async function InboxContent() {
   const k = computeKpis(items);
   return (
     <>
-      <section aria-label="Key figures" className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+      <section aria-label="Key figures" className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border xl:grid-cols-3 [&>div]:rounded-none [&>div]:border-0">
         <KpiTile
           label="Open cases"
           value={k.openCases}
@@ -42,7 +42,7 @@ async function InboxContent() {
           icon={AlarmClock}
           tone="danger"
           hint="Notice due in under 3 days"
-          emphasis={k.deadlinesAtRisk > 0 ? "danger" : undefined}
+          emphasis={k.deadlinesAtRisk > 0 ? "warning" : undefined}
         />
         <KpiTile label="Recovery rate" value={k.recoveryRatePct} format="pct" icon={Percent} tone="success" hint="Recovered of claimed, closed cases" />
         <KpiTile label="Avg days to close" value={k.avgDaysToClose} format="days" icon={CalendarCheck} tone="cold" hint="From alert to closing" />
@@ -71,9 +71,9 @@ async function InboxContent() {
 function InboxSkeleton() {
   return (
     <>
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border xl:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-border bg-card p-5 shadow-card">
+          <div key={i} className="bg-card p-5">
             <Skeleton className="h-3.5 w-24" />
             <Skeleton className="mt-4 h-7 w-28" />
             <Skeleton className="mt-3 h-3 w-32" />
@@ -91,6 +91,7 @@ export default function CasesInboxPage() {
   return (
     <PageContainer className="flex flex-col gap-8">
       <PageHeader
+        eyebrow="Claims operations"
         title="Cases"
         description="Temperature excursions from alert to recovered money."
         actions={

@@ -81,7 +81,7 @@ export function AgentRunProvider({
         toast(`Status: ${e.to.replace(/_/g, " ")}`, { description: e.reason });
         break;
       case "run_finished":
-        if (e.status === "failed") toast.error("Agent stopped", { description: e.error });
+        if (e.status === "failed") toast.error("Analysis stopped", { description: e.error });
         break;
     }
   }, []);
@@ -97,7 +97,7 @@ export function AgentRunProvider({
         try {
           for await (const e of streamRun(caseId, kind)) apply(e);
         } catch (err) {
-          toast.error("Agent run failed", { description: err instanceof Error ? err.message : String(err) });
+          toast.error("Analysis failed", { description: err instanceof Error ? err.message : String(err) });
         } finally {
           setRunning(null);
           setSteps([]);

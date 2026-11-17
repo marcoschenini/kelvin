@@ -68,11 +68,11 @@ export function UploadDropzone() {
           add(e.dataTransfer.files);
         }}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-          over ? "border-ai-from bg-ai-soft" : "border-border bg-card hover:border-ai-from/40 hover:bg-ai-soft/40",
+          "flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-6 py-12 text-center transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+          over ? "border-ai-fg bg-ai-soft" : "border-input bg-card hover:border-ai-fg/40 hover:bg-muted/60",
         )}
       >
-        <span className={cn("grid size-12 place-items-center rounded-xl transition-colors", over ? "bg-ai text-white" : "bg-ai-soft text-ai-fg")}>
+        <span className={cn("grid size-12 place-items-center rounded-md border border-border bg-card transition-colors", over ? "text-ai-fg" : "text-muted-foreground")}>
           <UploadCloud className="size-6" aria-hidden="true" />
         </span>
         <p className="mt-4 text-[15px] font-semibold">Drop the case files here</p>
@@ -98,7 +98,7 @@ export function UploadDropzone() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.18 }}
-            className="rounded-2xl border border-border bg-card p-2 shadow-card"
+            className="rounded-xl border border-border bg-card p-2"
           >
             <ul className="divide-y divide-border">
               {files.map((f) => {

@@ -110,7 +110,7 @@ function Detail({ s, now, onClose }: { s: LiveState; now: number; onClose: () =>
         </button>
       </div>
 
-      <div className="rounded-xl border border-border p-3">
+      <div className="rounded-lg border border-border p-3">
         <div className="flex items-center gap-2 text-sm">
           <span className="grid size-7 place-items-center rounded-lg text-white" style={{ background: CUSTODY_META[s.leg.role].colorVar }}>
             <LegIcon s={s} className="size-3.5" />
@@ -122,8 +122,8 @@ function Detail({ s, now, onClose }: { s: LiveState; now: number; onClose: () =>
             </span>
           </span>
         </div>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
-          <div className="bg-ai h-full rounded-full" style={{ width: `${Math.round(s.progress * 100)}%` }} />
+        <div className="mt-3 h-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+          <div className="h-full rounded-full bg-ai" style={{ width: `${Math.round(s.progress * 100)}%` }} />
         </div>
         <div className="num mt-1.5 flex justify-between text-[11px] text-muted-foreground">
           <span>{Math.round(s.progress * 100)}% of trip</span>
@@ -131,7 +131,7 @@ function Detail({ s, now, onClose }: { s: LiveState; now: number; onClose: () =>
         </div>
       </div>
 
-      <div className="rounded-xl border border-border p-3">
+      <div className="rounded-lg border border-border p-3">
         <div className="flex items-end justify-between">
           <div>
             <div className="text-xs text-muted-foreground">Logger now</div>
@@ -238,26 +238,21 @@ export function LiveMap() {
   const routes = useMemo(() => (sel ? routePath(sel.ship) : []), [sel]);
 
   const kpis: { label: string; value: string; icon: LucideIcon; tone: string }[] = [
-    { label: "In transit", value: String(counts.all), icon: Boxes, tone: "bg-ai-soft text-ai-fg" },
-    { label: "Value in transit", value: formatEURCompact(value), icon: Euro, tone: "bg-muted text-muted-foreground" },
-    { label: "In range", value: String(counts.in_range), icon: Gauge, tone: "bg-success-soft text-success" },
-    { label: "At risk", value: String(counts.at_risk), icon: Thermometer, tone: "bg-warning-soft text-warning" },
-    { label: "Excursions", value: String(counts.excursion), icon: ShieldAlert, tone: "bg-warning-soft text-warning" },
+    { label: "In transit", value: String(counts.all), icon: Boxes, tone: "text-foreground" },
+    { label: "Value in transit", value: formatEURCompact(value), icon: Euro, tone: "text-foreground" },
+    { label: "In range", value: String(counts.in_range), icon: Gauge, tone: "text-success-fg" },
+    { label: "At risk", value: String(counts.at_risk), icon: Thermometer, tone: "text-warning-fg" },
+    { label: "Excursions", value: String(counts.excursion), icon: ShieldAlert, tone: "text-warning-fg" },
   ];
 
   return (
     <div className="flex flex-col gap-4">
       {/* KPIs */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3 lg:grid-cols-5">
         {kpis.map((kp) => (
-          <div key={kp.label} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-card">
-            <span className={cn("grid size-9 shrink-0 place-items-center rounded-lg", kp.tone)}>
-              <kp.icon className="size-4" aria-hidden="true" />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-xs text-muted-foreground">{kp.label}</span>
-              <span className="num block text-lg leading-tight font-semibold">{mounted ? kp.value : "–"}</span>
-            </span>
+          <div key={kp.label} className="flex flex-col bg-card px-5 pt-4 pb-4">
+            <span className="eyebrow text-muted-foreground">{kp.label}</span>
+            <span className={cn("figure mt-2.5 block text-[1.875rem] leading-none font-semibold", kp.tone)}>{mounted ? kp.value : "–"}</span>
           </div>
         ))}
       </div>
@@ -309,7 +304,7 @@ export function LiveMap() {
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
         {/* Map */}
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+        <div className="relative overflow-hidden rounded-xl border border-border bg-card">
           <div className="relative" style={{ aspectRatio: `${W} / ${H}` }}>
             <svg
               className="absolute inset-0 size-full"

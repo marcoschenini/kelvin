@@ -28,10 +28,10 @@ export function CitationChip({
   const Icon = ICONS[citation.kind];
   const assumption = citation.kind === "assumption";
   const classes = cn(
-    "inline-flex h-6 max-w-full items-center gap-1 rounded-md px-1.5 text-[11px] font-medium whitespace-nowrap transition-colors",
+    "inline-flex h-6 max-w-full items-center gap-1 rounded-sm px-1.5 text-[11px] font-medium whitespace-nowrap transition-colors",
     assumption
       ? "border border-dashed border-warning/60 bg-warning-soft text-warning-fg"
-      : "border border-border bg-card text-foreground/80 hover:border-ai-from/40 hover:bg-ai-soft hover:text-ai-fg",
+      : "border border-border bg-card text-foreground/80 hover:border-ai-fg/40 hover:bg-ai-soft hover:text-ai-fg",
     onOpen && "cursor-pointer focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
     className,
   );

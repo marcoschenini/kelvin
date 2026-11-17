@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { Bot, Database, RotateCcw, Scale } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/shell/page-header";
 import { ResetDemoButton } from "@/components/settings/reset-demo";
 import { RulesForm } from "@/components/settings/rules-form";
-import { SectionHeader } from "@/components/kit/surfaces";
+import { ThemeToggle } from "@/components/shell/theme";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { dbMode, getDb } from "@/lib/db/client";
 import { storageMode } from "@/lib/storage";
@@ -28,21 +31,21 @@ async function ModelSection() {
   return (
     <dl className="num grid grid-cols-2 gap-4 text-sm lg:grid-cols-4">
       <div>
-        <dt className="text-xs text-muted-foreground">Provider</dt>
-        <dd className="mt-0.5 font-medium">{provider}</dd>
+        <dt className="eyebrow text-[10.5px] text-muted-foreground">Provider</dt>
+        <dd className="mt-1 font-medium">{provider}</dd>
       </div>
       <div>
-        <dt className="text-xs text-muted-foreground">Model</dt>
-        <dd className="mt-0.5 font-mono text-[13px]">{model}</dd>
+        <dt className="eyebrow text-[10.5px] text-muted-foreground">Model</dt>
+        <dd className="mt-1 font-mono text-[13px]">{model}</dd>
       </div>
       <div>
-        <dt className="text-xs text-muted-foreground">Effort</dt>
-        <dd className="mt-0.5 font-medium">{process.env.AI_EFFORT ?? "medium"}</dd>
+        <dt className="eyebrow text-[10.5px] text-muted-foreground">Effort</dt>
+        <dd className="mt-1 font-medium">{process.env.AI_EFFORT ?? "medium"}</dd>
       </div>
       <div>
-        <dt className="text-xs text-muted-foreground">Agent mode</dt>
-        <dd className={live ? "mt-0.5 font-medium text-success-fg" : "mt-0.5 font-medium text-warning-fg"}>
-          {live ? "Live (LLM with tools)" : "Deterministic planner (no API key set)"}
+        <dt className="eyebrow text-[10.5px] text-muted-foreground">Mode</dt>
+        <dd className={live ? "mt-1 font-medium text-success-fg" : "mt-1 font-medium text-warning-fg"}>
+          {live ? "Live model with tools" : "Deterministic planner (no API key set)"}
         </dd>
       </div>
       <p className="col-span-full text-xs text-muted-foreground">
@@ -65,17 +68,17 @@ async function DataSection() {
   return (
     <dl className="num grid grid-cols-2 gap-4 text-sm lg:grid-cols-3">
       <div>
-        <dt className="text-xs text-muted-foreground">Database</dt>
-        <dd className="mt-0.5 font-medium">{hosted ? "Supabase Postgres" : "Embedded Postgres (PGlite)"}</dd>
-        {host ? <dd className="mt-0.5 truncate font-mono text-[12px] text-muted-foreground">{host}</dd> : null}
+        <dt className="eyebrow text-[10.5px] text-muted-foreground">Database</dt>
+        <dd className="mt-1 font-medium">{hosted ? "Supabase Postgres" : "Embedded Postgres (PGlite)"}</dd>
+        {host ? <dd className="mt-1 truncate font-mono text-[12px] text-muted-foreground">{host}</dd> : null}
       </div>
       <div>
-        <dt className="text-xs text-muted-foreground">Documents</dt>
-        <dd className="mt-0.5 font-medium">{files === "supabase" ? `Supabase Storage · ${process.env.SUPABASE_BUCKET || "kelvin-documents"}` : "Files on this server"}</dd>
+        <dt className="eyebrow text-[10.5px] text-muted-foreground">Documents</dt>
+        <dd className="mt-1 font-medium">{files === "supabase" ? `Supabase Storage · ${process.env.SUPABASE_BUCKET || "kelvin-documents"}` : "Files on this server"}</dd>
       </div>
       <div>
-        <dt className="text-xs text-muted-foreground">Sharing</dt>
-        <dd className={hosted && files === "supabase" ? "mt-0.5 font-medium text-success-fg" : "mt-0.5 font-medium text-warning-fg"}>
+        <dt className="eyebrow text-[10.5px] text-muted-foreground">Sharing</dt>
+        <dd className={hosted && files === "supabase" ? "mt-1 font-medium text-success-fg" : "mt-1 font-medium text-warning-fg"}>
           {hosted && files === "supabase" ? "Shared by every instance and developer" : hosted ? "Database shared, documents local" : "This machine only"}
         </dd>
       </div>
@@ -86,40 +89,79 @@ async function DataSection() {
   );
 }
 
+/** One settings row: label column on the left (4 of 12), content on the right (8 of 12). */
+function Row({ id, title, description, children }: { id: string; title: string; description: string; children: React.ReactNode }) {
+  return (
+    <section aria-labelledby={id} className="grid grid-cols-1 gap-5 px-6 py-7 lg:grid-cols-12 lg:gap-8 lg:px-8">
+      <div className="lg:col-span-4">
+        <h2 id={id} className="text-[1.15rem] leading-tight font-semibold">
+          {title}
+        </h2>
+        <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
+      </div>
+      <div className="min-w-0 lg:col-span-8">{children}</div>
+    </section>
+  );
+}
+
+function Group({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <h2 className="eyebrow font-sans text-muted-foreground">{label}</h2>
+      <div className="divide-y divide-border rounded-xl border border-border bg-card">{children}</div>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   return (
-    <PageContainer className="flex flex-col gap-8">
-      <PageHeader title="Settings" description="Model and provider, rules configuration and demo reset." />
+    <PageContainer className="flex flex-col gap-10">
+      <PageHeader eyebrow="Workspace" title="Settings" description="Analysis engine, rules configuration, data, appearance and demo reset." />
 
-      <section className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 shadow-card">
-        <SectionHeader icon={Bot} title="Agent model" description="Configured through environment variables" />
-        <Suspense fallback={<Skeleton className="h-12 w-full" />}>
-          <ModelSection />
-        </Suspense>
-      </section>
+      <Group label="Analysis">
+        <Row id="engine" title="Analysis engine" description="Configured through environment variables.">
+          <Suspense fallback={<Skeleton className="h-12 w-full" />}>
+            <ModelSection />
+          </Suspense>
+        </Row>
+        <Row id="rules" title="Rules" description="Values the rules engine uses for caps and deadlines. Decision support only, not legal advice.">
+          <Suspense fallback={<Skeleton className="h-16 w-full" />}>
+            <RulesSection />
+          </Suspense>
+        </Row>
+      </Group>
 
-      <section className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 shadow-card">
-        <SectionHeader icon={Scale} title="Rules" description="Values the rules engine uses for caps and deadlines. Decision support only, not legal advice." />
-        <Suspense fallback={<Skeleton className="h-16 w-full" />}>
-          <RulesSection />
-        </Suspense>
-      </section>
-
-      <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-card p-6 shadow-card">
-        <SectionHeader
-          icon={RotateCcw}
-          title="Demo reset"
-          description="Re-seeds demo cases A, B and C with dates anchored to today, so deadlines count down correctly on demo day."
-        />
-        <ResetDemoButton />
-      </section>
-
-      <section className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6 shadow-card">
-        <SectionHeader icon={Database} title="Data" description="Where cases, audit trail and documents are stored" />
-        <Suspense fallback={<Skeleton className="h-12 w-full" />}>
-          <DataSection />
-        </Suspense>
-      </section>
+      <Group label="Workspace">
+        <Row id="data" title="Data" description="Where cases, the audit trail and documents are stored.">
+          <Suspense fallback={<Skeleton className="h-12 w-full" />}>
+            <DataSection />
+          </Suspense>
+        </Row>
+        <Row id="appearance" title="Appearance" description="Light theme by default. The dark theme stays available for dim rooms.">
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-border px-4 py-3">
+              <div>
+                <div className="text-sm font-medium">Theme</div>
+                <div className="text-xs text-muted-foreground">Switch between light and dark.</div>
+              </div>
+              <ThemeToggle className="size-9 border border-border" />
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border px-4 py-3">
+              <div>
+                <div className="text-sm font-medium">Design system</div>
+                <div className="text-xs text-muted-foreground">Colours, type, components and the status vocabulary used across Kelvin.</div>
+              </div>
+              <Link href="/design" className={cn(buttonVariants({ variant: "outline" }))}>
+                Open design system
+                <ArrowRight data-icon="inline-end" />
+              </Link>
+            </div>
+          </div>
+        </Row>
+        <Row id="demo" title="Demo reset" description="Re-seeds demo cases A, B and C with dates anchored to today, so deadlines count down correctly on demo day.">
+          <ResetDemoButton />
+        </Row>
+      </Group>
     </PageContainer>
   );
 }

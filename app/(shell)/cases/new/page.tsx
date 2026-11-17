@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Sparkles } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/shell/page-header";
 import { DemoCaseCards, type DemoCaseSummary } from "@/components/case/demo-case-cards";
 import { UploadDropzone } from "@/components/case/upload-dropzone";
@@ -28,24 +27,27 @@ export default function NewCasePage() {
   return (
     <PageContainer className="flex flex-col gap-10">
       <PageHeader
+        eyebrow="Claims operations"
         title="New case"
-        description="Upload the shipment files or load a demo case. The agent starts on its own."
+        description="Upload the shipment files or load a demo case. The analysis starts automatically."
       />
 
       <section aria-labelledby="upload-heading" className="flex flex-col gap-3">
-        <h2 id="upload-heading" className="text-[15px] font-semibold">
-          Upload files
-        </h2>
+        <div>
+          <h2 id="upload-heading" className="text-[1.2rem] font-semibold">
+            Upload files
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">Logger CSV, air waybill, contract, policy and invoice.</p>
+        </div>
         <UploadDropzone />
       </section>
 
       <section id="demo" aria-labelledby="demo-heading" className="flex scroll-mt-8 flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <Sparkles className="size-4 text-ai-fg" aria-hidden="true" />
-          <h2 id="demo-heading" className="text-[15px] font-semibold">
+        <div>
+          <h2 id="demo-heading" className="text-[1.2rem] font-semibold">
             Demo cases
           </h2>
-          <span className="text-sm text-muted-foreground">Synthetic shipments with full document sets. Loading resets the case.</span>
+          <p className="mt-1 text-sm text-muted-foreground">Synthetic shipments with full document sets. Loading resets the case.</p>
         </div>
         <DemoCaseCards cases={DEMOS} />
       </section>

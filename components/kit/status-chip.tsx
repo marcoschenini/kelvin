@@ -16,21 +16,17 @@ export function StatusChip({
 }) {
   const meta = STATUS_META[status];
   const tone = TONE_CHIP[meta.tone];
-  const pulsing = status === "investigating";
   return (
     <span
       className={cn(
-        "relative inline-flex items-center gap-1.5 rounded-full font-medium whitespace-nowrap ring-1 ring-inset",
+        "relative inline-flex items-center gap-1.5 rounded-md font-medium whitespace-nowrap ring-1 ring-inset",
         size === "sm" ? "h-5 px-2 text-[11px]" : "h-6 px-2.5 text-xs",
         tone.chip,
         className,
       )}
       title={meta.description}
     >
-      <span className="relative flex size-1.5">
-        {pulsing && <span className={cn("absolute inset-0 animate-ping rounded-full opacity-60", tone.dot)} />}
-        <span className={cn("relative size-1.5 rounded-full", tone.dot)} />
-      </span>
+      <span className={cn("size-1.5 shrink-0 rounded-full", tone.dot)} aria-hidden="true" />
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
           key={status}

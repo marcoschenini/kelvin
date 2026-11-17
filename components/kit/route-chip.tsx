@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { ROUTE_META, type RecoveryRoute } from "@/lib/domain/parties";
 import { ROUTE_ICON } from "./party-icons";
 
-/** "Insurer" with its icon; `recommended` adds the AI gradient ring. */
+/** "Insurer" with its icon; `recommended` uses the navy outline. */
 export function RouteChip({
   route,
   recommended,
@@ -19,7 +19,7 @@ export function RouteChip({
     <span
       className={cn(
         "inline-flex h-6 items-center gap-1.5 rounded-md px-2 text-xs font-medium",
-        recommended ? "border-ai text-ai-fg" : "border border-border bg-card text-foreground/80",
+        recommended ? "border border-ai-fg/35 bg-card text-ai-fg" : "border border-border bg-card text-foreground/80",
         className,
       )}
       title={meta.long}

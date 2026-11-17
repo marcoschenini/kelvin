@@ -1,6 +1,6 @@
 import { CircleCheck, CircleHelp, ShieldAlert, UserRound } from "lucide-react";
 import { OpenableCitation } from "@/components/documents/citation-viewer";
-import { AiBadge, HumanDecisionBadge } from "@/components/kit/badges";
+import { HumanDecisionBadge } from "@/components/kit/badges";
 import { SectionHeader } from "@/components/kit/surfaces";
 import type { Citation } from "@/lib/domain/citation";
 import { formatDateTime, formatDuration, formatTemp } from "@/lib/format";
@@ -10,15 +10,15 @@ import { cn } from "@/lib/utils";
 const VERDICT: Record<QaVerdict, { label: string; summary: string; chip: string; Icon: typeof CircleCheck }> = {
   usable: { label: "Usable", summary: "Within the stability allowance: no claim.", chip: "bg-success-soft text-success-fg ring-success/20", Icon: CircleCheck },
   damaged: { label: "Damaged", summary: "Beyond the stability allowance: claim path.", chip: "bg-warning-soft text-warning-fg ring-warning/25", Icon: ShieldAlert },
-  unsure: { label: "Unsure", summary: "Too close to the limit to call. A human QA decides.", chip: "bg-human-soft text-human-fg ring-human/20", Icon: CircleHelp },
+  unsure: { label: "Needs QA review", summary: "Too close to the limit to call. Quality Assurance decides.", chip: "bg-card text-human-fg ring-human/45", Icon: CircleHelp },
 };
 
 function Compare({ label, measured, allowed, over }: { label: string; measured: string; allowed: string; over: boolean | null }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="mt-1 flex items-baseline justify-between gap-3">
-        <span className="num text-lg font-semibold">{measured}</span>
+    <div className="rounded-lg border border-border bg-card p-4">
+      <div className="eyebrow text-[10.5px] text-muted-foreground">{label}</div>
+      <div className="mt-1.5 flex items-baseline justify-between gap-3">
+        <span className="figure text-[1.5rem] leading-tight font-semibold">{measured}</span>
         <span className="num text-xs text-muted-foreground">allowed {allowed}</span>
       </div>
       {over != null && <div className={cn("mt-1 text-[11px] font-medium", over ? "text-warning-fg" : "text-success-fg")}>{over ? "Above the allowance" : "Within the allowance"}</div>}
@@ -27,8 +27,8 @@ function Compare({ label, measured, allowed, over }: { label: string; measured: 
 }
 
 /**
- * What the quality agent decided and why, with the manufacturer's allowance next
- * to the measured excursion. AI styling for the agent, violet for the human gate.
+ * The quality assessment and its reasoning, with the manufacturer's allowance next
+ * to the measured excursion. Navy outline for the human gate.
  */
 export function QaDecisionCard({
   assessment,
@@ -45,16 +45,15 @@ export function QaDecisionCard({
   const v = VERDICT[assessment.verdict];
   const a = assessment.allowance;
   return (
-    <section aria-label="Quality decision" className={cn("min-w-0 rounded-2xl border border-border bg-card p-4 shadow-card sm:p-5", className)}>
-      <SectionHeader title="Quality decision" description="The quality agent compares the excursion with the product's stability allowance" icon={ShieldAlert} />
-      <div className="mt-4 flex flex-col gap-4">
+    <section aria-label="Quality assessment" className={cn("min-w-0 rounded-xl border border-border bg-card p-5 sm:p-7", className)}>
+      <SectionHeader eyebrow="Quality" title="Quality assessment" description="The excursion compared with the product's stability allowance" />
+      <div className="mt-5 flex flex-col gap-5">
         <div className="flex flex-wrap items-center gap-3">
-          <span className={cn("inline-flex h-7 items-center gap-1.5 rounded-full px-3 text-sm font-semibold ring-1 ring-inset", v.chip)}>
+          <span className={cn("inline-flex h-7 items-center gap-1.5 rounded-md px-2.5 text-sm font-semibold ring-1 ring-inset", v.chip)}>
             <v.Icon className="size-4" aria-hidden="true" />
             {v.label}
           </span>
           <span className="text-sm text-muted-foreground">{v.summary}</span>
-          <AiBadge label="Quality agent" className="ml-auto" />
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -71,30 +70,30 @@ export function QaDecisionCard({
             over={a ? assessment.minutesOutOfRange > a.maxMinutesOutOfRange : null}
           />
         </div>
-        {!a && <p className="text-xs text-muted-foreground">No stability data was found for this product, so the agent cannot clear it.</p>}
+        {!a && <p className="text-xs text-muted-foreground">No stability data was found for this product, so it cannot be cleared automatically.</p>}
 
         <ul className="flex flex-col gap-1.5 text-sm">
           {assessment.reasons.map((r) => (
             <li key={r} className="flex gap-2">
-              <span className="bg-ai mt-2 size-1.5 shrink-0 rounded-full" aria-hidden="true" />
+              <span className="mt-2 size-1 shrink-0 rounded-full bg-foreground/50" aria-hidden="true" />
               {r}
             </li>
           ))}
         </ul>
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          <span className="num">Decided {formatDateTime(assessment.at)} UTC</span>
+          <span className="num">Assessed {formatDateTime(assessment.at)} UTC</span>
           {citation && <OpenableCitation citation={citation} />}
         </div>
 
         {assessment.verdict === "unsure" && (
-          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-human/20 bg-human-soft/60 p-3 text-sm">
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-human-soft p-3 text-sm">
             <UserRound className="size-4 text-human" aria-hidden="true" />
             <span className="min-w-0 flex-1">
               {humanQa ? (
                 <>Human QA decided: <span className="font-medium">{humanQa === "released" ? "product released" : "batch rejected"}</span>.</>
               ) : (
-                <>Waiting for Quality Assurance. Use the Released / Rejected buttons in the side panel.</>
+                <>Waiting for Quality Assurance. The decision is taken in the Recommendation panel above.</>
               )}
             </span>
             <HumanDecisionBadge label="QA decision" />

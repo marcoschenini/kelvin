@@ -45,6 +45,7 @@ export default function EvalPage() {
   return (
     <PageContainer className="flex flex-col gap-8">
       <PageHeader
+        eyebrow="Quality"
         title="Evaluation"
         description="24 synthetic shipments with hand-written answer keys: does Kelvin pick the right payer, the right deadlines, and cite its sources?"
       />

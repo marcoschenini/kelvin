@@ -7,13 +7,13 @@
 /*
  * Kelvin design tokens
  * --------------------
- * Cold, precise, calm. Off-white canvas, white cards, slate text, hairline borders.
- * Semantic colours follow the agent-schema diagram:
- *   AI         indigo -> sky gradient
+ * Institutional, precise, calm. White canvas, navy ink, hairline rules, one accent.
+ *   brand      Kelvin red #B3122E: primary actions, active navigation, key figures, the mark
+ *   ai         navy #1B2F57: analysis and secondary emphasis (token name kept for compatibility)
  *   success    green   (no claim / recovered)
  *   warning    amber   (possible claim / at risk)
- *   danger     red     (overdue only)
- *   human      violet  (human decisions)
+ *   danger     dark red #7A0C1E, overdue only, always with an icon and the word "Overdue"
+ *   human      navy outline (human decisions)
  * Each semantic colour has a fill (icons, bars), a *-fg (AA-contrast text) and a *-soft (tinted surface).
  */
 
@@ -21,7 +21,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-source-serif), "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4", Georgia, "Times New Roman", serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
   --color-card: var(--card);
@@ -41,6 +42,13 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-subtle: var(--subtle);
+  --color-paper: var(--paper);
+
+  /* Brand accent */
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-soft: var(--brand-soft);
 
   /* Kelvin semantic colours */
   --color-ai-from: var(--ai-from);
@@ -85,14 +93,14 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* 10px base -> lg 10px (controls), xl 14px (cards), 2xl 18px (hero surfaces) */
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  /* 6px on controls (lg), 10px on cards (xl / 2xl) */
+  --radius-sm: 4px;
+  --radius-md: 5px;
+  --radius-lg: 6px;
+  --radius-xl: 10px;
+  --radius-2xl: 10px;
+  --radius-3xl: 12px;
+  --radius-4xl: 14px;
 
   --shadow-card: var(--shadow-card);
   --shadow-raised: var(--shadow-raised);
@@ -102,140 +110,153 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.375rem;
 
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #ffffff;
+  --foreground: #0e1b33;
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #0e1b33;
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #4f46e5;
+  --popover-foreground: #0e1b33;
+  --paper: #ffffff;
+  --primary: #b3122e;
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --subtle: #94a3b8;
-  --accent: #eef2ff;
-  --accent-foreground: #3730a3;
-  --destructive: #dc2626;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #6366f1;
+  --secondary: #f6f7f9;
+  --secondary-foreground: #0e1b33;
+  --muted: #f6f7f9;
+  --muted-foreground: #5b6577;
+  --subtle: #626b7c;
+  --accent: #eef1f6;
+  --accent-foreground: #0e1b33;
+  --destructive: #7a0c1e;
+  --border: #e3e6eb;
+  --input: #d3d8e0;
+  --ring: #1b2f57;
 
-  --ai-from: #4f46e5;
-  --ai-to: #0ea5e9;
-  --ai-soft: #eef2ff;
-  --ai-fg: #4338ca;
-  --success: #16a34a;
-  --success-fg: #15803d;
-  --success-soft: #f0fdf4;
-  --warning: #d97706;
-  --warning-fg: #b45309;
-  --warning-soft: #fffbeb;
-  --danger: #dc2626;
-  --danger-fg: #b91c1c;
-  --danger-soft: #fef2f2;
-  --human: #7c3aed;
-  --human-fg: #6d28d9;
-  --human-soft: #f5f3ff;
-  --cold: #0ea5e9;
-  --cold-soft: #e0f2fe;
+  --brand: #b3122e;
+  --brand-hover: #8e0e24;
+  --brand-fg: #b3122e;
+  --brand-soft: #fbeaed;
+
+  --ai-from: #1b2f57;
+  --ai-to: #1b2f57;
+  --ai-soft: #eef1f7;
+  --ai-fg: #1b2f57;
+  --success: #1e7a4c;
+  --success-fg: #1e7a4c;
+  --success-soft: #edf6f1;
+  --warning: #a86a00;
+  --warning-fg: #8a5700;
+  --warning-soft: #fbf4e6;
+  --danger: #7a0c1e;
+  --danger-fg: #7a0c1e;
+  --danger-soft: #f8ebed;
+  --human: #1b2f57;
+  --human-fg: #1b2f57;
+  --human-soft: #f4f6fa;
+  --cold: #3e6a9e;
+  --cold-soft: #eef3f9;
 
   /* Custody: forwarder/airline validated as a pair (dataviz validator, all-pairs); cargo owner ends neutral */
-  --custody-shipper: #94a3b8;
-  --custody-forwarder: #1baf7a;
-  --custody-airline: #2a78d6;
-  --custody-consignee: #94a3b8;
-  --map-land: #c3ccd8;
-  --chart-ink: #334155;
+  --custody-shipper: #9aa3b2;
+  --custody-forwarder: #1f9a70;
+  --custody-airline: #2d6bc4;
+  --custody-consignee: #9aa3b2;
+  --map-land: #d5dae2;
+  --chart-ink: #2c3a52;
 
-  --chart-1: #4f46e5;
-  --chart-2: #0ea5e9;
-  --chart-3: #0891b2;
-  --chart-4: #94a3b8;
-  --chart-5: #475569;
+  --chart-1: #1b2f57;
+  --chart-2: #3e6a9e;
+  --chart-3: #7f95b8;
+  --chart-4: #9aa3b2;
+  --chart-5: #5b6577;
 
   --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #4f46e5;
+  --sidebar-foreground: #0e1b33;
+  --sidebar-primary: #b3122e;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #6366f1;
+  --sidebar-accent: #f6f7f9;
+  --sidebar-accent-foreground: #0e1b33;
+  --sidebar-border: #e3e6eb;
+  --sidebar-ring: #1b2f57;
 
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.03);
-  --shadow-raised: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -6px rgb(15 23 42 / 0.08);
-  --shadow-glow: 0 0 0 1px rgb(79 70 229 / 0.12), 0 8px 32px -8px rgb(14 165 233 / 0.25);
+  /* Hairlines do the work; one subtle shadow for floating surfaces only */
+  --shadow-card: 0 0 #0000;
+  --shadow-raised: 0 1px 2px rgb(14 27 51 / 0.05), 0 8px 24px -10px rgb(14 27 51 / 0.14);
+  --shadow-glow: 0 0 #0000;
 }
 
 .dark {
-  --background: #0b0f17;
-  --foreground: #e2e8f0;
-  --card: #111725;
-  --card-foreground: #e2e8f0;
-  --popover: #131a29;
-  --popover-foreground: #e2e8f0;
-  --primary: #6366f1;
+  --background: #0b1324;
+  --foreground: #e2e7f0;
+  --card: #111b2e;
+  --card-foreground: #e2e7f0;
+  --popover: #131f35;
+  --popover-foreground: #e2e7f0;
+  --paper: #121d31;
+  --primary: #c21f3b;
   --primary-foreground: #ffffff;
-  --secondary: #182032;
-  --secondary-foreground: #e2e8f0;
-  --muted: #161d2c;
-  --muted-foreground: #94a3b8;
-  --subtle: #64748b;
-  --accent: #1c2140;
-  --accent-foreground: #c7d2fe;
-  --destructive: #f87171;
-  --border: #1f2937;
-  --input: #263042;
-  --ring: #818cf8;
+  --secondary: #16223a;
+  --secondary-foreground: #e2e7f0;
+  --muted: #16223a;
+  --muted-foreground: #9aa5b8;
+  --subtle: #7d879a;
+  --accent: #1a2742;
+  --accent-foreground: #e2e7f0;
+  --destructive: #f08a9b;
+  --border: #22304a;
+  --input: #2b3a57;
+  --ring: #a9bce0;
 
-  --ai-from: #6366f1;
-  --ai-to: #38bdf8;
-  --ai-soft: #171c38;
-  --ai-fg: #a5b4fc;
-  --success: #22c55e;
-  --success-fg: #4ade80;
-  --success-soft: #0f2119;
-  --warning: #f59e0b;
-  --warning-fg: #fbbf24;
+  --brand: #c21f3b;
+  --brand-hover: #d63a55;
+  --brand-fg: #f2879a;
+  --brand-soft: #2a1520;
+
+  --ai-from: #a9bce0;
+  --ai-to: #a9bce0;
+  --ai-soft: #17233c;
+  --ai-fg: #a9bce0;
+  --success: #3fae76;
+  --success-fg: #5bc28e;
+  --success-soft: #10241b;
+  --warning: #d9952a;
+  --warning-fg: #e3a33b;
   --warning-soft: #261d0c;
-  --danger: #ef4444;
-  --danger-fg: #f87171;
-  --danger-soft: #2a1215;
-  --human: #a78bfa;
-  --human-fg: #c4b5fd;
-  --human-soft: #1e1736;
-  --cold: #38bdf8;
-  --cold-soft: #0c2233;
+  --danger: #e0566d;
+  --danger-fg: #f08a9b;
+  --danger-soft: #2a1219;
+  --human: #a9bce0;
+  --human-fg: #a9bce0;
+  --human-soft: #141f35;
+  --cold: #6f9bd1;
+  --cold-soft: #13233a;
 
-  --custody-shipper: #64748b;
+  --custody-shipper: #64708a;
   --custody-forwarder: #199e70;
   --custody-airline: #3987e5;
-  --custody-consignee: #64748b;
-  --map-land: #2c3850;
-  --chart-ink: #cbd5e1;
+  --custody-consignee: #64708a;
+  --map-land: #24324c;
+  --chart-ink: #c8d1df;
 
-  --chart-1: #818cf8;
-  --chart-2: #38bdf8;
-  --chart-3: #22d3ee;
-  --chart-4: #64748b;
-  --chart-5: #94a3b8;
+  --chart-1: #a9bce0;
+  --chart-2: #6f9bd1;
+  --chart-3: #4f6f9c;
+  --chart-4: #64708a;
+  --chart-5: #9aa5b8;
 
-  --sidebar: #0d121c;
-  --sidebar-foreground: #e2e8f0;
-  --sidebar-primary: #6366f1;
+  --sidebar: #0d1629;
+  --sidebar-foreground: #e2e7f0;
+  --sidebar-primary: #c21f3b;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #161d2c;
-  --sidebar-accent-foreground: #e2e8f0;
-  --sidebar-border: #1a2231;
-  --sidebar-ring: #818cf8;
+  --sidebar-accent: #16223a;
+  --sidebar-accent-foreground: #e2e7f0;
+  --sidebar-border: #1d2a42;
+  --sidebar-ring: #a9bce0;
 
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-card: 0 0 #0000;
   --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -8px rgb(0 0 0 / 0.5);
-  --shadow-glow: 0 0 0 1px rgb(99 102 241 / 0.25), 0 8px 32px -8px rgb(56 189 248 / 0.25);
+  --shadow-glow: 0 0 #0000;
 }
 
 @layer base {
@@ -256,43 +277,43 @@
   h2,
   h3 {
     @apply font-heading;
-    /* Inter's optical-size axis at display size = "Inter Display" */
-    font-variation-settings: "opsz" 32;
-    letter-spacing: -0.02em;
+    font-feature-settings: normal;
+    letter-spacing: -0.012em;
   }
   ::selection {
-    background: color-mix(in oklab, var(--ai-from) 22%, transparent);
+    background: color-mix(in oklab, var(--brand) 16%, transparent);
   }
 }
 
 @layer utilities {
-  /* AI accent: gradient fill, text and border */
+  /* Analysis tone: solid navy. Names kept so older components keep working. */
   .bg-ai {
-    background-image: linear-gradient(135deg, var(--ai-from), var(--ai-to));
+    background-color: var(--ai-from);
   }
   .text-ai {
-    background-image: linear-gradient(135deg, var(--ai-from), var(--ai-to));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--ai-fg);
   }
   .border-ai {
-    border: 1px solid transparent;
-    background:
-      linear-gradient(var(--card), var(--card)) padding-box,
-      linear-gradient(135deg, var(--ai-from), var(--ai-to)) border-box;
+    border: 1px solid var(--border);
+    background-color: var(--card);
   }
   .bg-ai-wash {
-    background-image:
-      radial-gradient(120% 140% at 0% 0%, color-mix(in oklab, var(--ai-from) 7%, transparent), transparent 60%),
-      radial-gradient(120% 140% at 100% 100%, color-mix(in oklab, var(--ai-to) 7%, transparent), transparent 60%);
+    background-color: transparent;
   }
   .num {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum", "cv11", "ss01";
   }
+  /* Serif figures for headline numbers (KPI tiles, amounts) */
+  .figure {
+    font-family: var(--font-source-serif), "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: "lnum", "tnum";
+    letter-spacing: -0.015em;
+  }
+  /* Overline: small caps-style label above a title or a figure */
   .eyebrow {
-    @apply text-[11px] font-semibold tracking-[0.14em] uppercase;
+    @apply text-[11px] font-semibold tracking-[0.08em] uppercase;
   }
 }
 

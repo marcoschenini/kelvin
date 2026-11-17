@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { FilePlus2, FlaskConical, Globe2, Inbox, Menu, Palette, Scale, Settings2, type LucideIcon } from "lucide-react";
+import { FilePlus2, FlaskConical, Globe2, Inbox, Menu, Scale, Settings2, type LucideIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { KelvinLogo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
@@ -18,16 +18,24 @@ interface NavItem {
   shortcut?: string;
 }
 
-const PRIMARY: NavItem[] = [
-  { href: "/", label: "Live map", icon: Globe2, match: (p) => p === "/" },
-  { href: "/cases", label: "Cases", icon: Inbox, match: (p) => p.startsWith("/cases") && p !== "/cases/new" },
-  { href: "/cases/new", label: "New case", icon: FilePlus2, match: (p) => p === "/cases/new" },
-  { href: "/eval", label: "Evaluation", icon: FlaskConical, match: (p) => p.startsWith("/eval") },
-];
-
-const SECONDARY: NavItem[] = [
-  { href: "/settings", label: "Settings", icon: Settings2, match: (p) => p.startsWith("/settings") },
-  { href: "/design", label: "Design system", icon: Palette, match: (p) => p.startsWith("/design") },
+const SECTIONS: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Operations",
+    items: [
+      { href: "/", label: "Live shipments", icon: Globe2, match: (p) => p === "/" },
+      { href: "/cases", label: "Cases", icon: Inbox, match: (p) => p.startsWith("/cases") && p !== "/cases/new" },
+      { href: "/cases/new", label: "New case", icon: FilePlus2, match: (p) => p === "/cases/new" },
+    ],
+  },
+  {
+    label: "Quality",
+    items: [{ href: "/eval", label: "Evaluation", icon: FlaskConical, match: (p) => p.startsWith("/eval") }],
+  },
+  {
+    label: "Workspace",
+    // The design system lives under Settings → Appearance (/design is still reachable from there).
+    items: [{ href: "/settings", label: "Settings", icon: Settings2, match: (p) => p.startsWith("/settings") || p.startsWith("/design") }],
+  },
 ];
 
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
@@ -37,14 +45,14 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group relative flex h-9 items-center gap-3 rounded-lg px-3 text-[13.5px] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+        "group relative flex h-9 items-center gap-3 rounded-md pr-3 pl-4 text-[13.5px] transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         active
-          ? "bg-sidebar-accent text-foreground"
-          : "text-muted-foreground hover:bg-sidebar-accent/70 hover:text-foreground",
+          ? "bg-sidebar-accent font-semibold text-foreground"
+          : "font-medium text-foreground/75 hover:bg-sidebar-accent/70 hover:text-foreground",
       )}
     >
-      {active && <span className="bg-ai absolute top-2 bottom-2 left-0 w-[3px] rounded-full" aria-hidden="true" />}
-      <Icon className={cn("size-4", active ? "text-ai-fg" : "text-subtle group-hover:text-foreground")} />
+      {active && <span className="absolute top-1.5 bottom-1.5 left-0 w-[3px] rounded-r-sm bg-brand" aria-hidden="true" />}
+      <Icon className={cn("size-4", active ? "text-brand-fg" : "text-subtle group-hover:text-foreground")} strokeWidth={1.75} />
       {item.label}
     </Link>
   );
@@ -53,22 +61,19 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
 function SidebarBody({ pathname, publicDemo }: { pathname: string; publicDemo: boolean }) {
   return (
     <>
-      <nav aria-label="Main" className="flex flex-1 flex-col gap-6 px-3 pt-2">
-        <div className="flex flex-col gap-0.5">
-          {PRIMARY.map((item) => (
-            <NavLink key={item.href} item={item} active={item.match(pathname)} />
-          ))}
-        </div>
-        <div className="flex flex-col gap-0.5">
-          <span className="eyebrow px-3 pb-1.5 text-subtle">Workspace</span>
-          {SECONDARY.map((item) => (
-            <NavLink key={item.href} item={item} active={item.match(pathname)} />
-          ))}
-        </div>
+      <nav aria-label="Main" className="flex flex-1 flex-col gap-6 px-3 pt-4">
+        {SECTIONS.map((section) => (
+          <div key={section.label} className="flex flex-col gap-0.5">
+            <span className="eyebrow px-4 pb-2 text-subtle">{section.label}</span>
+            {section.items.map((item) => (
+              <NavLink key={item.href} item={item} active={item.match(pathname)} />
+            ))}
+          </div>
+        ))}
       </nav>
 
       <div className="flex flex-col gap-2 border-t border-sidebar-border p-3">
-        <div className="flex items-start gap-2 rounded-lg px-2 py-1.5 text-[11px] leading-snug text-muted-foreground">
+        <div className="flex items-start gap-2 rounded-md px-2 py-1.5 text-[11px] leading-snug text-muted-foreground">
           <Scale className="mt-px size-3.5 shrink-0" aria-hidden="true" />
           <span>
             Decision support only. Not legal advice.
@@ -97,7 +102,7 @@ export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
     setOpen(false);
   }
   const logo = (
-    <Link href="/" aria-label="Kelvin home" className="rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+    <Link href="/" aria-label="Kelvin home" className="rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
       <KelvinLogo />
     </Link>
   );
@@ -108,7 +113,7 @@ export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="grid size-10 place-items-center rounded-lg text-muted-foreground hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className="grid size-10 place-items-center rounded-md text-muted-foreground hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           aria-label="Open menu"
         >
           <Menu className="size-5" />
@@ -117,13 +122,13 @@ export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="w-[280px] gap-0 bg-sidebar p-0 lg:hidden">
           <SheetTitle className="sr-only">Menu</SheetTitle>
-          <div className="flex h-14 items-center px-5">{logo}</div>
+          <div className="flex h-16 items-center border-b border-sidebar-border px-5">{logo}</div>
           <SidebarBody pathname={pathname} publicDemo={publicDemo} />
         </SheetContent>
       </Sheet>
 
       <aside className="sticky top-0 hidden h-dvh w-[248px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
-        <div className="flex h-16 items-center px-5">{logo}</div>
+        <div className="flex h-[72px] items-center border-b border-sidebar-border px-5">{logo}</div>
         <SidebarBody pathname={pathname} publicDemo={publicDemo} />
       </aside>
     </>
