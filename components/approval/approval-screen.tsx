@@ -4,7 +4,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState, useTransition } fr
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { AlertTriangle, Check, ChevronLeft, FileText, FolderArchive, Loader2, Mail, Pencil, Send, ShieldCheck, Thermometer, Waypoints, X } from "lucide-react";
+import { AlertTriangle, Check, ChevronLeft, CircleCheck, FileText, FolderArchive, Loader2, Pencil, Send, ShieldCheck, Thermometer, Waypoints, X } from "lucide-react";
 import { toast } from "sonner";
 import { OpenableCitation } from "@/components/documents/citation-viewer";
 import { AnimatedNumber } from "@/components/kit/animated-number";
@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { approvalAction } from "@/lib/actions/gates";
 import type { Citation } from "@/lib/domain/citation";
 import { ROLE_CAN } from "@/lib/domain/personas";
-import { formatDateWithRelative, formatEUR } from "@/lib/format";
+import { formatDateWithRelative } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { LetterEditor } from "./letter-editor";
 
@@ -62,9 +62,9 @@ const KIND_LABEL: Record<string, string> = {
 /** Read view: paragraphs with [S#] tags rendered as clickable source chips. */
 function LetterView({ body, registry }: { body: string; registry: Record<string, Citation> }) {
   return (
-    <div className="text-[14.5px] leading-relaxed text-foreground">
+    <div className="text-[15px] leading-[1.7] text-foreground">
       {body.split(/\n\s*\n/).map((p, i) => (
-        <p key={i} className="mb-4 whitespace-pre-line">
+        <p key={i} className="mb-5 whitespace-pre-line">
           {p.split(/(\[S\d+\])/g).map((part, j) => {
             const m = part.match(/^\[(S\d+)\]$/);
             if (m && registry[m[1]]) return <OpenableCitation key={j} citation={registry[m[1]]} className="mx-0.5 h-5 align-[1px] text-[10.5px]" />;
@@ -138,88 +138,97 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
 
   return (
     <div className="relative flex flex-col gap-5 pb-24">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <Link href={`/cases/${ctx.caseId}`} className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-            <ChevronLeft className="size-4" aria-hidden="true" />
-            {ctx.shipmentRef}
-          </Link>
-          <h1 className="text-[1.6rem] leading-tight font-semibold tracking-[-0.025em]">Review and approve</h1>
-          <p className="text-sm text-muted-foreground">
+      <Link href={`/cases/${ctx.caseId}`} className="inline-flex w-fit items-center gap-1 rounded-sm text-sm text-muted-foreground hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+        <ChevronLeft className="size-4" aria-hidden="true" />
+        Case {ctx.shipmentRef}
+      </Link>
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
+        <div className="min-w-0">
+          <span className="eyebrow text-muted-foreground">Manager approval · {KIND_LABEL[draft.kind] ?? draft.kind}</span>
+          <h1 className="mt-2 text-[1.875rem] leading-[1.1] font-semibold tracking-[-0.015em] sm:text-[2.125rem]">Review and approve</h1>
+          <p className="mt-2 text-[15px] text-muted-foreground">
             {KIND_LABEL[draft.kind] ?? draft.kind} to {draft.recipientName}. Nothing is sent until a manager approves.
           </p>
         </div>
         <HumanDecisionBadge label="Manager decision" />
-      </div>
+      </header>
 
-      <section aria-label="Summary" className="rounded-xl border border-human/20 bg-human-soft/50 px-4 py-3 text-sm">
-        <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="font-semibold">{draft.recipientName}</span>
-          {draft.amountEur != null && (
-            <>
-              <span aria-hidden="true" className="text-subtle">·</span>
-              <span className="num font-semibold">{formatEUR(draft.amountEur)}</span>
-            </>
+      <section aria-label="Summary" className="grid grid-cols-1 gap-4 rounded-xl border border-border bg-card px-6 py-5 text-sm sm:grid-cols-12 sm:gap-0 sm:divide-x sm:divide-border">
+        <div className="min-w-0 sm:col-span-3 sm:pr-6">
+          <div className="eyebrow text-[10.5px] text-muted-foreground">Recipient</div>
+          <div className="mt-1.5 font-semibold">{draft.recipientName}</div>
+        </div>
+        <div className="sm:col-span-3 sm:px-6">
+          <div className="eyebrow text-[10.5px] text-muted-foreground">Deadline</div>
+          {ctx.deadline ? (
+            <div className="num mt-1.5">
+              <span className="font-semibold">{formatDateWithRelative(ctx.deadline.dueAt)}</span>
+              <span className="block truncate text-xs text-muted-foreground">{ctx.deadline.label}</span>
+            </div>
+          ) : (
+            <div className="mt-1.5 text-muted-foreground">No open deadline</div>
           )}
-          {ctx.deadline && (
-            <>
-              <span aria-hidden="true" className="text-subtle">·</span>
-              <span className="num">
-                {ctx.deadline.label}: {formatDateWithRelative(ctx.deadline.dueAt)}
-              </span>
-            </>
-          )}
-        </p>
-        {ctx.qaReasoning && (
-          <p className="mt-1 text-muted-foreground">
-            <span className="font-medium text-foreground">Quality: </span>
-            {ctx.qaReasoning}
-          </p>
-        )}
+        </div>
+        <div className="min-w-0 sm:col-span-6 sm:pl-6">
+          <div className="eyebrow text-[10.5px] text-muted-foreground">Quality</div>
+          <p className="mt-1.5 line-clamp-2 text-foreground/85">{ctx.qaReasoning ?? "No quality note recorded."}</p>
+        </div>
       </section>
 
-      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         {/* ---------- letter ---------- */}
-        <motion.section
-          className="rounded-2xl border border-border bg-card shadow-card"
-          animate={handoff ? { x: 160, y: -40, scale: 0.6, opacity: 0, rotate: 2 } : { x: 0, y: 0, scale: 1, opacity: 1, rotate: 0 }}
-          transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-6">
-            <div className="min-w-0 text-sm">
-              <div className="text-muted-foreground">
-                To <span className="text-foreground">{draft.recipientName}</span> &lt;{draft.recipientEmail}&gt;
+        <div className="flex min-w-0 flex-col gap-3 lg:col-span-8">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <AiBadge label="Drafted by Kelvin" />
+              {edited && <span className="rounded-sm px-1.5 py-0.5 text-[10.5px] font-semibold tracking-[0.06em] text-human-fg uppercase ring-1 ring-human/45 ring-inset">Edited</span>}
+            </div>
+            {actionable && (
+              <Button size="sm" variant={editing ? "secondary" : "outline"} onClick={() => setEditing((e) => !e)}>
+                {editing ? <Check data-icon="inline-start" /> : <Pencil data-icon="inline-start" />}
+                {editing ? "Done editing" : "Edit letter"}
+              </Button>
+            )}
+          </div>
+          <motion.article
+            aria-label="Letter"
+            className="rounded-sm border border-border bg-paper shadow-raised"
+            animate={handoff ? { y: -12, opacity: 0 } : { y: 0, opacity: 1 }}
+            transition={{ duration: 0.24, ease: [0.2, 0, 0, 1] }}
+          >
+            <div className="px-6 pt-8 pb-6 sm:px-14 sm:pt-12">
+              <div className="flex items-start justify-between gap-6 border-b border-border pb-6">
+                <div className="min-w-0 text-sm">
+                  <div className="eyebrow text-[10.5px] text-muted-foreground">To</div>
+                  <div className="mt-1 font-medium">{draft.recipientName}</div>
+                  <div className="text-muted-foreground">{draft.recipientEmail}</div>
+                </div>
+                <div className="text-right text-sm">
+                  <div className="eyebrow text-[10.5px] text-muted-foreground">Reference</div>
+                  <div className="num mt-1 font-medium">{ctx.shipmentRef}</div>
+                </div>
               </div>
               {editing ? (
-                <Input value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-1.5 font-medium" aria-label="Subject" />
+                <Input value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-6 font-medium" aria-label="Subject" />
               ) : (
-                <div className="mt-0.5 font-semibold">{subject}</div>
+                <h2 className="mt-7 text-[1.45rem] leading-snug font-semibold text-foreground">{subject}</h2>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              {edited && <span className="rounded-full bg-human-soft px-2 py-0.5 text-[11px] font-medium text-human-fg">Edited</span>}
-              <AiBadge label="Drafted by Kelvin" />
-              {actionable && (
-                <Button size="sm" variant={editing ? "secondary" : "outline"} onClick={() => setEditing((e) => !e)}>
-                  {editing ? <Check data-icon="inline-start" /> : <Pencil data-icon="inline-start" />}
-                  {editing ? "Done editing" : "Edit"}
-                </Button>
-              )}
-            </div>
-          </div>
-          <div className="px-4 py-5 sm:px-10 sm:py-6">{editing ? <LetterEditor initial={body} onChange={setBody} /> : <LetterView body={body} registry={ctx.registry} />}</div>
-        </motion.section>
+            <div className="px-6 pb-10 sm:px-14 sm:pb-14">{editing ? <LetterEditor initial={body} onChange={setBody} /> : <LetterView body={body} registry={ctx.registry} />}</div>
+          </motion.article>
+        </div>
 
         {/* ---------- evidence ---------- */}
-        <aside className="flex flex-col gap-4">
+        <aside aria-label="Evidence" className="flex flex-col gap-4 lg:sticky lg:top-6 lg:col-span-4">
           {draft.amountEur != null && (
-            <div className="border-ai rounded-2xl p-5 shadow-glow">
-              <div className="text-xs text-muted-foreground">Amount claimed</div>
-              <AnimatedNumber value={draft.amountEur} format="eur" className="block text-3xl leading-tight font-semibold tracking-tight" />
-              <div className="mt-1 text-xs text-muted-foreground capitalize">{ctx.route ? `${ctx.route} route` : ""}</div>
+            <div className="relative overflow-hidden rounded-xl border border-border bg-card p-5">
+              <span className="absolute inset-y-0 left-0 w-[3px] bg-brand" aria-hidden="true" />
+              <div className="eyebrow text-muted-foreground">Amount claimed</div>
+              <AnimatedNumber value={draft.amountEur} format="eur" className="figure mt-2 block text-[2.25rem] leading-none font-semibold text-brand-fg" />
+              <div className="mt-2 text-xs text-muted-foreground capitalize">{ctx.route ? `${ctx.route} route` : ""}</div>
             </div>
           )}
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+          <div className="rounded-xl border border-border bg-card p-5">
             <div className="eyebrow text-muted-foreground">Key facts</div>
             <ul className="mt-3 flex flex-col gap-2.5 text-sm">
               {ctx.excursion && (
@@ -243,7 +252,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
               )}
             </ul>
           </div>
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+          <div className="rounded-xl border border-border bg-card p-5">
             <div className="flex items-center justify-between">
               <div className="eyebrow text-muted-foreground">Sources</div>
               <span className={cn("text-xs font-medium", coverage.uncited.length ? "text-warning-fg" : "text-success-fg")}>
@@ -256,7 +265,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
               ))}
             </div>
             {(coverage.uncited.length > 0 || assumptions.length > 0) && (
-              <div className="mt-3 rounded-lg border border-dashed border-warning/60 bg-warning-soft p-3 text-xs text-warning-fg">
+              <div className="mt-3 rounded-md border border-dashed border-warning/60 bg-warning-soft p-3 text-xs text-warning-fg">
                 <div className="flex items-center gap-1.5 font-semibold">
                   <AlertTriangle className="size-3.5" aria-hidden="true" />
                   {coverage.uncited.length || assumptions.length} statement(s) without a source
@@ -265,12 +274,12 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
               </div>
             )}
           </div>
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+          <div className="rounded-xl border border-border bg-card p-5">
             <div className="eyebrow text-muted-foreground">Annexes</div>
             <ul className="mt-3 flex flex-col gap-1.5 text-sm">
               {draft.annexes.map((a) => (
                 <li key={a} className="flex items-center gap-2">
-                  {a.toLowerCase().includes("evidence pack") ? <FolderArchive className="size-3.5 text-ai-fg" /> : <FileText className="size-3.5 text-muted-foreground" />}
+                  {a.toLowerCase().includes("evidence pack") ? <FolderArchive className="size-3.5 text-ai-fg" aria-hidden="true" /> : <FileText className="size-3.5 text-muted-foreground" aria-hidden="true" />}
                   {a.toLowerCase().includes("evidence pack") && ctx.evidencePackId ? (
                     <a href={`/api/documents/${ctx.evidencePackId}`} target="_blank" rel="noreferrer" className="text-ai-fg hover:underline">
                       {a}
@@ -286,8 +295,8 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
       </div>
 
       {/* ---------- action bar ---------- */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur lg:left-[248px]">
-        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card lg:left-[248px]">
+        <div className="mx-auto flex max-w-[1320px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
           <span className="hidden text-sm text-muted-foreground sm:inline">
             {!actionable
               ? `This draft is ${draft.status.replace(/_/g, " ")}.`
@@ -305,7 +314,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
             <Button variant="ai" size="lg" disabled={!actionable || !canApprove || pending || handoff} onClick={approve}>
               {pending ? <Loader2 className="animate-spin" data-icon="inline-start" /> : <Send data-icon="inline-start" />}
               {edited ? "Approve with edits" : "Approve"}
-              <Kbd className="ml-1 hidden bg-white/20 text-white sm:inline-flex">A</Kbd>
+              <Kbd className="ml-1 hidden bg-white/20 text-white sm:inline-flex" aria-hidden="true">A</Kbd>
             </Button>
           </div>
         </div>
@@ -315,27 +324,21 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
       <AnimatePresence>
         {handoff && (
           <motion.div
-            className="pointer-events-none fixed inset-0 z-40 grid place-items-center bg-background/60 backdrop-blur-sm"
+            className="pointer-events-none fixed inset-0 z-40 grid place-items-center bg-background/70"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2 }}
           >
             <motion.div
-              className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card px-10 py-8 shadow-raised"
-              initial={{ y: 12, opacity: 0 }}
+              role="status"
+              className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-10 py-8 text-center shadow-raised"
+              initial={{ y: 8, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.25, delay: 0.3 }}
+              transition={{ duration: 0.22, delay: 0.1, ease: [0.2, 0, 0, 1] }}
             >
-              <motion.span
-                className="bg-ai grid size-14 place-items-center rounded-2xl text-white shadow-glow"
-                initial={{ x: -40, rotate: -8 }}
-                animate={{ x: [-40, 0, 46], rotate: [-8, 0, 6], opacity: [1, 1, 0] }}
-                transition={{ duration: 1.2, delay: 0.35, ease: "easeInOut" }}
-              >
-                <Mail className="size-7" aria-hidden="true" />
-              </motion.span>
-              <div className="font-semibold">Approved by {persona.name}</div>
-              <div className="text-sm text-muted-foreground">Handing off to the Outbox. The agent sends it and watches for the reply.</div>
+              <CircleCheck className="size-10 text-success" strokeWidth={1.5} aria-hidden="true" />
+              <div className="font-heading text-xl font-semibold">Approved by {persona.name}</div>
+              <div className="text-sm text-muted-foreground">Handed to the Outbox. Kelvin sends it and tracks the reply.</div>
             </motion.div>
           </motion.div>
         )}

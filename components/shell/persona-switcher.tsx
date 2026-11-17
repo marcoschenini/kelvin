@@ -16,9 +16,9 @@ import { DEFAULT_PERSONA_ID, PERSONA_COOKIE, PERSONAS, getPersona, type Persona 
 import { cn } from "@/lib/utils";
 
 const ROLE_STYLE: Record<Persona["role"], string> = {
-  qa: "bg-human-soft text-human-fg",
-  manager: "bg-ai-soft text-ai-fg",
-  analyst: "bg-muted text-muted-foreground",
+  qa: "bg-card text-human-fg ring-1 ring-human/40 ring-inset",
+  manager: "bg-ai text-white dark:text-background",
+  analyst: "bg-muted text-muted-foreground ring-1 ring-border ring-inset",
 };
 
 function readCookie(): string {
@@ -62,7 +62,7 @@ export function PersonaSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="flex w-full items-center gap-2.5 rounded-xl p-2 text-left transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         aria-label={`Acting as ${persona.name}, ${persona.title}. Change persona`}
       >
         <PersonaAvatar persona={persona} />
@@ -90,7 +90,7 @@ export function PersonaSwitcher() {
                 <span className="block text-[13px] font-medium">{p.name}</span>
                 <span className="block text-[11px] text-muted-foreground">{p.title}</span>
               </span>
-              {p.id === persona.id && <Check className="size-4 text-ai-fg" />}
+              {p.id === persona.id && <Check className="size-4 text-brand-fg" />}
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>

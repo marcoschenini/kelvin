@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   AlarmClock,
   CalendarClock,
@@ -43,8 +44,9 @@ const SWATCHES = [
   { name: "Foreground", var: "--foreground" },
   { name: "Muted text", var: "--muted-foreground" },
   { name: "Border", var: "--border" },
-  { name: "AI from", var: "--ai-from" },
-  { name: "AI to", var: "--ai-to" },
+  { name: "Kelvin red", var: "--brand" },
+  { name: "Red hover", var: "--brand-hover" },
+  { name: "Navy (analysis)", var: "--ai-from" },
   { name: "Success", var: "--success" },
   { name: "Warning", var: "--warning" },
   { name: "Danger", var: "--danger" },
@@ -76,14 +78,17 @@ export default function DesignSystemPage() {
   const now = new Date("2026-11-09T09:00:00Z");
   return (
     <PageContainer className="flex flex-col gap-12">
+      <Link href="/settings" className="-mb-8 w-fit rounded-sm text-sm text-muted-foreground hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+        ← Settings
+      </Link>
       <PageHeader
-        eyebrow={<AiEyebrow>Kelvin · design system</AiEyebrow>}
-        title="Cold, precise, calm"
-        description="Tokens and components every screen is built from. The visual language follows the agent-schema diagram."
+        eyebrow={<AiEyebrow>Settings · Appearance · Design system</AiEyebrow>}
+        title="Institutional, precise, calm"
+        description="Tokens and components every screen is built from: white canvas, navy ink, hairline rules and one accent, Kelvin red."
       />
 
       <Section title="Brand">
-        <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-border bg-card p-5 shadow-card sm:gap-8 sm:p-8">
+        <div className="flex flex-wrap items-center gap-6 rounded-xl border border-border bg-card p-5 sm:gap-8 sm:p-8">
           <KelvinLogo className="scale-[1.6] origin-left" />
           <span className="w-16" />
           <KelvinGlyph className="size-14" />
@@ -115,9 +120,9 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
-      <Section title="Type" description="Inter with the optical-size axis; tabular numbers for money and dates.">
-        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-card sm:p-8">
-          <h1 className="text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">Recover {formatEUR(190000)}</h1>
+      <Section title="Type" description="Source Serif 4 for headings and key figures, Inter for body and UI; tabular numbers for money and dates.">
+        <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5 sm:p-8">
+          <h1 className="text-3xl font-semibold tracking-[-0.015em] sm:text-5xl">Recover {formatEUR(190000)}</h1>
           <h2 className="text-2xl font-semibold">Excursion on the FRA ramp, airline custody</h2>
           <p className="max-w-2xl text-[15px] text-muted-foreground">
             The shipment reached 13.0 °C for 90 minutes while held by the carrier. Notice under Montreal Art. 31 is due{" "}
@@ -150,7 +155,7 @@ export default function DesignSystemPage() {
             <RouteChip key={r} route={r} recommended={r === "insurer"} />
           ))}
         </div>
-        <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-border bg-card p-5 shadow-card sm:gap-8 sm:p-6">
+        <div className="flex flex-wrap items-center gap-6 rounded-xl border border-border bg-card p-5 sm:gap-8 sm:p-6">
           <DeadlineRing daysLeft={11} windowDays={14} label="Montreal notice" />
           <DeadlineRing daysLeft={5} windowDays={14} label="Montreal notice" />
           <DeadlineRing daysLeft={2} windowDays={14} label="Montreal notice" />
@@ -184,7 +189,7 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
-      <Section title="Agent flow surfaces" description="The diagram, rebuilt from components.">
+      <Section title="Analysis flow surfaces" description="The case flow, rebuilt from components.">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {[
             { icon: Thermometer, title: "Sensors", d: "Temperature & time data" },

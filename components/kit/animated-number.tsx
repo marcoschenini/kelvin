@@ -12,7 +12,7 @@ export function AnimatedNumber({
   value,
   format = "number",
   className,
-  duration = 0.65,
+  duration = 0.24,
 }: {
   value: number;
   format?: "number" | "eur" | "pct" | "days";

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, CircleCheck, Clock, FileCheck2, FlaskConical, Loader2, Play, Route, Sparkles, X } from "lucide-react";
+import { Check, CircleCheck, Clock, FileCheck2, FlaskConical, Loader2, Play, Radio, Route, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { EvalCaseResult, EvalEvent, EvalSummary } from "@/lib/eval/harness";
@@ -14,17 +14,13 @@ import { cn } from "@/lib/utils";
 const pct = (v: number | null | undefined) => (v == null ? "—" : `${Math.round(v * 100)}%`);
 const routeLabel = (r: RecoveryRoute | null) => (r ? ROUTE_META[r].label : "No claim");
 
-function Metric({ label, value, sub, icon: Icon, good }: { label: string; value: string; sub?: string; icon: typeof Route; good?: boolean }) {
+/** KPI cell: overline label, serif figure. `icon` is accepted for compatibility but not drawn. */
+function Metric({ label, value, sub, good }: { label: string; value: string; sub?: string; icon?: typeof Route; good?: boolean }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-      <div className="flex items-center justify-between">
-        <span className="text-[13px] font-medium text-muted-foreground">{label}</span>
-        <span className="grid size-8 place-items-center rounded-lg bg-ai-soft text-ai-fg">
-          <Icon className="size-4" aria-hidden="true" />
-        </span>
-      </div>
-      <div className={cn("num mt-2 text-[1.75rem] leading-none font-semibold tracking-tight", good && "text-success-fg")}>{value}</div>
-      {sub && <div className="mt-1.5 text-xs text-muted-foreground">{sub}</div>}
+    <div className="bg-card px-5 pt-4 pb-5">
+      <span className="eyebrow text-muted-foreground">{label}</span>
+      <div className={cn("figure mt-3 text-[2.125rem] leading-none font-semibold", good ? "text-success-fg" : "text-foreground")}>{value}</div>
+      {sub && <div className="mt-2.5 text-xs text-muted-foreground">{sub}</div>}
     </div>
   );
 }
@@ -34,7 +30,7 @@ function Tick({ ok }: { ok: boolean | null | undefined }) {
   return ok ? (
     <Check className="size-4 text-success" aria-label="correct" />
   ) : (
-    <X className="size-4 text-danger" aria-label="wrong" />
+    <X className="size-4 text-warning-fg" aria-label="wrong" />
   );
 }
 
@@ -98,7 +94,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
         </Button>
         {liveAvailable && (
           <Button variant="outline" onClick={() => start("live")} disabled={!!running}>
-            {running?.mode === "live" ? <Loader2 className="animate-spin" data-icon="inline-start" /> : <Sparkles data-icon="inline-start" />}
+            {running?.mode === "live" ? <Loader2 className="animate-spin" data-icon="inline-start" /> : <Radio data-icon="inline-start" />}
             Live model, first 4 cases
           </Button>
         )}
@@ -112,14 +108,14 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
       </div>
 
       {running && (
-        <div className="h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
-          <div className="bg-ai h-full rounded-full transition-[width] duration-300" style={{ width: `${(live.length / (running.total || 24)) * 100}%` }} />
+        <div className="h-[3px] overflow-hidden rounded-full bg-muted" aria-hidden="true">
+          <div className="h-full rounded-full bg-ai transition-[width] duration-200" style={{ width: `${(live.length / (running.total || 24)) * 100}%` }} />
         </div>
       )}
 
       {s && (
         <>
-          <section aria-label="Headline metrics" className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+          <section aria-label="Headline metrics" className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border xl:grid-cols-4">
             <Metric label="Route accuracy" value={pct(s.routeAccuracy)} sub="Recommended payer matches the answer key" icon={Route} good={s.routeAccuracy === 1} />
             <Metric label="Deadline accuracy" value={pct(s.deadlineAccuracy)} sub="Every notice date matches" icon={Clock} good={s.deadlineAccuracy === 1} />
             <Metric label="Citation coverage" value={pct(s.citationCoverage)} sub="Factual paragraphs in letters with a source" icon={FileCheck2} good={s.citationCoverage === 1} />
@@ -148,8 +144,8 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
       )}
 
       {rows.length > 0 && (
-        <section aria-labelledby="wrong-heading" className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <h2 id="wrong-heading" className="text-[15px] font-semibold">
+        <section aria-labelledby="wrong-heading" className="rounded-xl border border-border bg-card p-5 sm:p-7">
+          <h2 id="wrong-heading" className="text-[1.2rem] font-semibold">
             Wrong answers
           </h2>
           {wrong.length === 0 ? (
@@ -160,7 +156,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
           ) : (
             <ul className="mt-3 flex flex-col gap-2">
               {wrong.map((r) => (
-                <li key={r.caseId} className="rounded-xl border border-danger/25 bg-danger-soft/50 p-3 text-sm">
+                <li key={r.caseId} className="rounded-lg border border-warning/30 bg-warning-soft p-3 text-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-medium">
                       {r.caseId} · {r.title}
@@ -187,12 +183,12 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
       )}
 
       {rows.length > 0 && (
-        <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+        <section aria-label="Results per case" className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[56rem] text-sm">
-              <thead className="bg-muted/40 text-left text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+              <thead className="border-b border-foreground/15 text-left text-[11px] font-semibold tracking-[0.08em] text-foreground uppercase">
                 <tr>
-                  <th className="px-4 py-2.5">Case</th>
+                  <th className="w-[34%] px-4 py-3">Case</th>
                   <th className="px-3 py-2.5">Expected</th>
                   <th className="px-3 py-2.5">Kelvin</th>
                   <th className="px-3 py-2.5 text-center">Route</th>
@@ -206,7 +202,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
               </thead>
               <tbody className="divide-y divide-border">
                 {rows.map((r) => (
-                  <tr key={r.caseId} className={cn(!r.correct && "bg-danger-soft/40")}>
+                  <tr key={r.caseId} className={cn("transition-colors hover:bg-muted/60", !r.correct && "bg-warning-soft")}>
                     <td className="px-4 py-2.5">
                       <div className="font-medium">
                         <span className="num text-muted-foreground">{r.caseId.replace("eval-", "#")}</span> {r.title}
@@ -236,7 +232,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
                       </span>
                     </td>
                     <td className="num px-3 py-2.5 text-right">{pct(r.citationCoverage)}</td>
-                    <td className="num px-3 py-2.5 text-right text-muted-foreground">{formatMs(r.durationMs)}</td>
+                    <td className="num px-3 py-2.5 text-right whitespace-nowrap text-muted-foreground">{formatMs(r.durationMs)}</td>
                     <td className="px-4 py-2.5 text-right">
                       <Link href={`/cases/${r.caseId}`} className="text-xs font-medium whitespace-nowrap text-ai-fg hover:underline">
                         Open run
@@ -251,8 +247,8 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
       )}
 
       {history.length > 1 && (
-        <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <h2 className="text-[15px] font-semibold">Recent runs</h2>
+        <section className="rounded-xl border border-border bg-card p-5 sm:p-7">
+          <h2 className="text-[1.2rem] font-semibold">Recent runs</h2>
           <ul className="mt-3 divide-y divide-border text-sm">
             {history.map((h) => (
               <li key={h.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2">

@@ -27,8 +27,8 @@ interface PendingDraft {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  awaiting_approval: "bg-human-soft text-human-fg",
-  approved: "bg-ai-soft text-ai-fg",
+  awaiting_approval: "bg-card text-human-fg ring-1 ring-human/45 ring-inset",
+  approved: "bg-success-soft text-success-fg",
   draft: "bg-muted text-muted-foreground",
   rejected: "bg-muted text-subtle line-through",
 };
@@ -49,7 +49,7 @@ function followUpKind(kind: string, subject: string, draftId: string | null, f: 
 function FollowUpTag({ kind }: { kind: "appeal" | "reminder" }) {
   const Icon = kind === "appeal" ? Repeat2 : BellRing;
   return (
-    <span className="inline-flex h-5 items-center gap-1 rounded-full bg-warning-soft px-2 text-[11px] font-medium text-warning-fg ring-1 ring-warning/25 ring-inset">
+    <span className="inline-flex h-5 items-center gap-1 rounded-sm bg-warning-soft px-2 text-[11px] font-medium text-warning-fg ring-1 ring-warning/25 ring-inset">
       <Icon className="size-3" aria-hidden="true" />
       {kind === "appeal" ? "Appeal" : "Reminder"}
     </span>
@@ -74,8 +74,8 @@ export function CorrespondenceThread({ caseId, messages, drafts, followUp = { ap
             const tag = out ? followUpKind("reply", m.subject, m.draftId, followUp) ?? (followUp.appealDraftIds.includes(m.draftId ?? "") ? "appeal" : null) : null;
             return (
               <li key={m.id} className={cn("flex", out ? "justify-end" : "justify-start")}>
-                <details className={cn("group w-full max-w-[44rem] rounded-2xl border px-4 py-3", out ? "rounded-br-md border-ai-from/20 bg-ai-soft/50" : "rounded-bl-md border-border bg-card")}>
-                  <summary className="cursor-pointer list-none">
+                <details className={cn("group w-full max-w-[46rem] rounded-lg border border-border px-4 py-3", out ? "border-l-2 border-l-ai bg-ai-soft/40" : "border-l-2 border-l-subtle bg-card")}>
+                  <summary className="cursor-pointer list-none rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none [&::-webkit-details-marker]:hidden">
                     <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                       <span className="inline-flex items-center gap-1.5">
                         {out ? <ArrowUpRight className="size-3.5 text-ai-fg" aria-hidden="true" /> : <ArrowDownLeft className="size-3.5" aria-hidden="true" />}
@@ -125,10 +125,10 @@ export function CorrespondenceThread({ caseId, messages, drafts, followUp = { ap
                   To {d.recipientName} · {d.citations} citations
                 </span>
               </span>
-              <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", STATUS_STYLE[d.status] ?? "bg-muted")}>{d.status.replace(/_/g, " ")}</span>
+              <span className={cn("rounded-sm px-2 py-0.5 text-[11px] font-medium capitalize", STATUS_STYLE[d.status] ?? "bg-muted")}>{d.status.replace(/_/g, " ")}</span>
               {d.status !== "rejected" && (
-                <Link href={`/cases/${caseId}/approve/${d.id}`} className="text-xs font-medium text-ai-fg hover:underline">
-                  Open
+                <Link href={`/cases/${caseId}/approve/${d.id}`} className="rounded-sm text-xs font-medium text-ai-fg hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+                  Open<span className="sr-only"> draft: {d.subject}</span>
                 </Link>
               )}
             </div>

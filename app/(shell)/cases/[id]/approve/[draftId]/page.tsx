@@ -60,9 +60,9 @@ export default function ApprovePage({ params }: PageProps<"/cases/[id]/approve/[
       <CitationViewerProvider>
         <Suspense
           fallback={
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-              <Skeleton className="h-[36rem] rounded-2xl" />
-              <Skeleton className="h-80 rounded-2xl" />
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+              <Skeleton className="h-[36rem] rounded-sm lg:col-span-8" />
+              <Skeleton className="h-80 rounded-xl lg:col-span-4" />
             </div>
           }
         >

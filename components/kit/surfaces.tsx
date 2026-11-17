@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import type { Tone } from "@/lib/domain/case-status";
 import { TONE_TILE } from "./tone";
 
-/** Soft square behind a Lucide icon (diagram style). */
+/** Hairline square behind a Lucide icon; the tone colours the icon only. */
 export function IconTile({
   icon: Icon,
   tone = "ai",
@@ -15,25 +15,21 @@ export function IconTile({
   size?: "sm" | "md" | "lg";
   className?: string;
 }) {
-  const dims = { sm: "size-8 rounded-lg", md: "size-10 rounded-xl", lg: "size-12 rounded-xl" }[size];
+  const dims = { sm: "size-8", md: "size-10", lg: "size-12" }[size];
   const icon = { sm: "size-4", md: "size-[18px]", lg: "size-5" }[size];
   return (
-    <span className={cn("grid shrink-0 place-items-center", dims, TONE_TILE[tone], className)}>
-      <Icon className={icon} aria-hidden="true" />
+    <span className={cn("grid shrink-0 place-items-center rounded-md border border-border bg-card", dims, TONE_TILE[tone], className)}>
+      <Icon className={icon} strokeWidth={1.75} aria-hidden="true" />
     </span>
   );
 }
 
-/** Card surface used for AI-owned areas: gradient hairline, faint wash, soft glow. */
+/** Plain card surface for analysis areas (hairline, no wash). */
 export function AiSurface({ className, children }: { className?: string; children: React.ReactNode }) {
-  return (
-    <div className={cn("border-ai relative rounded-2xl shadow-glow", className)}>
-      <div className="bg-ai-wash rounded-[inherit]">{children}</div>
-    </div>
-  );
+  return <div className={cn("relative rounded-xl border border-border bg-card", className)}>{children}</div>;
 }
 
-/** Tinted outcome card: green "No claim", amber "Possible claim" (diagram style). */
+/** Outcome card with a coloured rule on the left: green "No claim", amber "Possible claim". */
 export function OutcomeCard({
   tone,
   icon: Icon,
@@ -49,12 +45,12 @@ export function OutcomeCard({
   className?: string;
   children?: React.ReactNode;
 }) {
-  const surface = {
-    success: "bg-success-soft border-success/20",
-    warning: "bg-warning-soft border-warning/25",
-    human: "bg-human-soft border-human/20",
-    ai: "bg-ai-soft border-ai-from/15",
-    neutral: "bg-muted border-border",
+  const rule = {
+    success: "before:bg-success",
+    warning: "before:bg-warning",
+    human: "before:bg-human",
+    ai: "before:bg-ai",
+    neutral: "before:bg-subtle",
   }[tone];
   const iconColor = {
     success: "text-success",
@@ -64,10 +60,16 @@ export function OutcomeCard({
     neutral: "text-muted-foreground",
   }[tone];
   return (
-    <div className={cn("flex items-start gap-4 rounded-xl border p-5", surface, className)}>
-      <Icon className={cn("mt-0.5 size-7 shrink-0", iconColor)} strokeWidth={1.75} aria-hidden="true" />
+    <div
+      className={cn(
+        "relative flex items-start gap-4 overflow-hidden rounded-xl border border-border bg-card p-5 before:absolute before:inset-y-0 before:left-0 before:w-[3px]",
+        rule,
+        className,
+      )}
+    >
+      <Icon className={cn("mt-0.5 size-6 shrink-0", iconColor)} strokeWidth={1.75} aria-hidden="true" />
       <div className="min-w-0 flex-1">
-        <div className="text-[15px] font-semibold text-foreground">{title}</div>
+        <div className="font-heading text-[17px] font-semibold text-foreground">{title}</div>
         {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
         {children}
       </div>
@@ -89,41 +91,36 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/60 px-6 py-14 text-center",
-        className,
-      )}
-    >
-      <IconTile icon={Icon} tone="ai" size="lg" />
-      <h3 className="mt-4 text-base font-semibold">{title}</h3>
+    <div className={cn("flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center", className)}>
+      <IconTile icon={Icon} tone="neutral" size="lg" />
+      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
       {description && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }
 
+/** Section title: serif heading with a muted description. The icon is accepted for compatibility but not drawn. */
 export function SectionHeader({
   title,
   description,
-  icon,
   action,
   className,
+  eyebrow,
 }: {
   title: string;
   description?: string;
   icon?: LucideIcon;
   action?: React.ReactNode;
   className?: string;
+  eyebrow?: string;
 }) {
   return (
     <div className={cn("flex items-start justify-between gap-4", className)}>
-      <div className="flex items-start gap-3">
-        {icon && <IconTile icon={icon} size="sm" tone="neutral" />}
-        <div>
-          <h2 className="text-[15px] leading-tight font-semibold">{title}</h2>
-          {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
-        </div>
+      <div className="min-w-0">
+        {eyebrow && <div className="eyebrow mb-1 text-muted-foreground">{eyebrow}</div>}
+        <h2 className="text-[1.2rem] leading-tight font-semibold text-foreground">{title}</h2>
+        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
       {action}
     </div>

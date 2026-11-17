@@ -4,50 +4,44 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import {
-  ChevronLeft,
+  ChevronDown,
+  ChevronRight,
   ExternalLink,
   FileJson,
   FileSpreadsheet,
   FileText,
   FolderArchive,
-  History,
-  Inbox,
   Mail,
-  Map as MapIcon,
   Plane,
   Receipt,
   ScrollText,
-  Send,
   ShieldCheck,
-  Thermometer,
-  Waypoints,
   type LucideIcon,
 } from "lucide-react";
 import { AgentPanel, type PersistedRun } from "@/components/agent/agent-panel";
 import { AgentRunProvider, type LiveStep } from "@/components/agent/agent-run-context";
+import { AnalysisStatus, PendingWhileRunning } from "@/components/case/analysis-status";
 import { RouteLabel } from "@/components/case/case-list";
 import { CaseWorkflow } from "@/components/case/case-workflow";
 import { QaDecisionCard } from "@/components/case/qa-decision-card";
 import { CorrespondenceThread } from "@/components/case/correspondence";
+import { RecommendationCard, deriveRecommendation } from "@/components/case/recommendation-card";
 import { getDb } from "@/lib/db/client";
 import { awaitingReplyFrom } from "@/lib/counterparties/scripted";
 import { JourneyMap } from "@/components/case/journey-map";
 import { ClaimPlan, DeadlineList, RecoveryRoutes } from "@/components/case/recovery-routes";
 import { TemperatureChart } from "@/components/case/temperature-chart";
 import { CitationViewerProvider } from "@/components/documents/citation-viewer";
-import { AiEyebrow, AiTile } from "@/components/kit/badges";
-import { DeadlineRing } from "@/components/kit/deadline-ring";
 import { StatusChip } from "@/components/kit/status-chip";
-import { AiSurface, IconTile, SectionHeader } from "@/components/kit/surfaces";
+import { SectionHeader } from "@/components/kit/surfaces";
 import { PageContainer } from "@/components/shell/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { RunKind } from "@/lib/agent/events";
 import type { CaseRecord } from "@/lib/case/record";
 import type { DocumentKind } from "@/lib/db/schema";
-import { STATUS_META } from "@/lib/domain/case-status";
 import type { Citation } from "@/lib/domain/citation";
-import { CUSTODY_META, ROUTE_META, type RecoveryRoute } from "@/lib/domain/parties";
-import { formatDateTime, formatDateWithRelative, formatDuration, formatEUR, formatKg, formatTemp } from "@/lib/format";
+import { CUSTODY_META, type RecoveryRoute } from "@/lib/domain/parties";
+import { formatDate, formatDateTime, formatDuration, formatEUR, formatKg, formatTemp } from "@/lib/format";
 import { buildJourney } from "@/lib/geo/journey";
 import { getCase, latestRunWithSteps, listAudit, listDecisions, listDocuments, listDrafts, listOutbox, loadReadings } from "@/lib/queries/cases";
 import { cn } from "@/lib/utils";
@@ -98,14 +92,38 @@ function routeCitations(record: CaseRecord): Record<RecoveryRoute, Citation[]> {
   };
 }
 
-function Card({ title, description, icon, children, className }: { title: string; description?: string; icon: LucideIcon; children: React.ReactNode; className?: string }) {
+function Card({ title, description, eyebrow, children, className, action }: { title: string; description?: string; eyebrow?: string; children: React.ReactNode; className?: string; action?: React.ReactNode }) {
   return (
-    <section className={cn("min-w-0 rounded-2xl border border-border bg-card p-4 shadow-card sm:p-5", className)}>
-      <SectionHeader title={title} description={description} icon={icon} />
-      <div className="mt-4">{children}</div>
+    <section className={cn("min-w-0 rounded-xl border border-border bg-card p-5 sm:p-7", className)}>
+      <SectionHeader title={title} description={description} eyebrow={eyebrow} action={action} />
+      <div className="mt-5">{children}</div>
     </section>
   );
 }
+
+/** Group heading between blocks of cards: overline with a hairline rule. */
+function Group({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center gap-4 pt-4">
+        <h2 className="eyebrow shrink-0 font-sans text-muted-foreground">{label}</h2>
+        <span className="h-px flex-1 bg-border" aria-hidden="true" />
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Fact({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn("min-w-0", className)}>
+      <dt className="eyebrow text-[10.5px] text-muted-foreground">{label}</dt>
+      <dd className="num mt-1.5 truncate text-[14px] font-medium text-foreground">{children}</dd>
+    </div>
+  );
+}
+
+const ACTOR_LABEL: Record<string, string> = { human: "Person", agent: "Kelvin", system: "System" };
 
 async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
   await connection();
@@ -124,16 +142,14 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
   const record = c.record as CaseRecord;
   const qaRow = decisionRows.find((d) => d.gate === "qa");
   const qa: "pending" | "released" | "rejected" = qaRow ? (qaRow.decision === "released" ? "released" : "rejected") : (record.qa?.status ?? "pending");
-  const released = qa === "released" || record.qaAssessment?.verdict === "usable";
   const journey = buildJourney(record);
   const main = record.excursions?.find((e) => e.direction === "high") ?? record.excursions?.[0];
   const attr = record.custody?.attribution;
-  const top = record.ranking?.find((r) => r.recommended);
   const handled = new Set(record.handledMessageIds ?? []);
   const unhandled = outbox.filter((m) => m.direction === "in" && !handled.has(m.id));
   const approvedDrafts = drafts.filter((d) => d.status === "approved");
   const closed = c.status.startsWith("closed_");
-  // The agent picks up automatically whenever there is work only it can do.
+  // Kelvin picks up automatically whenever there is work only it can do.
   const autoStart: RunKind | null = run.busy
     ? null
     : c.status === "new"
@@ -174,154 +190,149 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
       ),
   }));
 
+  const rec = deriveRecommendation({ status: c.status, record, qa, recoveredEur: c.recoveredEur, valueEur: c.valueEur });
+  const openDrafts = drafts.filter((d) => d.status !== "sent");
+
   return (
     <CitationViewerProvider>
       <AgentRunProvider caseId={c.id} autoStart={autoStart} autoStartKey={autoStartKey}>
         <div className="flex flex-col gap-6">
+          <nav aria-label="Breadcrumb">
+            <ol className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <li>
+                <Link href="/cases" className="rounded-sm hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+                  Cases
+                </Link>
+              </li>
+              <li aria-hidden="true">
+                <ChevronRight className="size-3.5" />
+              </li>
+              <li aria-current="page" className="num text-foreground">
+                {c.shipmentRef}
+              </li>
+            </ol>
+          </nav>
+
           {/* ---------- header ---------- */}
-          <header className="grid grid-cols-1 items-center gap-5 rounded-2xl border border-border bg-card p-4 shadow-card sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-6 sm:p-6">
-            <div className="flex min-w-0 flex-col gap-3">
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="num text-[1.5rem] leading-none font-semibold tracking-[-0.025em] sm:text-[1.75rem]">{c.shipmentRef}</h1>
-                <StatusChip status={c.status} />
+          <header className="flex flex-col gap-6 border-b border-border pb-7">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="eyebrow text-muted-foreground">
+                  {c.code && c.scenario === "demo" ? `Case ${c.code} · ` : "Case · "}Temperature excursion
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <h1 className="num text-[1.875rem] leading-[1.1] font-semibold tracking-[-0.015em] sm:text-[2.25rem]">{c.shipmentRef}</h1>
+                  <StatusChip status={c.status} />
+                </div>
+                <p className="mt-2 text-[15px] text-muted-foreground">{c.title}</p>
               </div>
-              <p className="text-[15px] text-muted-foreground">{c.title}</p>
-              <dl className="num mt-1 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:flex sm:flex-wrap sm:gap-x-8 sm:gap-y-2">
-                <div>
-                  <dt className="text-xs text-muted-foreground">Route</dt>
-                  <dd className="mt-0.5">
-                    <RouteLabel origin={c.origin} destination={c.destination} />
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-muted-foreground">Value</dt>
-                  <dd className="mt-0.5 font-medium">{c.valueEur != null ? formatEUR(c.valueEur) : "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-muted-foreground">Weight</dt>
-                  <dd className="mt-0.5 font-medium">{c.weightKg != null ? formatKg(c.weightKg) : "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-muted-foreground">Declared value</dt>
-                  <dd className="mt-0.5 font-medium">{c.weightKg == null ? "—" : c.declaredValueEur != null ? formatEUR(c.declaredValueEur) : "NVD"}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-muted-foreground">Delivered</dt>
-                  <dd className="mt-0.5 font-medium">{c.deliveredAt ? formatDateWithRelative(c.deliveredAt) : "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-muted-foreground">Product</dt>
-                  <dd className="mt-0.5 font-medium">{c.product ?? "—"}</dd>
-                </div>
-              </dl>
             </div>
-            <div className="flex items-center gap-3 border-t border-border pt-4 sm:flex-col sm:gap-1 sm:border-0 sm:pt-0">
-              <DeadlineRing daysLeft={c.daysLeft} windowDays={c.nearestDeadlineWindowDays ?? 14} label={c.nearestDeadlineLabel ?? undefined} />
-              {c.nearestDeadlineLabel && <span className="max-w-[12rem] text-[12px] leading-tight text-muted-foreground sm:max-w-[9rem] sm:text-center sm:text-[11px]">{c.nearestDeadlineLabel}</span>}
-            </div>
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4 lg:grid-cols-7 lg:gap-x-0 lg:divide-x lg:divide-border [&>div]:lg:px-5 [&>div:first-child]:lg:pl-0">
+              <Fact label="Route">
+                <RouteLabel origin={c.origin} destination={c.destination} />
+              </Fact>
+              <Fact label="Product" className="lg:col-span-2">
+                {c.product ?? "—"}
+              </Fact>
+              <Fact label="Value">{c.valueEur != null ? formatEUR(c.valueEur) : "—"}</Fact>
+              <Fact label="Weight">{c.weightKg != null ? formatKg(c.weightKg) : "—"}</Fact>
+              <Fact label="Declared value">{c.weightKg == null ? "—" : c.declaredValueEur != null ? formatEUR(c.declaredValueEur) : "NVD"}</Fact>
+              <Fact label="Delivered">{c.deliveredAt ? formatDate(c.deliveredAt) : "—"}</Fact>
+            </dl>
           </header>
 
-          {/* ---------- what the agent found, at a glance ---------- */}
-          {main && (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="flex items-center gap-4 rounded-xl border border-warning/25 bg-warning-soft/60 p-4">
-                <IconTile icon={Thermometer} tone="warning" />
-                <div>
-                  <div className="text-xs text-muted-foreground">Excursion</div>
-                  <div className="num font-semibold">
-                    {formatTemp(main.peakC)} peak · {formatDuration(main.minutes)}
-                  </div>
-                  <div className="num text-xs text-muted-foreground">{formatDateTime(main.start)} UTC</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-card">
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl" style={{ background: attr ? CUSTODY_META[attr.role].colorVar : "var(--muted)" }}>
-                  <Waypoints className="size-[18px] text-white" aria-hidden="true" />
-                </span>
-                <div className="min-w-0">
-                  <div className="text-xs text-muted-foreground">Held by when it got warm</div>
-                  <div className="truncate font-semibold">{attr ? attr.custodian : "Not yet established"}</div>
-                  <div className="truncate text-xs text-muted-foreground">{attr ? attr.location : "Run the investigation"}</div>
-                </div>
-              </div>
-              <div className={cn("flex items-center gap-4 rounded-xl p-4", top ? "border-ai shadow-glow" : "border border-border bg-card shadow-card")}>
-                <AiTile size="md" />
-                <div className="min-w-0">
-                  <div className="text-xs text-muted-foreground">{released ? "Outcome" : "Recommended route"}</div>
-                  <div className="num truncate font-semibold">
-                    {released ? "No claim: product released" : top ? `${ROUTE_META[top.route].label} · ${formatEUR(top.recoverableEur)}` : "Pending"}
-                  </div>
-                  <div className="truncate text-xs text-muted-foreground">
-                    {top ? `${Math.round(top.probability * 100)}% likely · ${qa === "pending" ? "if QA rejects" : "QA rejected"}` : STATUS_META[c.status].description}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          <AnalysisStatus />
 
-          <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-            {/* ---------- agent: sticky right column, first on small screens ---------- */}
-            <aside className="xl:col-start-2 xl:row-span-2 xl:row-start-1">
-              <AiSurface>
-                <div className="flex flex-col gap-5 p-4 sm:p-5">
-                  <div className="flex items-start gap-4">
-                    <AiTile size="md" />
-                    <div className="min-w-0">
-                      <AiEyebrow />
-                      <div className="text-[15px] leading-snug font-semibold tracking-tight">{STATUS_META[c.status].description}</div>
-                    </div>
-                  </div>
-                  <CaseWorkflow
-                    caseId={c.id}
-                    status={c.status}
-                    qa={qa}
-                    drafts={drafts.map((d) => ({ id: d.id, kind: d.kind, recipientName: d.recipientName, subject: d.subject, status: d.status, amountEur: d.amountEur }))}
-                    negotiation={record.negotiation ? { offerEur: record.negotiation.offerEur, claimEur: record.negotiation.claimEur, counterparty: record.negotiation.counterparty } : null}
-                    awaitingReplyFrom={waitingFor}
-                    recoveredEur={c.recoveredEur}
-                    closedReason={c.closedReason}
-                    agentUnsure={record.qaAssessment?.verdict === "unsure"}
-                  />
-                  <div className="max-h-[60vh] overflow-y-auto pr-1 xl:max-h-[calc(100dvh-22rem)]">
-                    <AgentPanel runs={persistedRuns} />
-                  </div>
-                </div>
-              </AiSurface>
-            </aside>
+          {/* ---------- the output first ---------- */}
+          <PendingWhileRunning ready={rec.ready} lines={4} className="min-h-64">
+            <RecommendationCard
+              rec={rec}
+              deadline={{ label: c.nearestDeadlineLabel, at: c.nearestDeadlineAt, daysLeft: c.daysLeft }}
+              actionTitle={closed ? "Outcome" : "Next action"}
+              action={
+                <CaseWorkflow
+                  caseId={c.id}
+                  status={c.status}
+                  qa={qa}
+                  drafts={drafts.map((d) => ({ id: d.id, kind: d.kind, recipientName: d.recipientName, subject: d.subject, status: d.status, amountEur: d.amountEur }))}
+                  negotiation={record.negotiation ? { offerEur: record.negotiation.offerEur, claimEur: record.negotiation.claimEur, counterparty: record.negotiation.counterparty } : null}
+                  awaitingReplyFrom={waitingFor}
+                  recoveredEur={c.recoveredEur}
+                  closedReason={c.closedReason}
+                  agentUnsure={record.qaAssessment?.verdict === "unsure"}
+                />
+              }
+            />
+          </PendingWhileRunning>
 
-            {/* ---------- left column ---------- */}
+          {/* ---------- evidence ---------- */}
+          <Group label="Evidence">
             {readings.length > 0 && (
-              <Card title="Temperature and custody" description="Logger readings against the 2–8 °C range, with who held the cargo underneath" icon={Thermometer} className="xl:col-start-1">
+              <Card eyebrow="Logger" title="Temperature and custody" description="Logger readings against the 2–8 °C range, with the party holding the cargo underneath">
+                {main && (
+                  <dl className="mb-5 grid grid-cols-1 gap-4 rounded-lg border border-border bg-muted/50 px-5 py-4 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-border">
+                    <div className="sm:pr-5">
+                      <dt className="eyebrow text-[10.5px] text-muted-foreground">Excursion</dt>
+                      <dd className="num mt-1 font-semibold text-warning-fg">
+                        {formatTemp(main.peakC)} peak · {formatDuration(main.minutes)}
+                      </dd>
+                      <dd className="num text-xs text-muted-foreground">From {formatDateTime(main.start)} UTC</dd>
+                    </div>
+                    <div className="min-w-0 sm:px-5">
+                      <dt className="eyebrow text-[10.5px] text-muted-foreground">In custody of</dt>
+                      <dd className="mt-1 flex items-center gap-2 font-semibold">
+                        {attr && <span className="size-2.5 shrink-0 rounded-sm" style={{ background: CUSTODY_META[attr.role].colorVar }} aria-hidden="true" />}
+                        <span className="truncate">{attr ? attr.custodian : "Not yet established"}</span>
+                      </dd>
+                      <dd className="truncate text-xs text-muted-foreground">{attr ? attr.location : "Established by the analysis"}</dd>
+                    </div>
+                    <div className="min-w-0 sm:pl-5">
+                      <dt className="eyebrow text-[10.5px] text-muted-foreground">Activity</dt>
+                      <dd className="mt-1 truncate font-semibold">{attr ? attr.activity : "—"}</dd>
+                      <dd className="text-xs text-muted-foreground">{attr ? (attr.controlled ? "Temperature-controlled segment" : "Uncontrolled (ambient) segment") : ""}</dd>
+                    </div>
+                  </dl>
+                )}
                 <TemperatureChart readings={readings} excursions={record.excursions ?? []} segments={record.custody?.segments ?? []} />
-                {!record.custody && <p className="mt-2 text-xs text-muted-foreground">Custody bands appear once the agent has rebuilt the timeline.</p>}
+                {!record.custody && <p className="mt-2 text-xs text-muted-foreground">Custody bands appear once the custody timeline has been rebuilt.</p>}
               </Card>
             )}
 
+            <PendingWhileRunning ready={!!record.qaAssessment} lines={3}>
+              {record.qaAssessment && (
+                <QaDecisionCard assessment={record.qaAssessment} humanQa={qa !== "pending" ? qa : null} citation={record.qaAssessment.citationId ? record.citations?.[record.qaAssessment.citationId] : undefined} />
+              )}
+            </PendingWhileRunning>
+
             {journey && (
-              <Card title="Shipment journey" description="Where the cargo travelled, who held it, and where it got warm" icon={MapIcon} className="xl:col-start-1">
+              <Card eyebrow="Route" title="Shipment journey" description="Where the cargo travelled, who held it, and where the temperature rose">
                 <JourneyMap journey={journey} deliveredAt={c.deliveredAt?.toISOString() ?? null} />
               </Card>
             )}
+          </Group>
 
-            {record.qaAssessment && (
-              <QaDecisionCard assessment={record.qaAssessment} humanQa={qa !== "pending" ? qa : null} className="xl:col-start-1" citation={record.qaAssessment.citationId ? record.citations?.[record.qaAssessment.citationId] : undefined} />
-            )}
-
+          {/* ---------- recovery ---------- */}
+          <PendingWhileRunning ready={!!record.ranking} lines={4}>
             {record.ranking && (
-              <Card title="Recovery routes" description="Ranked by expected recoverable amount; caps, deductibles and deadlines come from the rules engine" icon={Send} className="xl:col-span-2">
-                {record.claimPlan && record.claimPlan.length > 0 && <ClaimPlan plan={record.claimPlan} extraCosts={record.extraCosts ?? []} />}
-                <RecoveryRoutes ranking={record.ranking} citations={routeCitations(record)} qaPending={qa === "pending"} />
-                {record.deadlines && (
-                  <div className="mt-5">
-                    <div className="eyebrow mb-1 text-muted-foreground">All deadlines</div>
-                    <DeadlineList deadlines={record.deadlines} />
-                  </div>
-                )}
-              </Card>
+              <Group label="Recovery">
+                <Card eyebrow="Recovery routes" title={record.claimPlan?.length ? "Claim plan and recovery routes" : "Recovery routes"} description="Ranked by expected recoverable amount. Caps, deductibles and deadlines come from the rules engine.">
+                  {record.claimPlan && record.claimPlan.length > 0 && <ClaimPlan plan={record.claimPlan} extraCosts={record.extraCosts ?? []} />}
+                  <RecoveryRoutes ranking={record.ranking} citations={routeCitations(record)} qaPending={qa === "pending"} />
+                  {record.deadlines && (
+                    <div className="mt-8">
+                      <h3 className="eyebrow font-sans text-muted-foreground">All deadlines</h3>
+                      <DeadlineList deadlines={record.deadlines} />
+                    </div>
+                  )}
+                </Card>
+              </Group>
             )}
+          </PendingWhileRunning>
 
-            <Card title="Documents" description="Everything the agent read" icon={FileText} className="xl:col-span-2">
-              <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 2xl:grid-cols-3">
+          {/* ---------- records ---------- */}
+          <Group label="Records">
+            <Card eyebrow="Documents" title="Case file" description={`${docs.length} document${docs.length === 1 ? "" : "s"} reviewed for this case`}>
+              <ul className="grid grid-cols-1 divide-y divide-border border-y border-border md:grid-cols-2 md:gap-x-8 md:divide-y-0 [&>li]:md:border-b [&>li]:md:border-border">
                 {docs.map((d) => {
                   const Icon = DOC_ICON[d.kind] ?? FileText;
                   return (
@@ -330,19 +341,18 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
                         href={`/api/documents/${d.id}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="group flex items-center gap-3 rounded-xl border border-border px-3.5 py-3 transition-colors hover:border-ai-from/30 hover:bg-ai-soft/50"
+                        className="group flex items-center gap-3 px-1 py-3 transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                       >
-                        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground group-hover:bg-ai-soft group-hover:text-ai-fg">
-                          <Icon className="size-4" aria-hidden="true" />
-                        </span>
+                        <Icon className="size-4 shrink-0 text-subtle group-hover:text-ai-fg" strokeWidth={1.75} aria-hidden="true" />
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-medium">{d.title}</span>
+                          <span className="block truncate text-sm font-medium group-hover:underline group-hover:underline-offset-2">{d.title}</span>
                           <span className="num block text-xs text-muted-foreground">
                             {DOC_LABEL[d.kind] ?? "Document"}
                             {d.pages ? ` · ${d.pages} page${d.pages > 1 ? "s" : ""}` : ""} · {Math.max(1, Math.round(d.sizeBytes / 1024))} KB
                           </span>
                         </span>
                         <ExternalLink className="size-3.5 text-subtle" aria-hidden="true" />
+                        <span className="sr-only">(opens in a new tab)</span>
                       </a>
                     </li>
                   );
@@ -350,39 +360,65 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
               </ul>
             </Card>
 
-            <Card title="Correspondence" description={`${outbox.length} message(s) in the simulated Outbox · ${drafts.filter((d) => d.status !== "sent").length} draft(s)`} icon={Inbox} className="xl:col-span-2">
+            <Card eyebrow="Correspondence" title="Messages and drafts" description={`${outbox.length} message${outbox.length === 1 ? "" : "s"} in the simulated Outbox · ${openDrafts.length} draft${openDrafts.length === 1 ? "" : "s"}`}>
               <CorrespondenceThread
                 caseId={c.id}
                 messages={outbox.map((m) => ({ id: m.id, direction: m.direction, counterparty: m.counterparty, fromAddress: m.fromAddress, toAddress: m.toAddress, subject: m.subject, body: m.body, attachments: m.attachments, at: m.at.toISOString(), draftId: m.draftId }))}
                 followUp={{ appealDraftIds: (record.followUp?.appeals ?? []).map((a) => a.draftId), remindersSent: record.followUp?.remindersSent ?? [] }}
-                drafts={drafts.filter((d) => d.status !== "sent").map((d) => ({ id: d.id, kind: d.kind, status: d.status, subject: d.subject, recipientName: d.recipientName, body: d.body, citations: (d.citations as unknown[]).length }))}
+                drafts={openDrafts.map((d) => ({ id: d.id, kind: d.kind, status: d.status, subject: d.subject, recipientName: d.recipientName, body: d.body, citations: (d.citations as unknown[]).length }))}
               />
             </Card>
+          </Group>
 
-            <Card title="Audit log" description="Append-only record of every event, newest first" icon={History} className="xl:col-span-2">
-              <ol className="flex flex-col gap-2.5">
-                {[...audit].reverse().map((e) => (
-                  <li key={e.id} className="flex flex-wrap gap-x-3 gap-y-0.5 text-sm">
-                    <span
-                      className={cn("mt-1.5 size-1.5 shrink-0 rounded-full", e.actorType === "human" ? "bg-human" : e.actorType === "agent" ? "bg-ai" : "bg-subtle")}
-                      aria-hidden="true"
-                    />
-                    <span className="min-w-0 flex-1">
-                      <span className="font-medium">{e.tool ?? e.eventType.replace(/_/g, " ")}</span>{" "}
-                      <span className="text-muted-foreground">
-                        by {e.actorName}
-                        {e.actorRole ? ` (${e.actorRole})` : ""}
+          {/* ---------- details: closed by default ---------- */}
+          <details className="group/details mt-4 rounded-xl border border-border bg-card">
+            <summary className="flex cursor-pointer list-none items-center gap-4 rounded-xl px-5 py-4 select-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:px-7 [&::-webkit-details-marker]:hidden">
+              <span className="min-w-0 flex-1">
+                <span className="block font-heading text-[1.05rem] font-semibold">Analysis details &amp; audit trail</span>
+                <span className="block text-sm text-muted-foreground">
+                  Each step of the analysis with its sources, and the append-only audit log · {persistedRuns.length} run{persistedRuns.length === 1 ? "" : "s"}, {audit.length} event{audit.length === 1 ? "" : "s"}
+                </span>
+              </span>
+              <ChevronDown className="size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-open/details:rotate-180" aria-hidden="true" />
+            </summary>
+            <div className="grid grid-cols-1 gap-8 border-t border-border px-5 py-6 sm:px-7 xl:grid-cols-12">
+              <section aria-labelledby="steps-heading" className="min-w-0 xl:col-span-7">
+                <h3 id="steps-heading" className="eyebrow font-sans text-muted-foreground">
+                  Analysis steps
+                </h3>
+                <div className="mt-3">
+                  <AgentPanel runs={persistedRuns} />
+                </div>
+              </section>
+              <section aria-labelledby="audit-heading" className="min-w-0 xl:col-span-5 xl:border-l xl:border-border xl:pl-8">
+                <h3 id="audit-heading" className="eyebrow font-sans text-muted-foreground">
+                  Audit trail <span className="font-normal normal-case tracking-normal">· newest first</span>
+                </h3>
+                <ol className="mt-3 divide-y divide-border border-y border-border">
+                  {[...audit].reverse().map((e) => (
+                    <li key={e.id} className="flex gap-3 py-2.5 text-[13px]">
+                      <span
+                        className={cn("mt-1.5 size-1.5 shrink-0 rounded-full", e.actorType === "human" ? "ring-1 ring-human ring-offset-1 ring-offset-card" : e.actorType === "agent" ? "bg-ai" : "bg-subtle")}
+                        aria-hidden="true"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-medium">{e.tool ?? e.eventType.replace(/_/g, " ")}</span>
+                        <span className="block text-xs text-muted-foreground">
+                          <span className="sr-only">{ACTOR_LABEL[e.actorType] ?? e.actorType}: </span>
+                          {e.actorName}
+                          {e.actorRole ? ` (${e.actorRole})` : ""}
+                        </span>
                       </span>
-                    </span>
-                    <span className="num shrink-0 text-xs text-subtle">
-                      {formatDateTime(e.at)}
-                      {e.durationMs != null ? ` · ${e.durationMs} ms` : ""}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </Card>
-          </div>
+                      <span className="num shrink-0 text-right text-xs text-subtle">
+                        {formatDateTime(e.at)}
+                        {e.durationMs != null && <span className="block">{e.durationMs} ms</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            </div>
+          </details>
         </div>
       </AgentRunProvider>
     </CitationViewerProvider>
@@ -392,29 +428,26 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
 function CaseSkeleton() {
   return (
     <div className="flex flex-col gap-6" aria-busy="true">
-      <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-6 shadow-card">
-        <div className="flex flex-col gap-3">
-          <Skeleton className="h-7 w-48" />
-          <Skeleton className="h-4 w-80" />
-          <Skeleton className="h-4 w-[30rem]" />
+      <Skeleton className="h-4 w-36" />
+      <div className="flex flex-col gap-4 border-b border-border pb-7">
+        <Skeleton className="h-3 w-40" />
+        <Skeleton className="h-9 w-64" />
+        <Skeleton className="h-4 w-96" />
+        <div className="mt-2 grid grid-cols-4 gap-6 lg:grid-cols-7">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <Skeleton key={i} className="h-9" />
+          ))}
         </div>
-        <Skeleton className="size-24 rounded-full" />
       </div>
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <Skeleton className="h-80 rounded-2xl" />
-        <Skeleton className="h-80 rounded-2xl" />
-      </div>
+      <Skeleton className="h-72 rounded-xl" />
+      <Skeleton className="h-96 rounded-xl" />
     </div>
   );
 }
 
 export default function CasePage({ params }: PageProps<"/cases/[id]">) {
   return (
-    <PageContainer className="flex flex-col gap-5">
-      <Link href="/cases" className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ChevronLeft className="size-4" aria-hidden="true" />
-        Cases
-      </Link>
+    <PageContainer className="flex flex-col gap-6">
       <Suspense fallback={<CaseSkeleton />}>
         <CaseContent params={params} />
       </Suspense>

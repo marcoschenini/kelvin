@@ -34,11 +34,11 @@ function CaseCards({ items }: { items: CaseListItem[] }) {
             <Link
               href={`/cases/${c.id}`}
               data-case-row
-              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-card transition-colors active:bg-muted/50"
+              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors active:bg-muted/50"
             >
               <span className="flex items-start gap-3">
                 {c.code && c.scenario === "demo" && (
-                  <span className="num grid size-9 shrink-0 place-items-center rounded-lg bg-ai-soft text-sm font-semibold text-ai-fg">{c.code}</span>
+                  <span className="figure grid size-9 shrink-0 place-items-center rounded-md border border-border text-base font-semibold text-ai-fg">{c.code}</span>
                 )}
                 <span className="min-w-0 flex-1">
                   <span className="num block truncate text-[15px] font-semibold">{c.shipmentRef}</span>
@@ -75,9 +75,9 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
   return (
     <>
     <CaseCards items={items} />
-    <div className="hidden overflow-hidden rounded-xl border border-border bg-card shadow-card lg:block">
+    <div className="hidden overflow-hidden rounded-xl border border-border bg-card lg:block">
       <div
-        className={cn(GRID, "border-b border-border bg-muted/40 px-5 py-2.5 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase")}
+        className={cn(GRID, "border-b border-foreground/15 px-5 py-3 text-[11px] font-semibold tracking-[0.08em] text-foreground uppercase")}
         aria-hidden="true"
       >
         <span>Shipment</span>
@@ -99,17 +99,17 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
                 data-case-row
                 className={cn(
                   GRID,
-                  "group px-5 py-3.5 transition-colors hover:bg-muted/50 focus-visible:bg-ai-soft focus-visible:outline-none",
+                  "group px-5 py-4 transition-colors hover:bg-muted/60 focus-visible:bg-ai-soft focus-visible:outline-none",
                 )}
               >
                 <span className="flex min-w-0 items-center gap-3">
                   {c.code && c.scenario === "demo" && (
-                    <span className="num grid size-8 shrink-0 place-items-center rounded-lg bg-ai-soft text-xs font-semibold text-ai-fg">
+                    <span className="figure grid size-8 shrink-0 place-items-center rounded-md border border-border text-sm font-semibold text-ai-fg">
                       {c.code}
                     </span>
                   )}
                   <span className="min-w-0">
-                    <span className="num block truncate text-[14px] font-semibold">{c.shipmentRef}</span>
+                    <span className="num block truncate text-[14px] font-semibold group-hover:underline group-hover:underline-offset-2">{c.shipmentRef}</span>
                     <span className="block truncate text-xs text-muted-foreground">{c.product ?? c.title}</span>
                   </span>
                 </span>
@@ -155,8 +155,8 @@ export function CaseListSkeleton({ rows = 3 }: { rows?: number }) {
         </div>
       ))}
     </div>
-    <div className="hidden overflow-hidden rounded-xl border border-border bg-card shadow-card lg:block" aria-busy="true" aria-label="Loading cases">
-      <div className="border-b border-border bg-muted/40 px-5 py-3">
+    <div className="hidden overflow-hidden rounded-xl border border-border bg-card lg:block" aria-busy="true" aria-label="Loading cases">
+      <div className="border-b border-border px-5 py-3">
         <Skeleton className="h-3 w-40" />
       </div>
       {Array.from({ length: rows }).map((_, i) => (

@@ -2,7 +2,10 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import {
+  BellRing,
   CalendarClock,
+  FlaskConical,
+  Repeat2,
   ChevronRight,
   FileText,
   FolderArchive,
@@ -17,8 +20,9 @@ import {
   Send,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
   Thermometer,
+  Wrench,
+  MessageSquareText,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -44,6 +48,9 @@ const TOOL: Record<string, { label: string; icon: LucideIcon }> = {
   request_missing_info: { label: "Checked for missing information", icon: ListChecks },
   send_via_outbox: { label: "Sent via the Outbox", icon: Send },
   handle_reply: { label: "Handled a reply", icon: MailOpen },
+  assess_quality: { label: "Assessed product quality", icon: FlaskConical },
+  draft_appeal: { label: "Drafted an appeal", icon: Repeat2 },
+  draft_reminder: { label: "Drafted a reminder", icon: BellRing },
 };
 
 const RUN_LABEL: Record<RunKind, string> = {
@@ -73,19 +80,19 @@ function Step({ s }: { s: LiveStep }) {
   if (s.tool === "message") {
     return (
       <li className="flex gap-2.5 py-1.5">
-        <Sparkles className="mt-0.5 size-3.5 shrink-0 text-ai-fg" aria-hidden="true" />
-        <p className="text-[13px] text-muted-foreground italic">{s.text ?? s.summary}</p>
+        <MessageSquareText className="mt-0.5 size-3.5 shrink-0 text-subtle" aria-hidden="true" />
+        <p className="text-[13px] text-muted-foreground">{s.text ?? s.summary}</p>
       </li>
     );
   }
-  const meta = TOOL[s.tool] ?? { label: s.tool, icon: Sparkles };
+  const meta = TOOL[s.tool] ?? { label: s.tool, icon: Wrench };
   const Icon = meta.icon;
   return (
     <li className="flex gap-2.5 py-1.5">
       <span
         className={cn(
-          "mt-0.5 grid size-6 shrink-0 place-items-center rounded-md",
-          s.status === "running" ? "bg-ai-soft text-ai-fg" : s.status === "ok" ? "bg-muted text-foreground/70" : "bg-danger-soft text-danger",
+          "mt-0.5 grid size-6 shrink-0 place-items-center rounded-md border border-border bg-card",
+          s.status === "running" ? "text-ai-fg" : s.status === "ok" ? "text-foreground/70" : "border-danger/30 text-danger",
         )}
       >
         {s.status === "running" ? <Loader2 className="size-3.5 animate-spin" /> : s.status === "error" ? <X className="size-3.5" /> : <Icon className="size-3.5" />}
@@ -125,13 +132,13 @@ export function AgentPanel({ runs }: { runs: PersistedRun[] }) {
   const live = useAgentRun();
   return (
     <div className="flex flex-col gap-4">
-      {runs.length === 0 && !live.running && <p className="text-sm text-muted-foreground">The agent has not run on this case yet.</p>}
+      {runs.length === 0 && !live.running && <p className="text-sm text-muted-foreground">No analysis has run on this case yet.</p>}
       {runs.map((r, i) => (
         <details key={r.id} open={i === runs.length - 1 && !live.running} className="group/run">
           <summary className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground select-none">
             <ChevronRight className="size-3.5 transition-transform group-open/run:rotate-90" aria-hidden="true" />
             <span className="font-semibold text-foreground">{RUN_LABEL[r.kind]}</span>
-            <span>· {r.mode === "live" ? (r.model ?? "live") : "deterministic planner"}</span>
+            <span>· {r.mode === "live" ? (r.model ?? "live model") : "deterministic planner"}</span>
             <span className="num ml-auto">{formatDateTime(r.startedAt)}</span>
           </summary>
           <ol className="mt-1 ml-1 border-l border-border pl-3">
@@ -150,7 +157,7 @@ export function AgentPanel({ runs }: { runs: PersistedRun[] }) {
             <span className="font-semibold">{RUN_LABEL[live.running]}</span>
             <span className="text-muted-foreground">in progress</span>
           </div>
-          <ol className="mt-1 ml-1 border-l border-ai-from/30 pl-3" aria-live="polite">
+          <ol className="mt-1 ml-1 border-l border-ai-fg/30 pl-3" aria-live="polite">
             <AnimatePresence initial={false}>
               {live.steps.map((s) => (
                 <motion.div key={s.seq} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}>
@@ -160,8 +167,8 @@ export function AgentPanel({ runs }: { runs: PersistedRun[] }) {
             </AnimatePresence>
             {live.narration.trim() && (
               <li className="flex gap-2.5 py-1.5">
-                <Sparkles className="mt-0.5 size-3.5 shrink-0 animate-pulse text-ai-fg" aria-hidden="true" />
-                <p className="text-[13px] text-muted-foreground italic">{live.narration.trim()}</p>
+                <MessageSquareText className="mt-0.5 size-3.5 shrink-0 text-subtle" aria-hidden="true" />
+                <p className="text-[13px] text-muted-foreground">{live.narration.trim()}</p>
               </li>
             )}
           </ol>

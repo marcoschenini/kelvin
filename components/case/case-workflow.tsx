@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
-import { ArrowRight, CircleCheck, Handshake, Loader2, Play, RotateCw, Scale, Send, ShieldAlert, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ArrowRight, CircleCheck, Clock, Handshake, Loader2, Play, RotateCw, Send, ThumbsDown, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
 import { useAgentRun } from "@/components/agent/agent-run-context";
 import { HumanDecisionBadge } from "@/components/kit/badges";
@@ -39,7 +38,7 @@ export interface Negotiation {
   counterparty: string;
 }
 
-/** Typing-dots indicator while a simulated counterparty "writes" its reply. */
+/** Quiet waiting line while a simulated counterparty "writes" its reply. */
 function AwaitingReply({ caseId, from, paused }: { caseId: string; from: string; paused: boolean }) {
   const router = useRouter();
   const fired = useRef<string | null>(null);
@@ -49,35 +48,38 @@ function AwaitingReply({ caseId, from, paused }: { caseId: string; from: string;
       fired.current = from;
       const r = await deliverRepliesAction(caseId);
       if (r.delivered) {
-        toast(`Reply received from ${from}`, { description: "The agent is reading it." });
+        toast(`Reply received from ${from}`, { description: "Kelvin is reviewing it." });
         router.refresh();
       }
     }, 3500);
     return () => clearTimeout(t);
   }, [caseId, from, paused, router]);
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm">
-      <span className="flex gap-1" aria-hidden="true">
-        {[0, 1, 2].map((i) => (
-          <motion.span
-            key={i}
-            className="size-1.5 rounded-full bg-subtle"
-            animate={{ opacity: [0.3, 1, 0.3] }}
-            transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
-          />
-        ))}
-      </span>
+    <div className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm">
+      <Clock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
       <span>
-        Waiting for a reply from <span className="font-medium">{from}</span>
+        Awaiting a reply from <span className="font-medium">{from}</span>
         <span className="block text-xs text-muted-foreground">Simulated counterparty. Nothing leaves Kelvin.</span>
       </span>
     </div>
   );
 }
 
+function GateHeader({ title, description, badge = "Human decision" }: { title: string; description?: string; badge?: string }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <HumanDecisionBadge label={badge} className="self-start" />
+      <div>
+        <div className="font-heading text-[17px] leading-snug font-semibold">{title}</div>
+        {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
+      </div>
+    </div>
+  );
+}
+
 /**
  * The next action for the case, driven by its status. Human gates carry the
- * violet badge and are only enabled for the persona allowed to act.
+ * navy outline badge and are only enabled for the persona allowed to act.
  */
 export function CaseWorkflow({
   caseId,
@@ -98,7 +100,7 @@ export function CaseWorkflow({
   awaitingReplyFrom: string | null;
   recoveredEur: number | null;
   closedReason: string | null;
-  /** The quality agent could not decide on its own; a human QA must. */
+  /** The quality assessment could not decide on its own; a human QA must. */
   agentUnsure?: boolean;
 }) {
   const persona = usePersona();
@@ -106,7 +108,10 @@ export function CaseWorkflow({
   const run = useAgentRun();
   const [pending, start] = useTransition();
   const [note, setNote] = useState("");
-  const awaiting = drafts.filter((d) => d.status === "awaiting_approval" && d.kind !== "info_request");
+  // Claim letters first (largest amount first): the claim is the decision that matters most.
+  const awaiting = drafts
+    .filter((d) => d.status === "awaiting_approval" && d.kind !== "info_request")
+    .sort((a, b) => Number(b.kind === "claim_letter") - Number(a.kind === "claim_letter") || (b.amountEur ?? 0) - (a.amountEur ?? 0));
   const approved = drafts.filter((d) => d.status === "approved");
   const busy = pending || !!run.running;
   const isManager = ROLE_CAN[persona.role].approvalGate;
@@ -120,120 +125,101 @@ export function CaseWorkflow({
     });
 
   if (status.startsWith("closed_")) {
-    const recovered = status === "closed_recovered" || status === "closed_settled";
+    const good = status === "closed_recovered" || status === "closed_settled" || status === "closed_no_claim";
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={cn("rounded-xl border p-4", recovered || status === "closed_no_claim" ? "border-success/25 bg-success-soft" : "border-border bg-muted")}
-      >
-        <div className="flex items-center gap-2 font-semibold">
-          <CircleCheck className={cn("size-5", recovered || status === "closed_no_claim" ? "text-success" : "text-muted-foreground")} aria-hidden="true" />
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 font-heading text-[17px] font-semibold">
+          <CircleCheck className={cn("size-5", good ? "text-success" : "text-muted-foreground")} aria-hidden="true" />
           {status === "closed_recovered" ? "Recovered in full" : status === "closed_settled" ? "Settled" : status === "closed_no_claim" ? "Closed: no claim" : status === "closed_not_approved" ? "Closed: not approved by the manager" : "Closed: rejected"}
         </div>
-        {recoveredEur != null && recoveredEur > 0 && <div className="num mt-1 text-2xl font-semibold tracking-tight text-success-fg">{formatEUR(recoveredEur)}</div>}
-        {closedReason && <p className="mt-1 text-sm text-muted-foreground">{closedReason}</p>}
-      </motion.div>
+        {recoveredEur != null && recoveredEur > 0 && <div className="figure text-[1.75rem] leading-tight font-semibold text-success-fg">{formatEUR(recoveredEur)}</div>}
+        {closedReason && <p className="text-sm text-muted-foreground">{closedReason}</p>}
+      </div>
     );
   }
 
+  const qaGate = status === "awaiting_qa" && qa === "pending";
+  const negotiating = !!negotiation && status === "in_negotiation";
+  const nothingToDo = !(status === "new" || status === "investigating" || qaGate || negotiating || awaiting.length || approved.length || awaitingReplyFrom);
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {status === "new" && !run.running && (
-        <Button variant="ai" onClick={() => run.start("investigate")} className="self-start">
+        <Button variant="ai" size="lg" onClick={() => run.start("investigate")} className="self-start">
           <Play data-icon="inline-start" />
-          Start investigation
+          Start analysis
         </Button>
       )}
       {status === "investigating" && !run.running && (
         <Button variant="outline" onClick={() => run.start("investigate")} className="self-start">
           <RotateCw data-icon="inline-start" />
-          Re-run investigation
+          Re-run analysis
         </Button>
       )}
+      {(status === "new" || status === "investigating") && run.running && <p className="text-sm text-muted-foreground">Actions become available when the analysis is complete.</p>}
 
-      {status === "awaiting_qa" && qa === "pending" && (
-        <div className="rounded-xl border border-human/20 bg-human-soft/60 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="font-semibold">Is the product still usable?</div>
-              <p className="mt-0.5 text-sm text-muted-foreground">
-                {agentUnsure ? "The quality agent is unsure (too close to the limit). A human QA decides." : "Quality Assurance decides disposition."}
-              </p>
-            </div>
-            <HumanDecisionBadge />
-          </div>
-          <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Optional note, e.g. stability data reference" className="mt-3 bg-card" rows={2} />
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+      {qaGate && (
+        <div className="flex flex-col gap-3">
+          <GateHeader
+            badge="QA decision"
+            title="Is the product still usable?"
+            description={agentUnsure ? "The excursion is too close to the stability limit to call automatically. Quality Assurance decides." : "Quality Assurance decides the disposition of the batch."}
+          />
+          <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Optional note, e.g. stability data reference" className="bg-card" rows={2} aria-label="QA note" />
+          <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" disabled={busy || !ROLE_CAN[persona.role].qaGate} onClick={() => act(() => qaDecisionAction(caseId, "released", note || undefined), "Product released")}>
               <ThumbsUp data-icon="inline-start" />
-              Released
+              Release product
             </Button>
-            <Button variant="destructive" disabled={busy || !ROLE_CAN[persona.role].qaGate} onClick={() => act(() => qaDecisionAction(caseId, "rejected", note || undefined), "Batch rejected")}>
+            <Button variant="navy" disabled={busy || !ROLE_CAN[persona.role].qaGate} onClick={() => act(() => qaDecisionAction(caseId, "rejected", note || undefined), "Batch rejected")}>
               <ThumbsDown data-icon="inline-start" />
-              Rejected
+              Reject batch
             </Button>
-            {!ROLE_CAN[persona.role].qaGate && <span className="text-xs text-muted-foreground">Act as Elena Weber (QA Lead) to decide.</span>}
           </div>
+          {!ROLE_CAN[persona.role].qaGate && <span className="text-xs text-muted-foreground">Act as Elena Weber (QA Lead) to decide.</span>}
         </div>
       )}
 
-      {negotiation && status === "in_negotiation" && (
-        <div className="rounded-xl border border-human/20 bg-human-soft/60 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-1.5 font-semibold">
-                <Scale className="size-4 text-human" aria-hidden="true" />
-                Settlement offer
-              </div>
-              <p className="mt-0.5 text-sm text-muted-foreground">{negotiation.counterparty} offers less than the claim.</p>
+      {negotiating && negotiation && (
+        <div className="flex flex-col gap-3">
+          <GateHeader badge="Manager decision" title="Settlement offer" description={`${negotiation.counterparty} offers less than the claim.`} />
+          <dl className="grid grid-cols-2 divide-x divide-border rounded-lg border border-border bg-card">
+            <div className="p-3">
+              <dt className="eyebrow text-muted-foreground">Offer</dt>
+              <dd className="figure mt-1 text-xl font-semibold">{formatEUR(negotiation.offerEur)}</dd>
             </div>
-            <HumanDecisionBadge />
-          </div>
-          <div className="num mt-3 grid grid-cols-2 gap-2 text-sm">
-            <div className="rounded-lg bg-card p-2.5">
-              <div className="text-xs text-muted-foreground">Offer</div>
-              <div className="text-lg font-semibold">{formatEUR(negotiation.offerEur)}</div>
+            <div className="p-3">
+              <dt className="eyebrow text-muted-foreground">Claim</dt>
+              <dd className="figure mt-1 text-xl font-semibold">{formatEUR(negotiation.claimEur)}</dd>
             </div>
-            <div className="rounded-lg bg-card p-2.5">
-              <div className="text-xs text-muted-foreground">Claim</div>
-              <div className="text-lg font-semibold">{formatEUR(negotiation.claimEur)}</div>
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button variant="outline" disabled={busy || !isManager} onClick={() => act(() => settlementAction(caseId, "accept"), "Offer accepted")}>
-              <Handshake data-icon="inline-start" />
-              Accept {formatEUR(negotiation.offerEur)}
-            </Button>
+          </dl>
+          <div className="flex flex-wrap gap-2">
             <Button variant="ai" disabled={busy || !isManager} onClick={() => act(() => settlementAction(caseId, "counter"), "Counter-letter ready for review")}>
               <ArrowRight data-icon="inline-start" />
               Insist on full amount
             </Button>
+            <Button variant="outline" disabled={busy || !isManager} onClick={() => act(() => settlementAction(caseId, "accept"), "Offer accepted")}>
+              <Handshake data-icon="inline-start" />
+              Accept {formatEUR(negotiation.offerEur)}
+            </Button>
           </div>
-          {!isManager && <p className="mt-2 text-xs text-muted-foreground">Act as Tom Becker (Claims Manager) to decide.</p>}
+          {!isManager && <p className="text-xs text-muted-foreground">Act as Tom Becker (Claims Manager) to decide.</p>}
         </div>
       )}
 
       {awaiting.length > 0 && (
-        <div className="rounded-xl border border-human/20 bg-human-soft/60 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="font-semibold">Manager approval</div>
-              <p className="mt-0.5 text-sm text-muted-foreground">Nothing leaves Kelvin without it.</p>
-            </div>
-            <HumanDecisionBadge />
-          </div>
-          <ul className="mt-3 flex flex-col gap-2">
-            {awaiting.map((d) => (
-              <li key={d.id} className="flex items-center gap-2 rounded-lg bg-card p-3 text-sm">
-                <ShieldAlert className="size-4 shrink-0 text-warning" aria-hidden="true" />
-                <span className="min-w-0 flex-1">
+        <div className="flex flex-col gap-3">
+          <GateHeader badge="Manager approval" title={awaiting.some((d) => d.kind === "claim_letter") ? "Approve the claim" : "Approve outgoing message"} description="Nothing leaves Kelvin without a manager's approval." />
+          <ul className="flex flex-col gap-2">
+            {awaiting.map((d, i) => (
+              <li key={d.id} className="flex flex-col gap-2.5 rounded-lg border border-border bg-card p-3 text-sm">
+                <span className="min-w-0">
                   <span className="font-medium">{DRAFT_LABEL[d.kind] ?? d.kind}</span>
                   <span className="text-muted-foreground"> to {d.recipientName}</span>
-                  {d.amountEur ? <span className="num font-medium"> · {formatEUR(d.amountEur)}</span> : null}
+                  {d.amountEur ? <span className="num block font-medium">{formatEUR(d.amountEur)}</span> : null}
                 </span>
-                <Link href={`/cases/${caseId}/approve/${d.id}`} className={cn(buttonVariants({ size: "sm", variant: "ai" }))}>
-                  Review
+                <Link href={`/cases/${caseId}/approve/${d.id}`} className={cn(buttonVariants({ size: i === 0 ? "default" : "sm", variant: i === 0 ? "ai" : "outline" }), "self-start")}>
+                  {d.kind === "claim_letter" ? "Review and approve claim" : "Review and approve"}
                   <ArrowRight data-icon="inline-end" />
                 </Link>
               </li>
@@ -250,6 +236,8 @@ export function CaseWorkflow({
       )}
 
       {awaitingReplyFrom && <AwaitingReply caseId={caseId} from={awaitingReplyFrom} paused={busy} />}
+
+      {nothingToDo && <p className="text-sm text-muted-foreground">{run.running ? "Kelvin is updating the analysis." : "No action needed right now."}</p>}
     </div>
   );
 }

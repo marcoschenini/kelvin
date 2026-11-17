@@ -34,10 +34,10 @@ export function DemoCaseCards({ cases }: { cases: DemoCaseSummary[] }) {
         <form
           key={c.code}
           action={loadDemoCaseAction.bind(null, c.code)}
-          className="group flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 shadow-card transition-shadow hover:shadow-raised"
+          className="group flex flex-col gap-4 rounded-xl border border-border bg-card p-6 transition-colors hover:border-input"
         >
           <div className="flex items-start justify-between gap-3">
-            <span className="num grid size-10 place-items-center rounded-xl bg-ai-soft text-base font-semibold text-ai-fg">{c.code}</span>
+            <span className="figure grid size-10 place-items-center rounded-md border border-border text-lg font-semibold text-ai-fg">{c.code}</span>
             <span className="num inline-flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground">
               {c.origin}
               <ArrowRight className="size-3.5" aria-label="to" />
@@ -45,20 +45,20 @@ export function DemoCaseCards({ cases }: { cases: DemoCaseSummary[] }) {
             </span>
           </div>
           <div>
-            <h3 className="text-[15px] leading-snug font-semibold">{c.title}</h3>
+            <h3 className="text-[1.1rem] leading-snug font-semibold">{c.title}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{c.scenario}</p>
           </div>
-          <dl className="num mt-auto grid grid-cols-3 gap-2 rounded-xl bg-muted/60 p-3 text-xs">
+          <dl className="num mt-auto grid grid-cols-3 gap-2 border-t border-border pt-4 text-xs">
             <div>
-              <dt className="text-muted-foreground">Value</dt>
+              <dt className="eyebrow text-[10px] text-muted-foreground">Value</dt>
               <dd className="mt-0.5 font-semibold">{formatEUR(c.valueEur)}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Weight</dt>
+              <dt className="eyebrow text-[10px] text-muted-foreground">Weight</dt>
               <dd className="mt-0.5 font-semibold">{c.weightKg} kg</dd>
             </div>
             <div className="min-w-0">
-              <dt className="text-muted-foreground">Product</dt>
+              <dt className="eyebrow text-[10px] text-muted-foreground">Product</dt>
               <dd className="mt-0.5 truncate font-semibold" title={c.product}>
                 {c.product.split(" ")[0]}
               </dd>
