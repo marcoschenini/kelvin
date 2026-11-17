@@ -204,7 +204,7 @@ describe("chat route", () => {
         stream([
           { type: "stream-start", warnings: [] },
           { type: "text-start", id: "x" },
-          { type: "text-delta", id: "x", delta: `L'assicurazione paga **€190.000** [${returned}] [${notReturned}] [S999].` },
+          { type: "text-delta", id: "x", delta: `L'assicurazione paga **€190.000** 【${returned}】 [${notReturned}] [S999].` },
           { type: "text-end", id: "x" },
           { type: "finish", finishReason: { unified: "stop", raw: undefined }, usage },
         ]),

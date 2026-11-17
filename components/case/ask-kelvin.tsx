@@ -46,14 +46,14 @@ async function* streamChat(caseId: string, messages: ChatTurn[], signal: AbortSi
   }
 }
 
-/** **bold** and [S7] citation chips inside one line of an answer. */
+/** **bold** and [S7] citation chips inside one line of an answer (some models write 【S7】: same thing). */
 function Inline({ text, citations }: { text: string; citations?: Record<string, Citation> }) {
-  const parts = text.split(/(\*\*[^*]+\*\*|\[S\d+\])/g);
+  const parts = text.split(/(\*\*[^*]+\*\*|[[【]S\d+[\]】])/g);
   return (
     <>
       {parts.map((p, i) => {
         if (/^\*\*[^*]+\*\*$/.test(p)) return <strong key={i} className="font-semibold text-foreground">{p.slice(2, -2)}</strong>;
-        const m = /^\[(S\d+)\]$/.exec(p);
+        const m = /^[[【](S\d+)[\]】]$/.exec(p);
         if (m) {
           const c = citations?.[m[1]];
           // Unknown or not yet loaded ids are hidden rather than shown as raw markers.
@@ -133,7 +133,7 @@ export function AskKelvin({
     : last?.role === "assistant"
       ? last.error
         ? `Could not answer: ${last.error}`
-        : last.content.replace(/\*\*|\[S\d+\]/g, "")
+        : last.content.replace(/\*\*|[[【]S\d+[\]】]/g, "")
       : "";
 
   /** Closes the panel, stops an answer still streaming, and gives focus back to the button. */
