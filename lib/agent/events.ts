@@ -23,7 +23,8 @@ export type AgentEvent =
   /** Model narration between tool calls */
   | { type: "text"; delta: string }
   | { type: "status"; from: CaseStatus; to: CaseStatus; reason?: string }
-  | { type: "run_finished"; status: "completed" | "failed"; durationMs: number; error?: string; finalStatus?: CaseStatus };
+  /** reason "busy": refused because another run is already working on the case (not a failure of the analysis) */
+  | { type: "run_finished"; status: "completed" | "failed"; durationMs: number; error?: string; finalStatus?: CaseStatus; reason?: "busy" };
 
 export interface Recording {
   version: 1;

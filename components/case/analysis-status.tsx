@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { CircleCheck, CircleX, ChevronDown } from "lucide-react";
 import { RUN_LABEL, Step } from "@/components/agent/agent-panel";
-import { useAgentRun, type LiveStep } from "@/components/agent/agent-run-context";
+import { useAgentRun, type FinishedRun, type LiveStep } from "@/components/agent/agent-run-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { RunKind, RunMode } from "@/lib/agent/events";
 import { formatMs } from "@/lib/format";
@@ -28,28 +28,73 @@ const modeLabel = (mode: RunMode | null, model: string | null) =>
 
 const toolSteps = (steps: LiveStep[]) => steps.filter((s) => s.tool !== "message");
 
-/** An investigation that finds the product damaged goes on to draft the claim in the same run. */
+/**
+ * An investigation that finds the product damaged goes on to prepare the claim in the same run.
+ * The claim phase starts by ranking the routes again, so a second rank_routes (or any drafting
+ * of the claim) marks the switch.
+ */
 const CLAIM_TOOLS = new Set(["draft_claim_letter", "build_evidence_pack"]);
-const phaseOf = (kind: RunKind, steps: LiveStep[]): RunKind => (kind === "investigate" && steps.some((s) => CLAIM_TOOLS.has(s.tool)) ? "prepare_claim" : kind);
+const phaseOf = (kind: RunKind, steps: LiveStep[]): RunKind =>
+  kind === "investigate" && (steps.filter((s) => s.tool === "rank_routes").length > 1 || steps.some((s) => CLAIM_TOOLS.has(s.tool))) ? "prepare_claim" : kind;
 
 function clock(ms: number) {
   const s = Math.max(0, Math.floor(ms / 1000));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
+const prefersReducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 /** The ordered step list shared by the live view and the finished-run view. */
-function StepList({ steps, narration, live, className }: { steps: LiveStep[]; narration?: string; live?: boolean; className?: string }) {
+function StepList({ steps, live, id }: { steps: LiveStep[]; live?: boolean; id?: string }) {
   return (
-    <ol className={cn("ml-1 border-l pl-3", live ? "border-ai-fg/30" : "border-border", className)} aria-live={live ? "polite" : undefined}>
+    <ol id={id} className={cn("ml-1 border-l pl-3", live ? "border-ai-fg/30" : "border-border")}>
       {steps.map((s) => (
-        <div key={s.seq} className={live ? "kelvin-step-in" : undefined}>
-          <Step s={s} />
-        </div>
+        <Step key={s.seq} s={s} className={live ? "kelvin-step-in" : undefined} />
       ))}
-      {narration?.trim() && (
-        <li className="py-1.5 pl-8 text-[13px] text-muted-foreground italic">{narration.trim()}</li>
-      )}
     </ol>
+  );
+}
+
+/** One line after a run, with its steps one click away (no scrolling to the audit trail). */
+function FinishedSummary({ run, className }: { run: FinishedRun; className?: string }) {
+  const [open, setOpen] = useState(false);
+  const listId = useId();
+  const n = toolSteps(run.steps).length;
+  const mode = modeLabel(run.mode, run.model);
+  const failed = !!run.error;
+  const label = phaseOf(run.kind, run.steps) !== run.kind ? "Investigation and claim" : RUN_LABEL[run.kind];
+  return (
+    <section aria-label="Last analysis" className={cn("rounded-xl border bg-card", failed ? "border-danger/30" : "border-border", className)}>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3 sm:px-6">
+        {failed ? <CircleX className="size-4 shrink-0 text-danger-fg" aria-hidden="true" /> : <CircleCheck className="size-4 shrink-0 text-success-fg" aria-hidden="true" />}
+        <p className="min-w-0 flex-1 text-sm">
+          <span className="font-semibold">
+            {label} {failed ? "stopped" : "finished"}
+          </span>
+          <span className="num text-muted-foreground">
+            {" "}
+            · {n} {n === 1 ? "step" : "steps"} in {formatMs(run.durationMs)}
+            {mode ? ` · ${mode}` : ""}
+          </span>
+          {failed && <span className="block text-xs text-danger-fg">{run.error}</span>}
+        </p>
+        {run.steps.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-controls={listId}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            {open ? "Hide steps" : "Show steps"}
+            <ChevronDown className={cn("size-3.5 transition-transform duration-200", open && "rotate-180")} aria-hidden="true" />
+          </button>
+        )}
+      </div>
+      <div className={cn("border-t border-border px-5 py-3 sm:px-6", !open && "hidden")}>
+        <StepList steps={run.steps} id={listId} />
+      </div>
+    </section>
   );
 }
 
@@ -62,7 +107,6 @@ function StepList({ steps, narration, live, className }: { steps: LiveStep[]; na
 export function AnalysisStatus({ className }: { className?: string }) {
   const { running, steps, narration, info, lastRun } = useAgentRun();
   const [now, setNow] = useState(() => Date.now());
-  const [open, setOpen] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -74,7 +118,7 @@ export function AnalysisStatus({ className }: { className?: string }) {
   // Keep the newest step in view while the list grows.
   useEffect(() => {
     const el = listRef.current;
-    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: prefersReducedMotion() ? "auto" : "smooth" });
   }, [steps.length, narration]);
 
   if (running) {
@@ -87,7 +131,7 @@ export function AnalysisStatus({ className }: { className?: string }) {
       <section aria-label="Analysis in progress" className={cn("overflow-hidden rounded-xl border border-ai-fg/25 bg-card shadow-card", className)}>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-border bg-ai-soft px-5 py-3.5 sm:px-6">
           <span className="relative flex size-2.5 shrink-0" aria-hidden="true">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-ai-fg/40" />
+            <span className="absolute inline-flex size-full rounded-full bg-ai-fg/40 motion-safe:animate-ping" />
             <span className="relative inline-flex size-2.5 rounded-full bg-ai-fg" />
           </span>
           <div className="min-w-0 flex-1">
@@ -119,10 +163,16 @@ export function AnalysisStatus({ className }: { className?: string }) {
           <div className="h-full bg-ai-fg transition-[width] duration-300 ease-out" style={{ width: `${pct}%` }} />
         </div>
         <div ref={listRef} className="max-h-[26rem] overflow-y-auto px-5 py-3 sm:px-6">
-          {steps.length === 0 && !narration.trim() ? (
-            <p className="py-1.5 text-[13px] text-muted-foreground">Opening the case file…</p>
-          ) : (
-            <StepList steps={steps} narration={narration} live />
+          {/* Mounted from the start, so screen readers announce the first step too. */}
+          <div aria-live="polite" aria-relevant="additions">
+            {steps.length === 0 && !narration.trim() && <p className="py-1.5 text-[13px] text-muted-foreground">Opening the case file…</p>}
+            <StepList steps={steps} live />
+          </div>
+          {/* Streamed narration, word by word: shown, not announced (it is announced as a step once complete). */}
+          {narration.trim() && (
+            <p aria-hidden="true" className="ml-1 border-l border-ai-fg/30 py-1.5 pl-11 text-[13px] text-muted-foreground italic">
+              {narration.trim()}
+            </p>
           )}
         </div>
       </section>
@@ -130,43 +180,7 @@ export function AnalysisStatus({ className }: { className?: string }) {
   }
 
   if (!lastRun) return null;
-  const n = toolSteps(lastRun.steps).length;
-  const mode = modeLabel(lastRun.mode, lastRun.model);
-  const failed = !!lastRun.error;
-  return (
-    <section aria-label="Last analysis" className={cn("rounded-xl border bg-card", failed ? "border-danger/30" : "border-border", className)}>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3 sm:px-6">
-        {failed ? <CircleX className="size-4 shrink-0 text-danger-fg" aria-hidden="true" /> : <CircleCheck className="size-4 shrink-0 text-success-fg" aria-hidden="true" />}
-        <p className="min-w-0 flex-1 text-sm">
-          <span className="font-semibold">
-            {phaseOf(lastRun.kind, lastRun.steps) !== lastRun.kind ? "Investigation and claim" : RUN_LABEL[lastRun.kind]} {failed ? "stopped" : "finished"}
-          </span>
-          <span className="num text-muted-foreground">
-            {" "}
-            · {n} {n === 1 ? "step" : "steps"} in {formatMs(lastRun.durationMs)}
-            {mode ? ` · ${mode}` : ""}
-          </span>
-          {failed && <span className="block text-xs text-danger-fg">{lastRun.error}</span>}
-        </p>
-        {lastRun.steps.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            aria-expanded={open}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-          >
-            {open ? "Hide steps" : "Show steps"}
-            <ChevronDown className={cn("size-3.5 transition-transform duration-200", open && "rotate-180")} aria-hidden="true" />
-          </button>
-        )}
-      </div>
-      {open && (
-        <div className="border-t border-border px-5 py-3 sm:px-6">
-          <StepList steps={lastRun.steps} />
-        </div>
-      )}
-    </section>
-  );
+  return <FinishedSummary key={lastRun.id} run={lastRun} className={className} />;
 }
 
 /** Renders a skeleton in place of a card that the running analysis has not produced yet. */

@@ -76,10 +76,10 @@ function Json({ value }: { value: unknown }) {
   return <pre className="max-h-56 overflow-auto rounded-md bg-muted p-2 font-mono text-[10.5px] leading-snug text-muted-foreground">{s.length > 4000 ? `${s.slice(0, 4000)}\n…` : s}</pre>;
 }
 
-export function Step({ s }: { s: LiveStep }) {
+export function Step({ s, className }: { s: LiveStep; className?: string }) {
   if (s.tool === "message") {
     return (
-      <li className="flex gap-2.5 py-1.5">
+      <li className={cn("flex gap-2.5 py-1.5", className)}>
         <MessageSquareText className="mt-0.5 size-3.5 shrink-0 text-subtle" aria-hidden="true" />
         <p className="text-[13px] text-muted-foreground">{s.text ?? s.summary}</p>
       </li>
@@ -88,7 +88,7 @@ export function Step({ s }: { s: LiveStep }) {
   const meta = TOOL[s.tool] ?? { label: s.tool, icon: Wrench };
   const Icon = meta.icon;
   return (
-    <li className="flex gap-2.5 py-1.5">
+    <li className={cn("flex gap-2.5 py-1.5", className)}>
       <span
         className={cn(
           "mt-0.5 grid size-6 shrink-0 place-items-center rounded-md border border-border bg-card",

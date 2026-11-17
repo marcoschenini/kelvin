@@ -28,6 +28,8 @@ export interface RunInfo {
 
 /** The last run this page watched, kept after it ends so its steps can be shown again. */
 export interface FinishedRun {
+  /** Distinct per run (start time), so per-run UI state resets */
+  id: number;
   kind: RunKind;
   steps: LiveStep[];
   durationMs: number;
@@ -81,7 +83,7 @@ export function AgentRunProvider({
   const busy = useRef(false);
   // Source of truth for the live steps (state mirrors it for rendering), so the end-of-run snapshot is never stale.
   const stepsRef = useRef<LiveStep[]>([]);
-  const finished = useRef<{ durationMs: number; error?: string } | null>(null);
+  const finished = useRef<{ durationMs: number; error?: string; busy?: boolean } | null>(null);
   const infoRef = useRef<RunInfo | null>(null);
   const setLiveSteps = useCallback((next: LiveStep[]) => {
     stepsRef.current = next;
@@ -116,12 +118,14 @@ export function AgentRunProvider({
         toast(`Status: ${e.to.replace(/_/g, " ")}`, { description: e.reason });
         break;
       case "run_finished":
-        finished.current = { durationMs: e.durationMs, error: e.status === "failed" ? e.error : undefined };
-        if (e.status === "failed") {
-          // Another tab or person already has Kelvin working on this case: not a failure of this page.
-          if (/already working on this case/i.test(e.error ?? "")) toast.info("Kelvin is already working on this case", { description: "The page updates when it finishes." });
-          else toast.error("Analysis stopped", { description: e.error });
+        if (e.reason === "busy") {
+          // Another tab or person already has Kelvin working on this case: not a failure of the analysis.
+          finished.current = { durationMs: e.durationMs, busy: true };
+          toast.info("Kelvin is already working on this case", { description: "Reload the page in a moment to see the result." });
+          break;
         }
+        finished.current = { durationMs: e.durationMs, error: e.status === "failed" ? e.error : undefined };
+        if (e.status === "failed") toast.error("Analysis stopped", { description: e.error });
         break;
     }
   }, [setLiveSteps]);
@@ -145,10 +149,19 @@ export function AgentRunProvider({
           finished.current = { durationMs: Date.now() - startedAt, error: err instanceof Error ? err.message : String(err) };
           toast.error("Analysis failed", { description: finished.current.error });
         } finally {
-          const done = finished.current ?? { durationMs: Date.now() - startedAt };
-          const shown = stepsRef.current.filter((s) => s.status !== "running");
-          if (shown.length || done.error) {
-            setLastRun({ kind, steps: shown, durationMs: done.durationMs, mode: infoRef.current?.mode ?? null, model: infoRef.current?.model ?? null, error: done.error });
+          // A stream that ends without run_finished (dropped connection, function timeout) is not a success.
+          const done = finished.current ?? { durationMs: Date.now() - startedAt, error: "The connection closed before the run finished. Reload the page to see the result." };
+          if (!done.busy) {
+            // The closing narration (verdict, "the claim is ready") only becomes a step at the next tool call: keep it.
+            const closing = said.current.trim();
+            const last = stepsRef.current[stepsRef.current.length - 1];
+            const all = closing ? [...stepsRef.current, { seq: (last?.seq ?? 0) + 0.5, tool: "message", status: "ok" as const, text: closing }] : stepsRef.current;
+            const shown = all.filter((s) => s.status !== "running");
+            setLastRun(
+              shown.length || done.error
+                ? { id: startedAt, kind, steps: shown, durationMs: done.durationMs, mode: infoRef.current?.mode ?? null, model: infoRef.current?.model ?? null, error: done.error }
+                : null,
+            );
           }
           busy.current = false;
           setRunning(null);
