@@ -2,6 +2,11 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-17 — Ask Kelvin page + Ratel mascot
+
+- **Request (Marco):** the chatbot on its own page, with a small mascot: reuse the ratel from the earlier project.
+- **Chief (Marco's session):** Ratel copied from `life_os/components/ratel` (figure + states) into `components/mascot/`, wrapped in `RatelBadge` (avatar / full, think while answering, reduced-motion still). `/ask` page with case picker (All cases + A/B/C, URL `?case=`), `/api/chat` + `lib/chat/portfolio.ts` (overview, pending, deadlines, questions about a named case, AI tools incl. `ask_about_case`), shared `Conversation` + `chatResponse`; case panel refactored onto them, with an "open as a page" link; italics rendered. Live site confirmed in AI mode (Groq). Checked locally with the real Groq model: "which cases need my attention", an Italian what-if on case B, the case panel; screenshots of the page and mascot. Gate: lint ✓, typecheck ✓, 170/170 tests ✓, build ✓. No separate QA pass this time (shared code already reviewed twice; new logic covered by tests and the browser run).
+
 ## 2026-11-17 — Ask Kelvin (case chat)
 
 - **Request (Marco):** more features; a chatbot, at no cost.

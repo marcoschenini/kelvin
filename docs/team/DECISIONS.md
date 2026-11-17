@@ -2,6 +2,12 @@
 
 Lasting choices about how Kelvin is built. Newest first. Format: date — decision — reason.
 
+## 2026-11-17 — Ask Kelvin page and Ratel
+
+- **A dedicated page, `/ask`, with "All cases" and one-case modes.** Across cases the chat answers what needs attention, what is at stake and upcoming deadlines, and delegates questions about a named case to that case's answers. Per-case source ids are stripped there (they are per case); the case's own chat keeps the chips. — Marco asked for the chatbot on its own page.
+- **Ratel, the honey badger from our earlier project, is the chat's mascot**, reused as is (no new artwork): cream engraving on a navy badge (`--mascot`), so it reads in both themes. The only exception to "no bot icons", and only in the chat.
+- **One conversation component and one streaming helper** (`components/chat/conversation.tsx`, `lib/chat/stream.ts`) shared by the case panel and the page, so fixes land once.
+
 ## 2026-11-17 — Ask Kelvin: a free case chat
 
 - **Built-in answers first, a free model second.** Marco does not want to pay for an API. The chat answers from the case record and the rules engine (no AI) and, when `GROQ_API_KEY` is set, from Groq's free tier (`openai/gpt-oss-120b`) with read-only tools over those same answers. On any model failure before the first word, it falls back to the built-in answer and says why. — Zero cost, never breaks in the demo, and still shows a real LLM using tools when the key is there.
