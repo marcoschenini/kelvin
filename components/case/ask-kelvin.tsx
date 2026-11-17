@@ -29,6 +29,9 @@ export function AskKelvin({
 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  // A short celebration when an answer arrives (the ratel's "celebrate" from our earlier project)
+  const [cheer, setCheer] = useState(false);
+  const cheerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
 
@@ -78,7 +81,7 @@ export function AskKelvin({
           className="fixed inset-x-3 bottom-3 z-40 flex max-h-[min(42rem,calc(100dvh-1.5rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-lg sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[26rem]"
         >
           <header className="flex items-center gap-3 border-b border-border px-5 py-3">
-            <RatelBadge size={40} state={busy ? "think" : "idle"} />
+            <RatelBadge size={40} state={busy ? "think" : cheer ? "celebrate" : "idle"} />
             <div className="min-w-0 flex-1">
               <h2 id={titleId} className="font-heading text-[1.05rem] font-semibold">
                 Ask Kelvin
@@ -115,6 +118,12 @@ export function AskKelvin({
             endpoint={`/api/cases/${encodeURIComponent(caseId)}/chat`}
             chips={suggestions(status, hasClaim)}
             onBusyChange={setBusy}
+            onAnswer={(outcome) => {
+              if (outcome !== "ai" && outcome !== "rules") return;
+              if (cheerTimer.current) clearTimeout(cheerTimer.current);
+              setCheer(true);
+              cheerTimer.current = setTimeout(() => setCheer(false), 1600);
+            }}
             placeholder={mode === "ai" ? "Ask anything about this case…" : "Ask about payer, deadlines, custody, quality, what if…"}
             intro={
               <p className="text-[13.5px] text-muted-foreground">

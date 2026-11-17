@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Layers } from "lucide-react";
-import { Conversation } from "@/components/chat/conversation";
+import { Conversation, type AnswerOutcome } from "@/components/chat/conversation";
 import { CitationViewerProvider } from "@/components/documents/citation-viewer";
 import { StatusChip } from "@/components/kit/status-chip";
 import { RatelBadge } from "@/components/mascot/ratel-badge";
+import { RatelStage, type RatelStageHandle } from "@/components/mascot/ratel-stage";
 import { portfolioSuggestions, suggestions } from "@/lib/chat/suggestions";
 import type { CaseStatus } from "@/lib/domain/case-status";
 import { cn } from "@/lib/utils";
@@ -30,11 +31,30 @@ const caseName = (c: AskCase) => (c.code ? `Case ${c.code}` : c.ref);
 export function AskPage({ cases, initial, mode, model }: { cases: AskCase[]; initial: string; mode: "ai" | "rules"; model: string | null }) {
   const [selected, setSelected] = useState(initial);
   const [busy, setBusy] = useState(false);
+  const [cheer, setCheer] = useState(false);
+  const stage = useRef<RatelStageHandle>(null);
+  const cheerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const current = cases.find((c) => c.id === selected) ?? null;
+  const chips = current ? suggestions(current.status, current.hasClaim) : portfolioSuggestions(cases.map((c) => c.code ?? ""));
+
+  const onBusy = (b: boolean) => {
+    setBusy(b);
+    if (b) stage.current?.busy();
+  };
+  const onAnswer = (outcome: AnswerOutcome) => {
+    stage.current?.answered(outcome);
+    if (outcome === "ai" || outcome === "rules") {
+      if (cheerTimer.current) clearTimeout(cheerTimer.current);
+      setCheer(true);
+      cheerTimer.current = setTimeout(() => setCheer(false), 1600);
+    }
+  };
 
   const pick = (id: string) => {
     setSelected(id);
     setBusy(false);
+    const next = cases.find((c) => c.id === id);
+    stage.current?.focus(next ? caseName(next) : "all your cases");
     const url = id === "all" ? "/ask" : `/ask?case=${encodeURIComponent(id)}`;
     window.history.replaceState(null, "", url);
   };
@@ -92,6 +112,7 @@ export function AskPage({ cases, initial, mode, model }: { cases: AskCase[]; ini
             )}
           </ul>
           {!cases.length && <p className="px-1 text-sm text-muted-foreground">No cases yet: load the demo from New case.</p>}
+          <RatelStage ref={stage} tips={chips} className="mt-3 hidden lg:block" />
         </nav>
 
         <section
@@ -99,7 +120,7 @@ export function AskPage({ cases, initial, mode, model }: { cases: AskCase[]; ini
           className="flex h-[calc(100dvh-15rem)] min-h-[32rem] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card"
         >
           <header className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3.5">
-            <RatelBadge size={44} state={busy ? "think" : "idle"} />
+            <RatelBadge size={44} state={busy ? "think" : cheer ? "celebrate" : "idle"} />
             <div className="min-w-0 flex-1">
               <h2 id="ask-title" className="font-heading text-[1.1rem] font-semibold">
                 {current ? `${caseName(current)} · ${current.ref}` : "All cases"}
@@ -127,13 +148,15 @@ export function AskPage({ cases, initial, mode, model }: { cases: AskCase[]; ini
           <Conversation
             key={selected}
             endpoint={current ? `/api/cases/${encodeURIComponent(current.id)}/chat` : "/api/chat"}
-            chips={current ? suggestions(current.status, current.hasClaim) : portfolioSuggestions(cases.map((c) => c.code ?? ""))}
-            onBusyChange={setBusy}
+            chips={chips}
+            onBusyChange={onBusy}
+            onAnswer={onAnswer}
             autoFocus={false}
             placeholder={current ? `Ask anything about ${caseName(current)}…` : "Ask across all cases, or about one: “why does case B go to the insurer?”"}
             intro={
               <div className="flex flex-col items-center gap-4 py-4 text-center sm:flex-row sm:items-end sm:text-left">
-                <RatelBadge variant="full" size={150} state={busy ? "think" : "idle"} />
+                {/* On large screens Ratel lives on his stage (left column); here only on small ones */}
+                <RatelBadge variant="full" size={150} state={busy ? "think" : "idle"} className="lg:hidden" />
                 <div className="flex max-w-md flex-col gap-1.5 pb-2">
                   <p className="font-heading text-lg font-semibold">Hi, I&apos;m Ratel, Kelvin&apos;s claims assistant.</p>
                   <p className="text-[13.5px] text-muted-foreground">

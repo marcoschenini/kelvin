@@ -10,6 +10,8 @@ import { CHAT_TOOL_LABEL } from "@/lib/chat/suggestions";
 import type { Citation } from "@/lib/domain/citation";
 import { cn } from "@/lib/utils";
 
+export type AnswerOutcome = "ai" | "rules" | "fallback" | "error";
+
 interface Message extends ChatTurn {
   citations?: Record<string, Citation>;
   /** Built-in answer used because the AI was unavailable (reason) */
@@ -128,6 +130,7 @@ export function Conversation({
   intro,
   placeholder,
   onBusyChange,
+  onAnswer,
   className,
   autoFocus = true,
 }: {
@@ -136,6 +139,8 @@ export function Conversation({
   intro: ReactNode;
   placeholder: string;
   onBusyChange?: (busy: boolean) => void;
+  /** How an answer ended: AI, built-in, built-in because the AI failed, or error (not called when aborted) */
+  onAnswer?: (outcome: AnswerOutcome) => void;
   className?: string;
   autoFocus?: boolean;
 }) {
@@ -183,21 +188,31 @@ export function Conversation({
     setMessages((all) => [...all, { role: "user", content: q }, { role: "assistant", content: "", pending: true }]);
     const ctrl = new AbortController();
     abort.current = ctrl;
+    let outcome: AnswerOutcome = "error";
     try {
       for await (const e of streamChat(endpoint, history.slice(-12), ctrl.signal)) {
         if (e.type === "text") update((m) => ({ ...m, content: m.content + e.delta, status: undefined }));
         else if (e.type === "tool") update((m) => ({ ...m, status: CHAT_TOOL_LABEL[e.name] ?? "Reading the case" }));
         else if (e.type === "citations") update((m) => ({ ...m, citations: e.items }));
-        else if (e.type === "done") update((m) => ({ ...m, mode: e.mode, fallback: e.fallback }));
-        else if (e.type === "error") update((m) => ({ ...m, error: e.error }));
+        else if (e.type === "done") {
+          outcome = e.fallback ? "fallback" : e.mode;
+          update((m) => ({ ...m, mode: e.mode, fallback: e.fallback }));
+        } else if (e.type === "error") {
+          outcome = "error";
+          update((m) => ({ ...m, error: e.error }));
+        }
       }
     } catch (err) {
+      outcome = "error";
       if (!ctrl.signal.aborted) update((m) => ({ ...m, error: err instanceof Error ? err.message : String(err) }));
     } finally {
       update((m) => ({ ...m, pending: false, status: undefined }));
       setBusy(false);
       onBusyChange?.(false);
-      if (!ctrl.signal.aborted) inputRef.current?.focus();
+      if (!ctrl.signal.aborted) {
+        onAnswer?.(outcome);
+        inputRef.current?.focus();
+      }
     }
   }
 
