@@ -2,6 +2,11 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-17 — Visible agent
+
+- **Request (Marco):** after a full walkthrough for the demo, make the agent visible while it works (the output-first page showed only "Analysis in progress…", and deterministic runs took ~1 s).
+- **Chief (Marco's session):** live step panel under the case header (`analysis-status.tsx`), finished-run summary with "Show steps", title follows the phase (investigation → claim), pacing for deterministic UI runs (`paceMs` in `runAgent`, `KELVIN_STEP_PACE_MS`), start guard against the double run that produced a false "Analysis stopped" toast. Checked in the browser at 1280 px on cases B and C (local data). Gate: lint ✓, typecheck ✓, 129/129 tests ✓, build ✓.
+
 ## 2026-11-17 — Pharma redesign
 
 - **Request (Vito):** less "Claude", richer institutional pharma look ("like Eli Lilly"), design system out of the workspace, agent mechanics hidden behind the output.

@@ -5,6 +5,9 @@ import { runAgent } from "@/lib/agent/orchestrator";
 
 export const maxDuration = 300;
 
+/** Pause before each tool call in deterministic mode (KELVIN_STEP_PACE_MS, 0 turns it off). */
+const STEP_PACE_MS = Math.max(0, Number(process.env.KELVIN_STEP_PACE_MS ?? 600) || 0);
+
 const Body = z.object({
   kind: z.enum(["investigate", "prepare_claim", "close", "follow_up"]),
   mode: z.enum(["live", "deterministic"]).optional(),
@@ -25,7 +28,15 @@ export async function POST(req: Request, ctx: RouteContext<"/api/cases/[id]/run"
     async start(controller) {
       const send = (e: AgentEvent) => controller.enqueue(enc.encode(`${JSON.stringify(e)}\n`));
       try {
-        await runAgent({ db, caseId: id, kind: parsed.data.kind, mode: parsed.data.mode === "deterministic" ? "deterministic" : undefined, onEvent: send });
+        await runAgent({
+          db,
+          caseId: id,
+          kind: parsed.data.kind,
+          mode: parsed.data.mode === "deterministic" ? "deterministic" : undefined,
+          onEvent: send,
+          // The deterministic planner finishes in ~1 s: pace it so the steps can be followed on screen.
+          paceMs: STEP_PACE_MS,
+        });
       } catch (e) {
         send({ type: "run_finished", status: "failed", durationMs: 0, error: e instanceof Error ? e.message : String(e) });
       } finally {

@@ -53,7 +53,7 @@ const TOOL: Record<string, { label: string; icon: LucideIcon }> = {
   draft_reminder: { label: "Drafted a reminder", icon: BellRing },
 };
 
-const RUN_LABEL: Record<RunKind, string> = {
+export const RUN_LABEL: Record<RunKind, string> = {
   investigate: "Investigation",
   prepare_claim: "Claim preparation",
   close: "Closing",
@@ -76,7 +76,7 @@ function Json({ value }: { value: unknown }) {
   return <pre className="max-h-56 overflow-auto rounded-md bg-muted p-2 font-mono text-[10.5px] leading-snug text-muted-foreground">{s.length > 4000 ? `${s.slice(0, 4000)}\n…` : s}</pre>;
 }
 
-function Step({ s }: { s: LiveStep }) {
+export function Step({ s }: { s: LiveStep }) {
   if (s.tool === "message") {
     return (
       <li className="flex gap-2.5 py-1.5">
