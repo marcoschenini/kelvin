@@ -2,6 +2,12 @@
 
 Lasting choices about how Kelvin is built. Newest first. Format: date — decision — reason.
 
+## 2026-11-17 — Ask Kelvin: a free case chat
+
+- **Built-in answers first, a free model second.** Marco does not want to pay for an API. The chat answers from the case record and the rules engine (no AI) and, when `GROQ_API_KEY` is set, from Groq's free tier (`openai/gpt-oss-120b`) with read-only tools over those same answers. On any model failure before the first word, it falls back to the built-in answer and says why. — Zero cost, never breaks in the demo, and still shows a real LLM using tools when the key is there.
+- **Read-only by design.** The chat cannot approve, send or change the case: the two human gates stay in the UI. Its numbers come only from `lib/rules`.
+- **Docked, non-modal panel** (not a Sheet), so the source viewer (a modal Sheet) opens on top of it from a citation chip.
+
 ## 2026-11-17 — The agent is visible while it works
 
 - **While a run is going, its steps stream live under the case header** (tool, what Kelvin found, cited sources, narration), with a step count, a timer and the mode. When it ends, one line stays ("Investigation and claim finished · 17 steps in 13 s"), with "Show steps". The history stays in "Analysis details & audit trail". — The brief's core flow is "watch the agent work", and the course is about agents: the output-first page hid the agent entirely (Marco's call, 17 Nov).

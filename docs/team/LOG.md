@@ -2,6 +2,11 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-17 — Ask Kelvin (case chat)
+
+- **Request (Marco):** more features; a chatbot, at no cost.
+- **Chief (Marco's session):** `lib/chat/` (context, built-in answers incl. what-if over the real rules, EN/IT intent matcher, Groq model + read-only tools), `/api/cases/[id]/chat` (NDJSON, fallback to built-in), `components/case/ask-kelvin.tsx` (docked panel, suggested questions, citation chips). Found and fixed on the way: a no-claim case (A) still exposed a stale "recommended" route to the chat. Checked in the browser on local data without a key (built-in answers, what-if, Italian question, citation opens the viewer on top). Groq path covered by tests with a mock model (tool call, citation filtering, 429 fallback); not yet run against Groq itself (needs Marco's free key). Gate: lint ✓, typecheck ✓, 146/146 tests ✓, build ✓.
+
 ## 2026-11-17 — Visible agent
 
 - **Request (Marco):** after a full walkthrough for the demo, make the agent visible while it works (the output-first page showed only "Analysis in progress…", and deterministic runs took ~1 s).

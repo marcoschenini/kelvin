@@ -21,6 +21,8 @@ import {
 import { AgentPanel, type PersistedRun } from "@/components/agent/agent-panel";
 import { AgentRunProvider, type LiveStep } from "@/components/agent/agent-run-context";
 import { AnalysisStatus, PendingWhileRunning } from "@/components/case/analysis-status";
+import { AskKelvin } from "@/components/case/ask-kelvin";
+import { chatModelInfo } from "@/lib/chat/llm";
 import { RouteLabel } from "@/components/case/case-list";
 import { CaseWorkflow } from "@/components/case/case-workflow";
 import { QaDecisionCard } from "@/components/case/qa-decision-card";
@@ -226,6 +228,12 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
                 </div>
                 <p className="mt-2 text-[15px] text-muted-foreground">{c.title}</p>
               </div>
+              <AskKelvin
+                caseId={c.id}
+                status={c.status}
+                hasClaim={(record.claimPlan?.length ?? 0) > 0 && qa !== "released" && record.qaAssessment?.verdict !== "usable"}
+                {...chatModelInfo()}
+              />
             </div>
             <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4 lg:grid-cols-7 lg:gap-x-0 lg:divide-x lg:divide-border [&>div]:lg:px-5 [&>div:first-child]:lg:pl-0">
               <Fact label="Route">

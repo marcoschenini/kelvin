@@ -21,4 +21,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Tests** run with `server-only` aliased to an empty module (`vitest.config.mts`).
 - **Agent:** tools live in `lib/agent/tools/*` and are registered in `lib/agent/tools/index.ts`. Every tool runs through `executeTool` (audit, steps, citations). Tools must throw `ToolGuardError` with an actionable message when a prerequisite is missing; never compute caps or deadlines outside `lib/rules`.
 - **Server-only code must not import React/Lucide**: domain modules stay UI-free (icons live in `components/kit/party-icons.ts`), otherwise `tsx --conditions=react-server` scripts break.
+- **Ask Kelvin (chat) is read-only**: `app/api/cases/[id]/chat` answers from `lib/chat/answers.ts` (built-in, rules-based) or, with `GROQ_API_KEY`, from a model whose only tools return those same answers. Never give the chat tools that write to the case, the outbox or the audit trail; numbers come from `lib/rules`, never from the model.
 - **AI SDK packages are server externals** in `next.config.ts` (Webpack cannot bundle `@vercel/oidc`).
