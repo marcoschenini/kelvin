@@ -2,6 +2,13 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-17 — Pharma redesign
+
+- **Request (Vito):** less "Claude", richer institutional pharma look ("like Eli Lilly"), design system out of the workspace, agent mechanics hidden behind the output.
+- **Decisions:** big-pharma visual language with our own palette and open fonts; Lilly's exact colours and fonts are not copied because the site is public. Agent steps go in a closed "Analysis details & audit trail" section. Light theme is the default again. No mockup round: the PR is opened without auto-merge so Vito can check the Vercel preview first.
+- **frontend** (Opus): tokens, fonts, logo, shell, output-first case screen with a Recommendation card, approval "paper" letter, inbox, eval and settings, all checked visually with screenshots. Gate green.
+- **Chief:** no "recommended" payer on no-claim cases, neutral status wording, AGENTS.md brand rule.
+
 ## 2026-11-13 — Workflow v2 from Vito's board
 
 - **Request (Vito):** make Kelvin follow his workflow board (all 7 differences).

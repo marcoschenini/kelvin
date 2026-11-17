@@ -2,6 +2,12 @@
 
 Lasting choices about how Kelvin is built. Newest first. Format: date — decision — reason.
 
+## 2026-11-17 — Visual identity
+
+- **Kelvin red `#B3122E` as the single accent, navy `#0E1B33` ink, Source Serif 4 + Inter, light by default.** — The look of a big pharma company without copying a real company's brand on a public site.
+- **Output first: analysis steps and the audit trail sit in a closed "Analysis details & audit trail" section.** — Vito wants the output, not the mechanics. The course demo can still open it.
+- **The design system lives under Settings → Appearance**, not in the sidebar.
+
 ## 2026-11-13 — Workflow v2 (Vito's board)
 
 - **The quality agent decides clear cases** through `lib/rules/stability.ts`: within the allowance → usable, closed with no claim; beyond it, or no stability data → damaged; within ±10% of a limit → unsure, human QA, never auto-closed. This replaces "the agent never decides disposition" (AGENTS.md updated). — Vito's board; the decision is rule-based, cited and audited.

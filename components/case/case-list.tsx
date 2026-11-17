@@ -57,7 +57,7 @@ function CaseCards({ items }: { items: CaseListItem[] }) {
                 ) : (
                   <DeadlinePill daysLeft={c.daysLeft} date={c.nearestDeadlineAt} label={c.nearestDeadlineLabel ?? undefined} />
                 )}
-                {c.recommendedRoute && <RouteChip route={c.recommendedRoute} recommended />}
+                {c.recommendedRoute && c.status !== "closed_no_claim" && c.status !== "no_claim" && <RouteChip route={c.recommendedRoute} recommended />}
                 <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
                   <PersonaAvatar persona={owner} className="size-5 text-[8px]" />
                   {owner.name}
@@ -130,7 +130,11 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
                   )}
                 </span>
                 <span>
-                  <RouteChip route={c.recommendedRoute} recommended />
+                  {c.status === "closed_no_claim" || c.status === "no_claim" ? (
+                    <span className="text-xs text-subtle">No claim</span>
+                  ) : (
+                    <RouteChip route={c.recommendedRoute} recommended />
+                  )}
                 </span>
                 <ChevronRight className="size-4 text-subtle transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
               </Link>
