@@ -2,6 +2,11 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-17 — Ratel moves
+
+- **Request (Marco):** make the ratel move with the animations from the earlier project.
+- **Chief (Marco's session):** `components/mascot/ratel-stage.tsx`, a scaled-down port of life_os' RatelProvider: a navy stage under the case list on /ask (desktop) where Ratel walks, points at the conversation when the case changes ("Ask me about Case B"), thinks while Kelvin answers, celebrates when an answer arrives (or says the AI was busy / failed), strolls every 25–45 s, falls asleep (zzz) after 90 s idle, and gives a tip when clicked. Event-driven via a ref handle; still under reduced motion. Header avatars (page and case panel) celebrate briefly after an answer. Bubble uses the CSS enter animation (AnimatePresence "wait" stalls in background tabs). Checked in the browser (greeting, case change, think, answer, click tip, screenshot). Gate: lint ✓, typecheck ✓, 170/170 tests ✓, build ✓.
+
 ## 2026-11-17 — Ask Kelvin page + Ratel mascot
 
 - **Request (Marco):** the chatbot on its own page, with a small mascot: reuse the ratel from the earlier project.
