@@ -10,19 +10,32 @@ import type { Citation } from "@/lib/domain/citation";
 
 export const maxDuration = 60;
 
+/** Earlier answers can be long: keep the history usable by trimming them, not rejecting the question. */
+const HISTORY_CHARS = 4000;
+
 const Body = z.object({
   messages: z
-    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(4000) }))
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().min(1).max(20_000),
+      }),
+    )
     .min(1)
     .max(24)
-    .refine((m) => m[m.length - 1].role === "user", "The last message must be the user's question"),
+    .refine((m) => m.at(-1)?.role === "user", "The last message must be the user's question")
+    .refine((m) => (m.at(-1)?.content.length ?? 0) <= 2000, "The question is too long (2,000 characters at most)"),
 });
 
-/** Only ids that exist in the case's registry become chips; anything else the model wrote is dropped. */
-function citedSources(ctx: ChatContext, text: string): Record<string, Citation> {
+/**
+ * Citation chips for an answer: ids written in the text that exist in the case's registry
+ * and, for AI answers, that a tool actually returned (so a real source can't be pinned
+ * on an invented sentence).
+ */
+function citedSources(ctx: ChatContext, text: string, allowed?: Set<string>): Record<string, Citation> {
   const reg = ctx.record.citations ?? {};
   const items: Record<string, Citation> = {};
-  for (const m of text.matchAll(/\[(S\d+)\]/g)) if (reg[m[1]]) items[m[1]] = reg[m[1]];
+  for (const m of text.matchAll(/\[(S\d+)\]/g)) if (reg[m[1]] && (!allowed || allowed.has(m[1]))) items[m[1]] = reg[m[1]];
   return items;
 }
 
@@ -45,20 +58,31 @@ export async function POST(req: Request, ctx: RouteContext<"/api/cases/[id]/chat
   const { id } = await ctx.params;
   const parsed = Body.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return Response.json({ error: parsed.error.issues[0]?.message ?? "Invalid body" }, { status: 400 });
-  const db = await getDb();
   let caseCtx: ChatContext;
   try {
-    caseCtx = await loadChatContext(db, id);
-  } catch {
-    return Response.json({ error: "Case not found" }, { status: 404 });
+    caseCtx = await loadChatContext(await getDb(), id);
+  } catch (e) {
+    if (e instanceof Error && /not found/i.test(e.message)) return Response.json({ error: "Case not found" }, { status: 404 });
+    console.error("[chat] could not load case", id, e);
+    return Response.json({ error: "Kelvin could not load this case. Try again." }, { status: 500 });
   }
-  const messages = parsed.data.messages;
+  const messages = parsed.data.messages.map((m) => ({ role: m.role, content: m.content.slice(0, HISTORY_CHARS) }));
   const question = messages[messages.length - 1].content;
   const enc = new TextEncoder();
+  // Closing the panel (or leaving the page) stops the model, so no quota is spent on an unread answer.
+  const abort = new AbortController();
+  let closed = false;
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      const send = (e: ChatEvent) => controller.enqueue(enc.encode(`${JSON.stringify(e)}\n`));
+      const send = (e: ChatEvent) => {
+        if (closed) return;
+        try {
+          controller.enqueue(enc.encode(`${JSON.stringify(e)}\n`));
+        } catch {
+          closed = true;
+        }
+      };
       const builtIn = (fallback?: string) => {
         const m = matchIntent(question);
         const a = answer(caseCtx, m.intent, m.whatIf);
@@ -75,17 +99,19 @@ export async function POST(req: Request, ctx: RouteContext<"/api/cases/[id]/chat
         }
         send({ type: "meta", mode: "ai", model: llm.id });
         let written = "";
+        const fromTools = new Set<string>();
         try {
           const result = streamText({
             model: llm.model,
             system: CHAT_SYSTEM,
             messages,
-            tools: chatTools(caseCtx),
+            tools: chatTools(caseCtx, (ids) => ids.forEach((i) => fromTools.add(i))),
             stopWhen: stepCountIs(5),
             maxRetries: 1,
-            abortSignal: AbortSignal.timeout(45_000),
+            abortSignal: AbortSignal.any([abort.signal, req.signal, AbortSignal.timeout(45_000)]),
           });
           for await (const part of result.fullStream) {
+            if (closed) break;
             if (part.type === "text-delta") {
               const delta = (part as { text?: string; delta?: string }).text ?? (part as { delta?: string }).delta ?? "";
               written += delta;
@@ -96,22 +122,36 @@ export async function POST(req: Request, ctx: RouteContext<"/api/cases/[id]/chat
               throw part.error instanceof Error ? part.error : new Error(String(part.error));
             }
           }
+          if (closed) return;
           if (!written.trim()) throw new Error("empty answer");
-          send({ type: "citations", items: citedSources(caseCtx, written) });
+          send({ type: "citations", items: citedSources(caseCtx, written, fromTools) });
           send({ type: "done", mode: "ai" });
         } catch (e) {
+          if (closed) return;
           // Nothing shown yet: answer from the built-in answers instead, and say why.
           if (!written.trim()) builtIn(why(e));
           else {
-            send({ type: "citations", items: citedSources(caseCtx, written) });
+            send({ type: "citations", items: citedSources(caseCtx, written, fromTools) });
             send({ type: "done", mode: "ai", fallback: `${why(e)}: the answer may be incomplete` });
           }
         }
       } catch (e) {
-        send({ type: "error", error: e instanceof Error ? e.message : String(e) });
+        console.error("[chat] failed", id, e);
+        send({ type: "error", error: "Kelvin could not answer this question. Try again or rephrase it." });
       } finally {
-        controller.close();
+        if (!closed) {
+          closed = true;
+          try {
+            controller.close();
+          } catch {
+            /* already closed by the client */
+          }
+        }
       }
+    },
+    cancel() {
+      closed = true;
+      abort.abort();
     },
   });
   return new Response(stream, {

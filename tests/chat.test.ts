@@ -76,7 +76,8 @@ describe("built-in answers", () => {
     const ctx = await load("demo-b");
     const before = JSON.stringify(ctx.record.ranking);
     const a = chat.whatIf(ctx, { declaredValueEur: 200_000 });
-    expect(a.text).toMatch(/Carrier: €(1\d\d|200),\d{3}/);
+    expect(a.text).toContain("Carrier: €200,000 (currently €3,771)");
+    expect(a.text).toContain("**insurer**, €190,000 → **carrier**, €200,000");
     expect(a.text).toContain("simulation");
     expect(JSON.stringify((await load("demo-b")).record.ranking)).toBe(before);
   });
@@ -84,6 +85,26 @@ describe("built-in answers", () => {
   it("shows lapsed notices when the claim is handled much later", async () => {
     const a = chat.whatIf(await load("demo-b"), { daysLater: 30 });
     expect(a.text).toMatch(/would have lapsed/);
+  });
+
+  it("says when only the amount changes, not the payer", async () => {
+    const a = chat.whatIf(await load("demo-b"), { valueEur: 80_000 });
+    expect(a.text).toContain("Same payer, **insurer**, but the amount changes: €190,000 → **€70,000**");
+  });
+
+  it("never invents a claim on a no-claim case, whatever the what-if", async () => {
+    const ctx = await load("demo-a");
+    for (const w of [{ valueEur: 80_000 }, { declaredValueEur: 200_000 }, { daysLater: 30 }]) {
+      const a = chat.whatIf(ctx, w);
+      expect(a.text).toContain("**no claim**");
+      expect(a.text).not.toMatch(/currently|lapsed|forwarder/i);
+    }
+  });
+
+  it("refuses to act and says who does", async () => {
+    const a = chat.answer(await load("demo-b"), "action");
+    expect(a.text).toMatch(/can't do that/);
+    expect(a.text).toContain("Tom Becker");
   });
 });
 
@@ -97,6 +118,24 @@ describe("intent matcher", () => {
     ["Riassumi il caso", "summary"],
     ["Cosa devo fare adesso?", "next_action"],
     ["ciao", "help"],
+    ["How much can we recover?", "why_payer"],
+    ["Quanto possiamo recuperare?", "why_payer"],
+    ["How long was it out of range?", "custody"],
+    ["What is the Montreal Convention limit?", "why_payer"],
+    ["What does the policy deductible do?", "why_payer"],
+    ["Has the claim letter been sent?", "next_action"],
+    ["Who should we claim from for the excursion?", "why_payer"],
+    ["Perché paga l'assicurazione se la merce è danneggiata?", "why_payer"],
+    ["Send the claim to the insurer", "action"],
+    ["Can you draft a letter to the airline?", "action"],
+    ["Approve the draft", "action"],
+    ["Puoi inviare la lettera?", "action"],
+    // The suggestion chips themselves
+    ["What are the deadlines?", "deadlines"],
+    ["Is the product still usable?", "quality"],
+    ["What should I do next?", "next_action"],
+    ["Summarize the case", "summary"],
+    ["Why no claim?", "why_payer"],
   ])("%s → %s", async (q, intent) => {
     const { matchIntent } = await import("@/lib/chat/intents");
     expect(matchIntent(q).intent).toBe(intent);
@@ -111,6 +150,13 @@ describe("intent matcher", () => {
     expect(matchIntent("E se la merce valesse 80 mila?").whatIf).toEqual({ valueEur: 80_000 });
     expect(parseAmount("€1.5k")).toBe(1500);
     expect(parseAmount("200 000")).toBe(200_000);
+    expect(matchIntent("What if the shipment weighed 1,200 kg?").whatIf).toEqual({ weightKg: 1200 });
+    expect(matchIntent("What if the goods were worth 1.2 million?").whatIf).toEqual({ valueEur: 1_200_000 });
+    expect(matchIntent("E se la merce valesse 2 milioni?").whatIf).toEqual({ valueEur: 2_000_000 });
+    expect(matchIntent("What if there was no declared value?").whatIf).toEqual({ declaredValueEur: null });
+    expect(matchIntent("What if we wait 20 days?").whatIf).toEqual({ daysLater: 20 });
+    expect(matchIntent("E se gestissimo il caso tra 20 giorni?").whatIf).toEqual({ daysLater: 20 });
+    expect(matchIntent("What if we handled it 10 days later?").whatIf).toEqual({ daysLater: 10 });
   });
 });
 
@@ -142,8 +188,12 @@ describe("chat route", () => {
     expect(ev.at(-1)).toEqual({ type: "done", mode: "rules" });
   });
 
-  it("lets the AI call a read-only tool, and keeps only real citations", async () => {
+  it("lets the AI call a read-only tool, and keeps only citations a tool returned", async () => {
     const llm = await import("@/lib/chat/llm");
+    const ctx = await load("demo-b");
+    const returned = chat.whyPayer(ctx).citationIds[0];
+    // A real source that explain_recommendation did not return: the model must not pin it on its text.
+    const notReturned = Object.keys(ctx.record.citations ?? {}).find((id) => !chat.whyPayer(ctx).citationIds.includes(id))!;
     const model = new MockLanguageModelV3({
       doStream: [
         stream([
@@ -154,7 +204,7 @@ describe("chat route", () => {
         stream([
           { type: "stream-start", warnings: [] },
           { type: "text-start", id: "x" },
-          { type: "text-delta", id: "x", delta: "L'assicurazione paga **€190.000** [S1] [S999]." },
+          { type: "text-delta", id: "x", delta: `L'assicurazione paga **€190.000** [${returned}] [${notReturned}] [S999].` },
           { type: "text-end", id: "x" },
           { type: "finish", finishReason: { unified: "stop", raw: undefined }, usage },
         ]),
@@ -168,8 +218,21 @@ describe("chat route", () => {
     const secondPrompt = JSON.stringify(model.doStreamCalls[1].prompt);
     expect(secondPrompt).toContain("190,000");
     const cits = ev.find((e) => e.type === "citations") as { items: Record<string, unknown> };
-    expect(Object.keys(cits.items)).toEqual(["S1"]);
+    expect(Object.keys(cits.items)).toEqual([returned]);
     expect(ev.at(-1)).toEqual({ type: "done", mode: "ai" });
+  });
+
+  it("rejects bad input with 400 and an unknown case with 404, without throwing", async () => {
+    const { POST } = await import("@/app/api/cases/[id]/chat/route");
+    const post = (id: string, body: unknown) =>
+      POST(new Request(`http://test/api/cases/${id}/chat`, { method: "POST", body: JSON.stringify(body) }), { params: Promise.resolve({ id }) } as never);
+    expect((await post("demo-b", { messages: [] })).status).toBe(400);
+    expect((await post("demo-b", { messages: [{ role: "assistant", content: "hi" }] })).status).toBe(400);
+    expect((await post("demo-b", { messages: [{ role: "user", content: "x".repeat(2001) }] })).status).toBe(400);
+    expect((await post("nope", { messages: [{ role: "user", content: "Why this payer?" }] })).status).toBe(404);
+    // A long earlier answer is trimmed, not rejected.
+    const long = { messages: [{ role: "user", content: "Summarize" }, { role: "assistant", content: "y".repeat(9000) }, { role: "user", content: "Why this payer?" }] };
+    expect((await post("demo-b", long)).status).toBe(200);
   });
 
   it("falls back to the built-in answer when the AI fails before writing", async () => {

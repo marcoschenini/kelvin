@@ -123,15 +123,38 @@ export function AskKelvin({
   const abort = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const chips = suggestions(status, hasClaim);
+  // Screen readers hear each answer once, when it is complete (not every streamed word).
+  const last = messages[messages.length - 1];
+  const announce = busy
+    ? "Kelvin is answering…"
+    : last?.role === "assistant"
+      ? last.error
+        ? `Could not answer: ${last.error}`
+        : last.content.replace(/\*\*|\[S\d+\]/g, "")
+      : "";
+
+  /** Closes the panel, stops an answer still streaming, and gives focus back to the button. */
+  const close = () => {
+    abort.current?.abort();
+    setOpen(false);
+    setTimeout(() => toggleRef.current?.focus(), 0);
+  };
 
   useEffect(() => {
     if (!open) return;
     inputRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      // Escape closes the panel, unless a source viewer is open on top of it.
-      if (e.key === "Escape" && !document.querySelector('[data-slot="sheet-content"]')) setOpen(false);
+      if (e.key !== "Escape") return;
+      // Escape belongs to whatever is on top: the source viewer, another dialog or a menu.
+      const other = document.querySelector('[data-slot="sheet-content"], [role="menu"], [role="listbox"], [role="dialog"][aria-modal="true"]');
+      if (!other) {
+        abort.current?.abort();
+        setOpen(false);
+        setTimeout(() => toggleRef.current?.focus(), 0);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -151,7 +174,11 @@ export function AskKelvin({
     if (!q || busy) return;
     setInput("");
     setBusy(true);
-    const history: ChatTurn[] = [...messages.filter((m) => !m.error).map(({ role, content }) => ({ role, content })), { role: "user", content: q }];
+    // Earlier answers are trimmed (the server trims too), so a long one never blocks later questions.
+    const history: ChatTurn[] = [
+      ...messages.filter((m) => !m.error && m.content).map(({ role, content }) => ({ role, content: content.slice(0, 4000) })),
+      { role: "user", content: q },
+    ];
     setMessages((all) => [...all, { role: "user", content: q }, { role: "assistant", content: "", pending: true }]);
     const ctrl = new AbortController();
     abort.current = ctrl;
@@ -174,7 +201,7 @@ export function AskKelvin({
 
   return (
     <>
-      <Button variant="outline" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls={open ? `${titleId}-panel` : undefined} className="shrink-0">
+      <Button ref={toggleRef} variant="outline" onClick={() => (open ? close() : setOpen(true))} aria-expanded={open} aria-controls={open ? `${titleId}-panel` : undefined} className="shrink-0">
         <MessageSquareText data-icon="inline-start" />
         Ask Kelvin
       </Button>
@@ -204,7 +231,7 @@ export function AskKelvin({
             </div>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={close}
               aria-label="Close Ask Kelvin"
               className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
@@ -212,7 +239,10 @@ export function AskKelvin({
             </button>
           </header>
 
-          <div ref={scrollRef} className="min-h-40 flex-1 overflow-y-auto px-5 py-4" aria-live="polite" aria-busy={busy}>
+          <p className="sr-only" aria-live="polite" aria-atomic="true">
+            {announce}
+          </p>
+          <div ref={scrollRef} className="min-h-40 flex-1 overflow-y-auto px-5 py-4" aria-busy={busy}>
             {messages.length === 0 ? (
               <div className="flex flex-col gap-3">
                 <p className="text-[13.5px] text-muted-foreground">
@@ -264,7 +294,8 @@ export function AskKelvin({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
+                // Not while composing (IME): Enter there confirms the characters, it doesn't send.
+                if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                   e.preventDefault();
                   void send(input);
                 }

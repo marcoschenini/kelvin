@@ -23,7 +23,7 @@ export interface Answer {
   citationIds: string[];
 }
 
-export type Intent = "summary" | "why_payer" | "deadlines" | "custody" | "quality" | "next_action" | "documents" | "what_if" | "help";
+export type Intent = "summary" | "why_payer" | "deadlines" | "custody" | "quality" | "next_action" | "documents" | "what_if" | "action" | "help";
 
 export interface WhatIf {
   /** Declared value for carriage in €; null = no declared value (NVD) */
@@ -132,13 +132,13 @@ export function whyPayer(ctx: ChatContext): Answer {
   if (!top) {
     const why = record.qaAssessment?.verdict === "usable" ? record.qaAssessment.reasons[0] : record.closingNote;
     return {
-      text: `There is no payer to claim: ${why ?? "nothing is recoverable on any route"}${cite(record.qaAssessment?.citationId)}. No product was lost, so there is no loss to recover.`,
+      text: `There is no payer to claim. ${trimDot(why ?? "Nothing is recoverable on any route")}${cite(record.qaAssessment?.citationId)}. No product was lost, so there is no loss to recover.`,
       citationIds: used(),
     };
   }
   const lines = [
     `Kelvin recommends the **${label(top.route)}**: **${formatEUR(top.recoverableEur)}** recoverable, ${Math.round(top.probability * 100)}% likely${cite(...routeSources(ctx, top.route))}.`,
-    `- Why: ${top.reasons.slice(0, 2).join(" ")}`,
+    `- Why: ${top.reasons.slice(0, 2).map(trimDot).join(". ")}.`,
     `- Working: ${top.basis}`,
   ];
   for (const r of ranked.filter((x) => x.route !== top.route)) {
@@ -187,7 +187,7 @@ export function custody(ctx: ChatContext): Answer {
   const segs = ctx.record.custody?.segments ?? [];
   // One entry per hand-over: consecutive segments with the same custodian collapse into one.
   const chain = segs.map((s) => s.custodian).filter((c, i, all) => i === 0 || c !== all[i - 1]);
-  if (chain.length) lines.push(`Custody chain: ${chain.join(" → ")}.`);
+  if (chain.length) lines.push(`Custody chain: ${trimDot(chain.join(" → "))}.`);
   return { text: lines.join("\n"), citationIds: used() };
 }
 
@@ -246,21 +246,30 @@ export function whatIf(ctx: ChatContext, w: WhatIf): Answer {
       citationIds: [],
     };
   }
-  let base: LiabilityInput;
+  if (noClaim(ctx)) {
+    // No product was lost: no value, weight or date changes that. (The stored ranking "assuming QA rejects" is stale.)
+    return {
+      text: `The product is still usable, so there is no loss to recover: with ${changes.join(" and ")} there would still be **no claim**. Only a damaged product creates a claim.`,
+      citationIds: [],
+    };
+  }
+  let input: LiabilityInput;
+  let dl: Deadline[];
+  let ranked: RankedRoute[];
   try {
-    base = liabilityInput(ctx.record, ctx.row, ctx.qa.status);
+    const base = liabilityInput(ctx.record, ctx.row, ctx.qa.status);
+    input = {
+      ...base,
+      ...(w.declaredValueEur !== undefined ? { declaredValueEur: w.declaredValueEur } : {}),
+      ...(w.weightKg !== undefined ? { weightKg: w.weightKg } : {}),
+      ...(w.valueEur !== undefined ? { lossEur: w.valueEur } : {}),
+    };
+    const now = new Date(ctx.now.getTime() + (w.daysLater ?? 0) * 86_400_000);
+    dl = computeDeadlines({ ...deadlineInput(ctx.record, ctx.row, ctx.now), now }, ctx.rules);
+    ranked = rankRoutes(computeLiability(input, ctx.rules), dl, input, ctx.rules);
   } catch {
     return { text: "The analysis is not complete enough to simulate changes yet.", citationIds: [] };
   }
-  const input: LiabilityInput = {
-    ...base,
-    ...(w.declaredValueEur !== undefined ? { declaredValueEur: w.declaredValueEur } : {}),
-    ...(w.weightKg !== undefined ? { weightKg: w.weightKg } : {}),
-    ...(w.valueEur !== undefined ? { lossEur: w.valueEur } : {}),
-  };
-  const now = new Date(ctx.now.getTime() + (w.daysLater ?? 0) * 86_400_000);
-  const dl = computeDeadlines({ ...deadlineInput(ctx.record, ctx.row, ctx.now), now }, ctx.rules);
-  const ranked = rankRoutes(computeLiability(input, ctx.rules), dl, input, ctx.rules);
   const plan = buildClaimPlan(ranked, { custodyAtExcursion: input.custodyAtExcursion, lossEur: totalLossEur(input) });
 
   const before = ctx.record.ranking ?? [];
@@ -274,8 +283,11 @@ export function whatIf(ctx: ChatContext, w: WhatIf): Answer {
     const blocked = r.blockers[0] ? `. ${r.blockers[0]}` : "";
     lines.push(`- ${ROUTE_META[r.route].label}: ${formatEUR(r.recoverableEur)}${delta}, ${trimDot(r.basis)}${blocked ? `${trimDot(blocked)}.` : "."}`);
   }
-  const same = beforeTop?.route === afterTop?.route && Math.round(beforeTop?.recoverableEur ?? 0) === Math.round(afterTop?.recoverableEur ?? 0);
-  lines.push(same ? `The recommendation does not change: ${fmtTop(afterTop)}.` : `The recommendation changes: ${fmtTop(beforeTop)} → ${fmtTop(afterTop)}.`);
+  const sameRoute = beforeTop?.route === afterTop?.route;
+  const sameAmount = Math.round(beforeTop?.recoverableEur ?? 0) === Math.round(afterTop?.recoverableEur ?? 0);
+  if (sameRoute && sameAmount) lines.push(`The recommendation does not change: ${fmtTop(afterTop)}.`);
+  else if (sameRoute && afterTop && beforeTop) lines.push(`Same payer, **${label(afterTop.route)}**, but the amount changes: ${formatEUR(beforeTop.recoverableEur)} → **${formatEUR(afterTop.recoverableEur)}**.`);
+  else lines.push(`The recommendation changes: ${fmtTop(beforeTop)} → ${fmtTop(afterTop)}.`);
   const secondary = plan.find((p) => p.role === "secondary");
   if (secondary) lines.push(`Secondary claim: ${label(secondary.route)} ${formatEUR(secondary.amountEur)}.`);
   if (w.daysLater) {
@@ -284,6 +296,21 @@ export function whatIf(ctx: ChatContext, w: WhatIf): Answer {
   }
   lines.push("This is a simulation: the case itself is unchanged.");
   return { text: lines.join("\n"), citationIds: [] };
+}
+
+/** The chat cannot act: it says who does it, and where, then what is pending. */
+export function actionRequest(ctx: ChatContext): Answer {
+  const pending = nextAction(ctx);
+  return {
+    text: [
+      "I can't do that: Ask Kelvin only reads and explains, it never drafts, approves or sends.",
+      "- Kelvin's analysis drafts the letters and notices by itself.",
+      "- The claims manager (Tom Becker) approves or rejects each one on its approval screen (Next action → Review and approve).",
+      "- Once approved, Kelvin sends it through the Outbox and follows up on the reply.",
+      pending.text,
+    ].join("\n"),
+    citationIds: [],
+  };
 }
 
 export function help(): Answer {
@@ -312,6 +339,8 @@ export function answer(ctx: ChatContext, intent: Intent, w: WhatIf = {}): Answer
       return documentsList(ctx);
     case "what_if":
       return whatIf(ctx, w);
+    case "action":
+      return actionRequest(ctx);
     default:
       return help();
   }
