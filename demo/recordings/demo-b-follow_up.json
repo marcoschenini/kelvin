@@ -4,79 +4,41 @@
  "kind": "follow_up",
  "mode": "deterministic",
  "model": null,
- "recordedAt": "2026-11-13T14:16:03.531Z",
+ "recordedAt": "2026-11-19T12:37:25.986Z",
  "events": [
   {
    "t": 1,
    "event": {
     "type": "run_started",
-    "runId": "run-SINr2APQ-J",
+    "runId": "run-7EfC_SIu-M",
     "caseId": "demo-b",
     "kind": "follow_up",
     "mode": "deterministic",
     "model": null,
-    "at": "2026-11-13T14:16:03.481Z"
+    "at": "2026-11-19T12:37:25.951Z"
    }
   },
   {
-   "t": 6,
-   "event": {
-    "type": "text",
-    "delta": "Sending the approved protective notice to Boreal Air Cargo.\n"
-   }
-  },
-  {
-   "t": 7,
-   "event": {
-    "type": "step_started",
-    "seq": 2,
-    "tool": "send_via_outbox",
-    "input": {
-     "draftId": "dr-ZcJryVJq"
-    },
-    "at": "2026-11-13T14:16:03.487Z"
-   }
-  },
-  {
-   "t": 18,
-   "event": {
-    "type": "step_finished",
-    "seq": 2,
-    "tool": "send_via_outbox",
-    "status": "ok",
-    "summary": "Sent to Boreal Air Cargo <cargo.claims@borealaircargo.example> via the simulated Outbox (approved by Tom Becker).",
-    "output": {
-     "messageId": "msg-ZXFDf9DU",
-     "to": "cargo.claims@borealaircargo.example",
-     "subject": "Notice of damage under Article 31 of the Montreal Convention – RB-24093",
-     "approvedBy": "Tom Becker",
-     "simulated": true
-    },
-    "citations": [],
-    "durationMs": 9
-   }
-  },
-  {
-   "t": 18,
+   "t": 4,
    "event": {
     "type": "text",
     "delta": "Sending the approved claim letter to Meridian Marine & Cargo Insurance SE.\n"
    }
   },
   {
-   "t": 19,
+   "t": 5,
    "event": {
     "type": "step_started",
-    "seq": 4,
+    "seq": 2,
     "tool": "send_via_outbox",
     "input": {
-     "draftId": "dr-l2ia6EsZ"
+     "draftId": "dr-U9CQKZhO"
     },
-    "at": "2026-11-13T14:16:03.499Z"
+    "at": "2026-11-19T12:37:25.956Z"
    }
   },
   {
-   "t": 30,
+   "t": 14,
    "event": {
     "type": "status",
     "from": "awaiting_approval",
@@ -85,45 +47,83 @@
    }
   },
   {
-   "t": 32,
+   "t": 15,
    "event": {
     "type": "step_finished",
-    "seq": 4,
+    "seq": 2,
     "tool": "send_via_outbox",
     "status": "ok",
     "summary": "Sent to Meridian Marine & Cargo Insurance SE <cargo.claims@meridian-marine.example> via the simulated Outbox (approved by Tom Becker).",
     "output": {
-     "messageId": "msg-LsyGecm-",
+     "messageId": "msg-P8o52cIF",
      "to": "cargo.claims@meridian-marine.example",
      "subject": "Claim for temperature damage – RB-24093 – €190,000",
      "approvedBy": "Tom Becker",
      "simulated": true
     },
     "citations": [],
-    "durationMs": 11
+    "durationMs": 9
    }
   },
   {
-   "t": 32,
+   "t": 15,
+   "event": {
+    "type": "text",
+    "delta": "Sending the approved protective notice to Boreal Air Cargo.\n"
+   }
+  },
+  {
+   "t": 15,
+   "event": {
+    "type": "step_started",
+    "seq": 4,
+    "tool": "send_via_outbox",
+    "input": {
+     "draftId": "dr-uA4fMkkq"
+    },
+    "at": "2026-11-19T12:37:25.966Z"
+   }
+  },
+  {
+   "t": 21,
+   "event": {
+    "type": "step_finished",
+    "seq": 4,
+    "tool": "send_via_outbox",
+    "status": "ok",
+    "summary": "Sent to Boreal Air Cargo <cargo.claims@borealaircargo.example> via the simulated Outbox (approved by Tom Becker).",
+    "output": {
+     "messageId": "msg-EDfzrgZd",
+     "to": "cargo.claims@borealaircargo.example",
+     "subject": "Notice of damage under Article 31 of the Montreal Convention – RB-24093",
+     "approvedBy": "Tom Becker",
+     "simulated": true
+    },
+    "citations": [],
+    "durationMs": 5
+   }
+  },
+  {
+   "t": 21,
    "event": {
     "type": "text",
     "delta": "Sending the approved claim letter to Boreal Air Cargo.\n"
    }
   },
   {
-   "t": 33,
+   "t": 22,
    "event": {
     "type": "step_started",
     "seq": 6,
     "tool": "send_via_outbox",
     "input": {
-     "draftId": "dr-L-xduPxO"
+     "draftId": "dr-HSsftUBz"
     },
-    "at": "2026-11-13T14:16:03.513Z"
+    "at": "2026-11-19T12:37:25.973Z"
    }
   },
   {
-   "t": 41,
+   "t": 28,
    "event": {
     "type": "step_finished",
     "seq": 6,
@@ -131,22 +131,22 @@
     "status": "ok",
     "summary": "Sent to Boreal Air Cargo <cargo.claims@borealaircargo.example> via the simulated Outbox (approved by Tom Becker).",
     "output": {
-     "messageId": "msg-gAozaSEo",
+     "messageId": "msg-dmBGO62p",
      "to": "cargo.claims@borealaircargo.example",
      "subject": "Secondary claim for temperature damage – RB-24093 – €3,771",
      "approvedBy": "Tom Becker",
      "simulated": true
     },
     "citations": [],
-    "durationMs": 6
+    "durationMs": 5
    }
   },
   {
-   "t": 51,
+   "t": 35,
    "event": {
     "type": "run_finished",
     "status": "completed",
-    "durationMs": 51,
+    "durationMs": 35,
     "finalStatus": "sent"
    }
   }
