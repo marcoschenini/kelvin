@@ -18,83 +18,83 @@ export async function runScript(kind: RunKind, ctx: AgentContext, say: (text: st
   const call = async (name: string, input: Record<string, unknown> = {}) => executeTool(getTool(name), input, ctx);
 
   if (kind === "investigate") {
-    say("Reading the temperature logger to see what actually happened.");
+    say("Reading the temperature logger.");
     const log = await call("parse_logger");
-    if (!log.ok) return say(`I could not read the logger: ${log.error}`);
+    if (!log.ok) return say(`Logger file unreadable: ${log.error}`);
     const record = await getRecord(ctx.db, ctx.caseId);
     if (!record.excursions?.length) {
-      say("Every reading stayed within 2–8 °C, so there is no excursion and nothing to investigate.");
+      say("All readings within 2–8 °C. No excursion, no claim.");
       return;
     }
-    say("Reading the air waybill for weight and declared value, and the invoice for the value of the goods.");
+    say("Reading the air waybill (weight, declared value) and the invoice (goods value).");
     await call("extract_document", { kind: "awb" });
     await call("extract_document", { kind: "invoice" });
     const emails = await findDocuments(ctx.db, ctx.caseId, "email");
     if (emails.length) {
-      say("Skimming the correspondence for context.");
+      say("Reading the emails.");
       await call("extract_document", { kind: "email" });
     }
-    say("Matching the excursion to the custody timeline to see who held the cargo when it got warm.");
+    say("Matching the excursion to the custody timeline.");
     await call("build_custody_timeline");
-    say("Checking the forwarder contract for temperature duties, liability caps and notice periods.");
+    say("Checking the forwarder contract: temperature duties, liability cap, notice period.");
     await call("check_contract");
-    say("Checking the cargo policy for cover, exclusions, deductible and notice period.");
+    say("Checking the cargo policy: cover, exclusions, deductible, notice period.");
     await call("check_policy");
-    say("Applying the liability limits per route.");
+    say("Applying liability limits per route.");
     await call("compute_liability");
-    say("Working out every deadline and how many days are left.");
+    say("Computing deadlines.");
     await call("compute_deadlines");
-    say("Ranking the recovery routes by expected recoverable amount.");
+    say("Ranking recovery routes by expected recoverable amount.");
     const rank = await call("rank_routes");
     const needs = rank.ok ? ((rank.output as { protectiveNoticesNeeded: { route: RecoveryRoute; daysLeft: number }[] }).protectiveNoticesNeeded ?? []) : [];
     for (const n of needs) {
-      say(`The ${ROUTE_META[n.route].label.toLowerCase()} notice deadline is ${n.daysLeft} days away and QA has not decided, so I am drafting a protective notice to reserve our rights.`);
+      say(`The ${ROUTE_META[n.route].label.toLowerCase()} notice is due in ${n.daysLeft} days and QA has not decided. Drafting a protective notice.`);
       await call("draft_protective_notice", { route: n.route });
     }
-    say("Checking whether anything is missing from the file.");
+    say("Checking the file for missing documents.");
     await call("request_missing_info");
-    say("Handing the measured excursion to the quality agent: it compares peak temperature and minutes out of range with the manufacturer's stability data.");
+    say("Quality check: peak temperature and minutes out of range against the stability data.");
     const qa = await call("assess_quality");
-    if (!qa.ok) return say(`The quality assessment could not be completed: ${qa.error}`);
+    if (!qa.ok) return say(`Quality check failed: ${qa.error}`);
     const final = await getRecord(ctx.db, ctx.caseId);
     const top = final.ranking?.find((r) => r.recommended);
     const attr = final.custody?.attribution;
     const verdict = final.qaAssessment?.verdict;
     const next =
       verdict === "usable"
-        ? "The quality agent found the product usable, so there is no damage and the case is closed with no claim."
+        ? "Product usable: no damage, case closed with no claim."
         : verdict === "damaged"
-          ? "The quality agent found the product damaged, so I prepare the claim for manager approval."
-          : "The excursion is close to the stability limit, so a human QA must decide whether the product is usable.";
+          ? "Product damaged: claim goes to the manager for approval."
+          : "Excursion close to the stability limit: QA decides.";
     say(
-      `${attr ? `The excursion happened while ${attr.custodian} held the cargo. ` : ""}${verdict !== "usable" && top ? `The best route is the ${ROUTE_META[top.route].label.toLowerCase()} for ${formatEUR(top.recoverableEur)}. ` : ""}${needs.length ? `A protective notice is ready for approval. ` : ""}${next}`,
+      `${attr ? `Custodian during the excursion: ${attr.custodian}. ` : ""}${verdict !== "usable" && top ? `Recommended route: ${ROUTE_META[top.route].label.toLowerCase()}, ${formatEUR(top.recoverableEur)}. ` : ""}${needs.length ? `Protective notice awaiting approval. ` : ""}${next}`,
     );
     return;
   }
 
   if (kind === "prepare_claim") {
-    say("The product is confirmed damaged, so I am re-ranking the routes and building the claim plan.");
+    say("Product damaged. Re-ranking routes and building the claim plan.");
     await call("rank_routes");
-    say("Drafting the claim letter for the recommended route, citing every statement.");
+    say("Drafting the claim letter for the recommended route.");
     const letter = await call("draft_claim_letter");
-    if (!letter.ok) return say(`I could not draft the claim: ${letter.error}`);
+    if (!letter.ok) return say(`Claim letter not drafted: ${letter.error}`);
     const plan = (await getRecord(ctx.db, ctx.caseId)).claimPlan ?? [];
     for (const s of plan.filter((p) => p.role === "secondary")) {
-      say(`The ${ROUTE_META[s.route].label.toLowerCase()} held the cargo and is liable for the part the insurance does not cover, so I am drafting a secondary claim for ${formatEUR(s.amountEur)}.`);
+      say(`The ${ROUTE_META[s.route].label.toLowerCase()} is liable for the uninsured part. Drafting a secondary claim for ${formatEUR(s.amountEur)}.`);
       await call("draft_claim_letter", { route: s.route });
     }
-    say("Building the evidence pack with the chart, logger extract and cited pages.");
+    say("Building the evidence pack: chart, logger extract, cited pages.");
     await call("build_evidence_pack");
     const out = letter.output as { amountEur: number; to: { name: string } };
-    say(`The claim for ${formatEUR(out.amountEur)} to ${out.to.name} is ready. A manager must approve it before anything is sent.`);
+    say(`Claim ready: ${formatEUR(out.amountEur)} to ${out.to.name}. Awaiting manager approval.`);
     return;
   }
 
   if (kind === "close") {
-    say("QA released the product. Confirming there is nothing to recover on any route.");
+    say("QA released the product. Checking every route.");
     await call("compute_liability");
     await call("rank_routes");
-    say("No damage means no claim on any route. Closing the case with the reason recorded for audit.");
+    say("No damage, no claim. Case closed; reason recorded in the audit trail.");
     return;
   }
 
@@ -117,12 +117,12 @@ export async function runScript(kind: RunKind, ctx: AgentContext, say: (text: st
       .from(outboxMessages)
       .where(and(eq(outboxMessages.caseId, ctx.caseId), eq(outboxMessages.direction, "in")));
     for (const m of replies.filter((r) => !handled.has(r.id))) {
-      say(`Reading the reply from ${m.counterparty} and proposing the next step.`);
+      say(`Reply from ${m.counterparty}. Proposing the next step.`);
       await call("handle_reply", { messageId: m.id });
     }
     const st = await reminderState(ctx);
     if (st?.due.length) {
-      say(`No reply to the claim for ${Math.max(...st.due)} days, so I am drafting a reminder for approval.`);
+      say(`No reply to the claim for ${Math.max(...st.due)} days. Drafting a reminder.`);
       await call("draft_reminder");
     } else if (!approved.length && replies.every((r) => handled.has(r.id))) say("Nothing to send and no new replies.");
   }

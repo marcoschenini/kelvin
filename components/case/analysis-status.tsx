@@ -10,17 +10,17 @@ import { formatMs } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const RUN_TITLE: Record<RunKind, string> = {
-  investigate: "Kelvin is investigating the excursion",
-  prepare_claim: "Kelvin is preparing the claim",
-  close: "Kelvin is closing the case",
-  follow_up: "Kelvin is handling the correspondence",
+  investigate: "Investigating the excursion",
+  prepare_claim: "Preparing the claim",
+  close: "Closing the case",
+  follow_up: "Handling correspondence",
 };
 
 const RUN_COPY: Record<RunKind, string> = {
-  investigate: "Reading the logger, shipping documents, contract and policy, then deciding who should pay.",
-  prepare_claim: "Drafting the claim letters and building the evidence pack.",
-  close: "Closing the case and recording the outcome.",
-  follow_up: "Sending approved messages and answering the counterparty.",
+  investigate: "Logger, shipping documents, contract and policy, then the paying party.",
+  prepare_claim: "Claim letters and evidence pack.",
+  close: "Outcome recorded, case closed.",
+  follow_up: "Approved messages out, counterparty replies in.",
 };
 
 const modeLabel = (mode: RunMode | null, model: string | null) =>

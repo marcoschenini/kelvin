@@ -338,7 +338,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
             >
               <CircleCheck className="size-10 text-success" strokeWidth={1.5} aria-hidden="true" />
               <div className="font-heading text-xl font-semibold">Approved by {persona.name}</div>
-              <div className="text-sm text-muted-foreground">Handed to the Outbox. Kelvin sends it and tracks the reply.</div>
+              <div className="text-sm text-muted-foreground">Queued in the Outbox. Replies are tracked on the case.</div>
             </motion.div>
           </motion.div>
         )}

@@ -48,7 +48,7 @@ function AwaitingReply({ caseId, from, paused }: { caseId: string; from: string;
       fired.current = from;
       const r = await deliverRepliesAction(caseId);
       if (r.delivered) {
-        toast(`Reply received from ${from}`, { description: "Kelvin is reviewing it." });
+        toast(`Reply received from ${from}`, { description: "Next step being proposed." });
         router.refresh();
       }
     }, 3500);
