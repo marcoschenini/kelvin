@@ -1,5 +1,6 @@
 import "server-only";
 import { DEFAULT_PERSONA_ID } from "@/lib/domain/personas";
+import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { getDb } from "@/lib/db/client";
 import { auditEvents, cases, documents, type DocumentKind } from "@/lib/db/schema";
@@ -108,4 +109,45 @@ export async function createCaseFromUpload(files: { name: string; bytes: Uint8Ar
     })),
   ]);
   return { id, documents: rows.length };
+}
+
+/** Attaches uploaded files to an existing case (does not start a run). Returns null if the case does not exist. */
+export async function addDocumentsToCase(caseId: string, files: { name: string; bytes: Uint8Array }[], actor: { name: string; title: string }) {
+  const db = await getDb();
+  const [c] = await db.select({ id: cases.id }).from(cases).where(eq(cases.id, caseId));
+  if (!c) return null;
+  const taken = new Set((await db.select({ f: documents.filename }).from(documents).where(eq(documents.caseId, caseId))).map((d) => d.f));
+  const rows = [];
+  for (const f of files) {
+    const cls = await classifyFile(f.name, f.bytes);
+    let safe = f.name.replace(/[^\w.\-]+/g, "_");
+    if (taken.has(safe)) safe = `${nanoid(4).toLowerCase().replace(/[^a-z0-9]/g, "x")}-${safe}`;
+    taken.add(safe);
+    const storagePath = `cases/${caseId}/${safe}`;
+    await putFile(storagePath, f.bytes);
+    rows.push({
+      id: `${caseId}-${cls.kind}-${nanoid(6).toLowerCase().replace(/[^a-z0-9]/g, "x")}`,
+      caseId,
+      kind: cls.kind,
+      title: cls.kind === "other" ? f.name : cls.kind === "email" ? f.name.replace(/\.(eml|txt)$/i, "") : `${KIND_TITLE[cls.kind]} (${f.name})`,
+      filename: safe,
+      mime: cls.mime,
+      storagePath,
+      sizeBytes: f.bytes.byteLength,
+      pages: cls.pages,
+    });
+  }
+  await db.insert(documents).values(rows);
+  await db.insert(auditEvents).values([
+    { caseId, actorType: "human", actorName: actor.name, actorRole: actor.title, eventType: "documents_added", input: { files: files.map((f) => f.name) }, output: { note: `Documents added (${rows.length})` } },
+    ...rows.map((r) => ({
+      caseId,
+      actorType: "system" as const,
+      actorName: "Kelvin intake",
+      eventType: "document_received",
+      input: { filename: r.filename, kind: r.kind },
+      output: { documentId: r.id, bytes: r.sizeBytes, pages: r.pages },
+    })),
+  ]);
+  return rows.length;
 }

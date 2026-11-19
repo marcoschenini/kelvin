@@ -28,6 +28,7 @@ export interface PortfolioCase {
   recommendedRoute: string | null;
   claimAmountEur: number | null;
   record: CaseRecord;
+  deliveredAt?: number | null;
 }
 
 export interface PortfolioContext {
@@ -46,6 +47,7 @@ const toCase = (r: CaseRow): PortfolioCase => ({
   recommendedRoute: r.recommendedRoute,
   claimAmountEur: r.claimAmountEur,
   record: (r.record ?? {}) as CaseRecord,
+  deliveredAt: r.deliveredAt?.getTime() ?? null,
 });
 
 export async function loadPortfolio(db: DB, now = new Date()): Promise<PortfolioContext> {
@@ -70,9 +72,10 @@ const stripCitations = (text: string) => text.replace(/\s*[[【]S\d+[\]】]/g, "
 /** A case named in the question: "case B", "caso b", "RB-24093", "demo-b". */
 export function findCase(question: string, ctx: PortfolioContext): PortfolioCase | null {
   const q = question.toLowerCase();
-  for (const c of ctx.cases) {
-    if (q.includes(c.ref.toLowerCase()) || q.includes(c.id.toLowerCase())) return c;
-  }
+  const byId = ctx.cases.find((c) => q.includes(c.id.toLowerCase()));
+  if (byId) return byId;
+  const byRef = ctx.cases.filter((c) => q.includes(c.ref.toLowerCase()));
+  if (byRef.length) return byRef.reduce((a, b) => ((b.deliveredAt ?? 0) > (a.deliveredAt ?? 0) ? b : a));
   const m = /\b(?:case|caso)\s+([a-z])\b/i.exec(question);
   if (m) return ctx.cases.find((c) => c.code?.toLowerCase() === m[1].toLowerCase()) ?? null;
   return null;

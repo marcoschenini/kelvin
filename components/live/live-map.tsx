@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "motion/react";
+import { toast } from "sonner";
 import { ArrowRight, Boxes, Building2, Euro, Gauge, Plane, Search, ShieldAlert, Thermometer, Truck, Warehouse, X, type LucideIcon } from "lucide-react";
 import worldLand from "@/lib/geo/world-land.json";
 import { LiveGlobe } from "./live-globe";
@@ -10,7 +12,7 @@ import { projectWorld } from "@/lib/geo/world";
 import { REGIONS, type RegionId } from "@/lib/geo/world";
 import { CUSTODY_META } from "@/lib/domain/parties";
 import { formatDateTime, formatEUR, formatEURCompact, formatTemp } from "@/lib/format";
-import { AIRPORTS, FLEET, demoCaseFor, history, routePath, simulate, type LiveState, type LiveStatus } from "@/lib/live/fleet";
+import { AIRPORTS, FLEET, history, routePath, simulate, type LiveState, type LiveStatus } from "@/lib/live/fleet";
 import { cn } from "@/lib/utils";
 
 const W = worldLand.width;
@@ -107,10 +109,9 @@ function Sparkline({ points, now }: { points: { t: number; c: number }[]; now: n
   );
 }
 
-function Detail({ s, now, onClose }: { s: LiveState; now: number; onClose: () => void }) {
+function Detail({ s, now, caseId, onClose }: { s: LiveState; now: number; caseId?: string; onClose: () => void }) {
   const ship = s.ship;
   const pts = useMemo(() => history(s, now), [s, now]);
-  const demo = demoCaseFor(s.leg.role);
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-2">
@@ -171,13 +172,19 @@ function Detail({ s, now, onClose }: { s: LiveState; now: number; onClose: () =>
             Alert raised to the claims team
           </div>
           <p className="mt-1 text-muted-foreground">
-            The logger left 2–8 °C on this trip. Kelvin opens a case as soon as the shipment is delivered and the logger file arrives.
+            The logger left 2–8 °C on this trip. Kelvin opens a case when this shipment is delivered.
           </p>
-          <Link href={`/cases/${demo.id}`} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-ai-fg hover:underline">
-            See how Kelvin handles it: {demo.label}
+        </div>
+      )}
+
+      {caseId && (
+        <p className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+          Last delivery opened a case ·
+          <Link href={`/cases/${caseId}`} className="inline-flex items-center gap-1 font-medium text-ai-fg hover:underline">
+            Open case
             <ArrowRight className="size-3.5" aria-hidden="true" />
           </Link>
-        </div>
+        </p>
       )}
 
       <dl className="num grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
@@ -213,6 +220,7 @@ function Detail({ s, now, onClose }: { s: LiveState; now: number; onClose: () =>
 }
 
 export function LiveMap() {
+  const router = useRouter();
   const mounted = useMounted();
   const reduce = useReducedMotion();
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(60);
@@ -224,7 +232,40 @@ export function LiveMap() {
   const [hover, setHover] = useState<string | null>(null);
   const [view, setView] = useState<"globe" | "map">("globe");
 
-  const states = useMemo(() => (now ? FLEET.map((s) => simulate(s, now)).filter((s) => s.inTransit) : []), [now]);
+  const allStates = useMemo(() => (now ? FLEET.map((s) => simulate(s, now)) : []), [now]);
+  const states = useMemo(() => allStates.filter((s) => s.inTransit), [allStates]);
+
+  // A shipment with an excursion that was in transit on the previous tick and is delivered now opens a case.
+  const prevStates = useRef<Map<string, LiveState>>(new Map());
+  const sentKeys = useRef<Set<string>>(new Set());
+  const [cases, setCases] = useState<Record<string, string>>({});
+  useEffect(() => {
+    const prev = prevStates.current;
+    for (const cur of allStates) {
+      const before = prev.get(cur.ship.id);
+      if (!before || !before.inTransit || cur.inTransit || cur.status !== "excursion") continue;
+      const tripIndex = before.tripIndex;
+      const key = `${cur.ship.id}:${tripIndex}`;
+      if (sentKeys.current.has(key)) continue;
+      sentKeys.current.add(key);
+      fetch("/api/live/deliver", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ shipId: cur.ship.id, tripIndex }),
+      })
+        .then(async (res) => {
+          if (!res.ok) return;
+          const { caseId } = (await res.json()) as { caseId: string; created: boolean };
+          setCases((c) => ({ ...c, [cur.ship.id]: caseId }));
+          toast(`${cur.ship.shipmentRef} delivered with an excursion`, {
+            description: "Case opened in Cases",
+            action: { label: "Open case", onClick: () => router.push(`/cases/${caseId}`) },
+          });
+        })
+        .catch(() => {});
+    }
+    prevStates.current = new Map(allStates.map((s) => [s.ship.id, s]));
+  }, [allStates, now, router]);
   const counts = useMemo(() => {
     const c = { all: states.length, in_range: 0, at_risk: 0, excursion: 0 } as Record<LiveStatus | "all", number>;
     for (const s of states) c[s.status]++;
@@ -515,7 +556,7 @@ export function LiveMap() {
         <aside className="surface p-4">
           {sel ? (
               <div key="detail" className="animate-in fade-in-0 slide-in-from-right-2 duration-200">
-                <Detail s={sel} now={now} onClose={() => setSelected(null)} />
+                <Detail s={sel} now={now} caseId={cases[sel.ship.id]} onClose={() => setSelected(null)} />
               </div>
             ) : (
               <div key="list" className="animate-in fade-in-0 slide-in-from-left-2 duration-200">
