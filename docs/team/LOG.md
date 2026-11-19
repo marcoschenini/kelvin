@@ -2,6 +2,11 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-19 — Background with depth on every page
+
+- **Request (Marco):** the flat cold-chain scene on the home was too busy and badly placed; brainstormed a replacement: "a background that gives depth, more minimal, gradient style but with more dimension", fixed behind the page, the same on every page.
+- **Chief (Marco's session):** removed `components/brand/cold-chain-backdrop.tsx` (PR #20) from the home; added `.kelvin-backdrop` (globals.css) mounted once in the shell layout: three static radial glows (cold blue top-right and left, darker floor), two blurred lights drifting over 48 s (still under reduced motion), fine SVG grain; colours from new `--backdrop-*` tokens per theme. AGENTS.md rule updated (the page background is the one gradient). Checked in the browser at 1280 px: home, Cases, Ask Kelvin in light and dark. Note: a stale `.data/kelvin.lock` (PID reused by a Windows process) blocked the local DB; removed by hand.
+
 ## 2026-11-17 — Ratel moves
 
 - **Request (Marco):** make the ratel move with the animations from the earlier project.
