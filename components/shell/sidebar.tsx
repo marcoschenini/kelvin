@@ -17,7 +17,7 @@ interface NavItem {
 }
 
 const ITEMS: NavItem[] = [
-  { href: "/", label: "Live shipments", icon: Globe2, match: (p) => p === "/" },
+  { href: "/live", label: "Live shipments", icon: Globe2, match: (p) => p.startsWith("/live") },
   { href: "/cases", label: "Cases", icon: Inbox, match: (p) => p.startsWith("/cases") && p !== "/cases/new" },
   { href: "/cases/new", label: "New case", icon: FilePlus2, match: (p) => p === "/cases/new" },
   { href: "/ask", label: "Ask Kelvin", icon: MessageSquareText, match: (p) => p.startsWith("/ask") },
