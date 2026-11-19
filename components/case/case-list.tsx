@@ -26,6 +26,7 @@ export function RouteLabel({ origin, destination, className }: { origin: string 
 /** Where the case came from; demo cases carry no label. */
 function sourceLabel(c: CaseListItem) {
   if (c.scenario === "live") return `Live monitoring${c.deliveredAt ? ` · delivered ${formatDateTime(c.deliveredAt)}` : ""}`;
+  if (c.scenario === "demo" && c.code) return `Demo ${c.code}`;
   return c.scenario === "upload" ? "Uploaded" : null;
 }
 
@@ -43,9 +44,6 @@ function CaseCards({ items }: { items: CaseListItem[] }) {
               className="flex flex-col gap-3 surface p-4 transition-colors active:bg-muted/50"
             >
               <span className="flex items-start gap-3">
-                {c.code && c.scenario === "demo" && (
-                  <span className="figure grid size-9 shrink-0 place-items-center rounded-md border border-border text-base font-semibold text-ai-fg">{c.code}</span>
-                )}
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-heading text-[18px] font-semibold">{c.shipmentRef}</span>
                   {sourceLabel(c) && <span className="block text-[11px] text-muted-foreground">{sourceLabel(c)}</span>}
@@ -110,11 +108,6 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
                 )}
               >
                 <span className="flex min-w-0 items-center gap-3">
-                  {c.code && c.scenario === "demo" && (
-                    <span className="figure grid size-8 shrink-0 place-items-center rounded-md border border-border text-sm font-semibold text-ai-fg">
-                      {c.code}
-                    </span>
-                  )}
                   <span className="min-w-0">
                     <span className="block truncate font-heading text-[17px] font-semibold group-hover:underline group-hover:underline-offset-2">{c.shipmentRef}</span>
                     {sourceLabel(c) && <span className="block text-[11px] text-muted-foreground">{sourceLabel(c)}</span>}
