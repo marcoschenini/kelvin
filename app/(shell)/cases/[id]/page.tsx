@@ -232,7 +232,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
                   <StatusChip status={c.status} />
                 </div>
                 <p className="mt-2 text-[15px] text-muted-foreground">{c.title}</p>
-                {(c.scenario as string) === "live" && (
+                {c.scenario === "live" && (
                   <p className="mt-1 text-sm text-muted-foreground">Opened from live monitoring when the shipment was delivered.</p>
                 )}
               </div>
