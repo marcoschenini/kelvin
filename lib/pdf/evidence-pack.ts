@@ -78,7 +78,7 @@ export async function buildEvidencePack(input: EvidenceInput): Promise<{ bytes: 
   // excursion highlight
   for (const e of r.excursions ?? []) {
     const x1 = px(new Date(e.start).getTime());
-    const x2 = px(new Date(e.end).getTime());
+    const x2 = px(Math.min(new Date(excursionShownEnd(e)).getTime(), tMax));
     page.drawRectangle({ x: x1, y: Y0, width: Math.max(1.5, x2 - x1), height: H, color: rgb(1, 0.93, 0.8), opacity: 0.8 });
   }
   // line

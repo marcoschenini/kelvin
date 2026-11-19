@@ -49,3 +49,5 @@ Lasting choices about how Kelvin is built. Newest first. Format: date — decisi
 - **QA is read-only (`disallowedTools: Write, Edit`) and preloads `kelvin-verify`.** — Independent verification: the reviewer never fixes what it reviews.
 - **Records live in the repo (`docs/team/`)**, so both developers and both Claude Code setups share the same log, decisions and specs.
 - **No project-level model override in `.claude/settings.json`.** — The repo is shared with a second developer; each picks the Chief model with `/model opus` (stored in their own user settings).
+- **Excursion duration = readings × interval; shown end = last reading + interval (2026-11-19, Vito).** — Each 5-min reading covers one interval, so the duration was right and the displayed end was 5 min short. Stored `end` stays the last reading so custody attribution and outcomes do not change.
+- **Chief says per request whether the agent team is worth it (2026-11-19, Vito).** — Small copy or UI changes run in the main session; multi-area or rules/eval work uses the team and always QA.
