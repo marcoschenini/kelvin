@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { getDb } from "@/lib/db/client";
-import { runEvaluation, type EvalEvent } from "@/lib/eval/harness";
+import { claimEvalRun, EvalBusyError, runEvaluation, type EvalEvent } from "@/lib/eval/harness";
 
 export const maxDuration = 300;
 
@@ -15,17 +15,29 @@ export async function POST(req: Request) {
   if (!parsed.success) return Response.json({ error: "Invalid body" }, { status: 400 });
   const db = await getDb();
   const enc = new TextEncoder();
+  // Live model runs take ~1 min per case: cap them so a request stays within the function limit.
+  const limit = parsed.data.mode === "live" ? Math.min(parsed.data.limit ?? 4, 4) : parsed.data.limit;
+  let claim;
+  try {
+    claim = await claimEvalRun(db, { mode: parsed.data.mode, limit });
+  } catch (e) {
+    if (e instanceof EvalBusyError) return Response.json({ error: e.message }, { status: 409 });
+    throw e;
+  }
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
+      // enqueue throws once the client aborted: that propagates into runEvaluation, which marks the run "failed".
       const send = (e: EvalEvent) => controller.enqueue(enc.encode(`${JSON.stringify(e)}\n`));
       try {
-        // Live model runs take ~1 min per case: cap them so a request stays within the function limit.
-        const limit = parsed.data.mode === "live" ? Math.min(parsed.data.limit ?? 4, 4) : parsed.data.limit;
-        await runEvaluation(db, { mode: parsed.data.mode, limit, onEvent: send });
+        await runEvaluation(db, { claim, onEvent: send });
       } catch (e) {
-        send({ type: "error", error: e instanceof Error ? e.message : String(e) });
+        try {
+          send({ type: "error", error: e instanceof Error ? e.message : String(e) });
+        } catch {}
       } finally {
-        controller.close();
+        try {
+          controller.close();
+        } catch {}
       }
     },
   });
