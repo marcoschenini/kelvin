@@ -97,3 +97,8 @@ Newest first. One entry per request: date — request — who did what — verdi
 
 - **Request (Vito):** remove the boxy "Claude look" inside the tool and show clouds faintly behind the screens; chose glass panels and barely visible clouds.
 - **Chief (main session, centralised change):** new `.surface` / `.surface-inset` classes and `--surface-*` / `--backdrop-clouds` tokens in `app/globals.css`; 19 files moved from bordered card boxes to glass panels; KPI grids lose the 1 px divider lines; clouds layer added to the shell backdrop (soft-light in dark mode). Check: axe on 9 pages × light/dark, no violations; 175 tests.
+
+## 2026-11-19 — Live map redesign
+
+- **Request (Vito):** a nicer world map; chose real continents with arcing routes.
+- **Chief (main session, one component):** dotted land replaced by Natural Earth 1:110m land as one SVG path (`scripts/gen-map-land.ts` → `lib/geo/world-land.json`, same projection as the fleet), faint 30° graticule, every shipment's lane drawn as a faint great-circle arc (selected lane on top, others dimmed), hubs with IATA labels when zoomed. New `--map-coast` token. Checked with screenshots (world light/dark, Europe zoom); 175 tests. `lib/geo/world-dots.json` is no longer used by the live map.

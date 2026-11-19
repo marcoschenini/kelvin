@@ -4,15 +4,32 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Boxes, Building2, Euro, Gauge, Plane, Search, ShieldAlert, Thermometer, Truck, Warehouse, X, type LucideIcon } from "lucide-react";
-import worldDots from "@/lib/geo/world-dots.json";
+import worldLand from "@/lib/geo/world-land.json";
+import { projectWorld } from "@/lib/geo/world";
 import { REGIONS, type RegionId } from "@/lib/geo/world";
 import { CUSTODY_META } from "@/lib/domain/parties";
 import { formatDateTime, formatEUR, formatEURCompact, formatTemp } from "@/lib/format";
 import { AIRPORTS, FLEET, demoCaseFor, history, routePath, simulate, type LiveState, type LiveStatus } from "@/lib/live/fleet";
 import { cn } from "@/lib/utils";
 
-const W = worldDots.width;
-const H = worldDots.height;
+const W = worldLand.width;
+const H = worldLand.height;
+
+/** Faint graticule every 30°, in map units. */
+const GRATICULE = (() => {
+  let d = "";
+  for (let lon = -150; lon <= 180; lon += 30) {
+    const [x] = projectWorld(0, lon);
+    d += `M${x.toFixed(1)} 0V${H}`;
+  }
+  for (let lat = -30; lat <= 60; lat += 30) {
+    const [, y] = projectWorld(lat, 0);
+    d += `M0 ${y.toFixed(1)}H${W}`;
+  }
+  return d;
+})();
+
+const HUBS = Object.entries(AIRPORTS).map(([code, a]) => ({ code, xy: projectWorld(a.lat, a.lon) }));
 const SPEEDS = [1, 60, 600] as const;
 
 const STATUS: Record<LiveStatus, { label: string; chip: string; dot: string; rank: number }> = {
@@ -236,6 +253,8 @@ export function LiveMap() {
   const k = 1 / zs; // keeps markers the same on-screen size when zoomed
   const pct = (v: number, axis: "x" | "y") => (axis === "x" ? ((v - x0) / vw) * 100 : ((v - y0) / vh) * 100);
   const routes = useMemo(() => (sel ? routePath(sel.ship) : []), [sel]);
+  // Every shipment's lane, drawn faintly so the network reads at a glance.
+  const lanes = useMemo(() => visible.map((v) => ({ id: v.ship.id, role: v.leg.role, status: v.status, d: routePath(v.ship) })), [visible]);
 
   const kpis: { label: string; value: string; icon: LucideIcon; tone: string }[] = [
     { label: "In transit", value: String(counts.all), icon: Boxes, tone: "text-foreground" },
@@ -320,11 +339,36 @@ export function LiveMap() {
                   transition: reduce ? undefined : "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
                 }}
               >
-              <g fill="var(--map-land)">
-                {worldDots.dots.map(([x, y], i) => (
-                  <circle key={i} cx={x} cy={y} r={1.5} />
-                ))}
-              </g>
+              <path d={GRATICULE} fill="none" stroke="var(--map-land)" strokeWidth={0.5 * k} opacity={0.6} />
+              <path d={worldLand.d} fill="var(--map-land)" stroke="var(--map-coast)" strokeWidth={0.6 * k} strokeLinejoin="round" fillRule="evenodd" />
+
+              {/* all lanes, faint; the selected one is drawn again on top */}
+              {mounted &&
+                lanes.map((l) =>
+                  l.d.map((d, i) => (
+                    <path
+                      key={`${l.id}-${i}`}
+                      d={d}
+                      fill="none"
+                      stroke={l.status === "excursion" ? "var(--warning)" : CUSTODY_META[l.role].colorVar}
+                      strokeWidth={0.9 * k}
+                      strokeLinecap="round"
+                      opacity={selected && selected !== l.id ? 0.12 : 0.35}
+                    />
+                  )),
+                )}
+
+              {/* hubs */}
+              {HUBS.map((h) => (
+                <g key={h.code} transform={`translate(${h.xy[0]} ${h.xy[1]})`} aria-hidden="true">
+                  <circle r={1.4 * k} fill="var(--muted-foreground)" opacity={0.7} />
+                  {zs >= 2 && (
+                    <text y={-5 * k} textAnchor="middle" fontSize={9 * k} fill="var(--muted-foreground)" className="num font-medium">
+                      {h.code}
+                    </text>
+                  )}
+                </g>
+              ))}
 
               {/* selected route */}
               {routes.map((d, i) => (
