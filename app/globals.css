@@ -142,6 +142,12 @@
   /* Ratel, the mascot: cream engraving lines on a navy badge, in both themes */
   --mascot: #0e1b33;
   --mascot-ink: #ecefea;
+  /* Page background with depth (the only gradient in the app): soft cold glows, a darker floor, fine grain */
+  --backdrop-glow-1: color-mix(in oklab, var(--cold) 28%, transparent);
+  --backdrop-glow-2: color-mix(in oklab, var(--cold) 17%, transparent);
+  --backdrop-glow-3: color-mix(in oklab, var(--foreground) 8%, transparent);
+  --backdrop-floor: color-mix(in oklab, var(--foreground) 9%, transparent);
+  --backdrop-grain: 0.045;
 
   --ai-from: #1b2f57;
   --ai-to: #1b2f57;
@@ -219,6 +225,11 @@
   --brand-soft: #2a1520;
   --mascot: #1a2a4a;
   --mascot-ink: #ecefea;
+  --backdrop-glow-1: color-mix(in oklab, var(--cold) 22%, transparent);
+  --backdrop-glow-2: color-mix(in oklab, var(--cold) 13%, transparent);
+  --backdrop-glow-3: color-mix(in oklab, var(--cold) 9%, transparent);
+  --backdrop-floor: color-mix(in oklab, #000000 38%, transparent);
+  --backdrop-grain: 0.06;
 
   --ai-from: #a9bce0;
   --ai-to: #a9bce0;
@@ -324,6 +335,51 @@
   /* A live agent step entering the timeline: short fade and rise (CSS, so it also runs in background tabs) */
   .kelvin-step-in {
     animation: kelvin-step-in 220ms cubic-bezier(0.2, 0, 0, 1) both;
+  }
+  /*
+   * The page background on every page (app/(shell)/layout.tsx): fixed behind the content,
+   * minimal, with depth. Static glows and a darker floor; ::before holds two blurred lights
+   * that drift very slowly (still under reduced motion); ::after is a fine grain so the
+   * gradient reads as a surface. Cards and tables stay opaque on top of it.
+   */
+  .kelvin-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    background:
+      radial-gradient(70% 55% at 92% -8%, var(--backdrop-glow-1), transparent 70%),
+      radial-gradient(55% 60% at -10% 62%, var(--backdrop-glow-2), transparent 72%),
+      radial-gradient(90% 45% at 50% 120%, var(--backdrop-floor), transparent 75%),
+      var(--background);
+  }
+  .kelvin-backdrop::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    background:
+      radial-gradient(28% 26% at 70% 32%, var(--backdrop-glow-2), transparent 70%),
+      radial-gradient(24% 30% at 28% 78%, var(--backdrop-glow-3), transparent 70%);
+    filter: blur(40px);
+    animation: kelvin-drift 48s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  .kelvin-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: var(--backdrop-grain);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@keyframes kelvin-drift {
+  from {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(4%, 3%, 0) scale(1.08);
   }
 }
 
