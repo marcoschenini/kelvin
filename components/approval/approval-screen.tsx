@@ -97,11 +97,14 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
   const edited = body.trim() !== draft.body.trim() || subject.trim() !== draft.subject.trim();
   const coverage = useMemo(() => checkCoverage(body), [body]);
   const actionable = draft.status === "awaiting_approval";
+  const subjectEmpty = !subject.trim();
+  const bodyEmpty = !body.trim();
+  const invalidReason = subjectEmpty ? "The subject is empty. Add a subject to approve." : bodyEmpty ? "The letter text is empty. Add text to approve." : null;
   const sources = draft.citations.filter((c) => c.kind !== "assumption");
   const assumptions = draft.citations.filter((c) => c.kind === "assumption");
 
   const approve = useCallback(() => {
-    if (!actionable || !canApprove || pending || handoff) return;
+    if (!actionable || !canApprove || pending || handoff || invalidReason) return;
     start(async () => {
       const r = await approvalAction(ctx.caseId, edited ? { draftId: draft.id, decision: "approved_with_edits", editedBody: body, editedSubject: subject } : { draftId: draft.id, decision: "approved" });
       if (!r.ok) {
@@ -111,7 +114,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
       setHandoff(true);
       setTimeout(() => router.push(`/cases/${ctx.caseId}`), 1500);
     });
-  }, [actionable, body, canApprove, ctx.caseId, draft.id, edited, handoff, pending, router, subject]);
+  }, [actionable, body, canApprove, ctx.caseId, draft.id, edited, handoff, invalidReason, pending, router, subject]);
 
   const closesCase = draft.kind === "claim_letter" && (!ctx.primaryClaimDraftId || ctx.primaryClaimDraftId === draft.id);
   const reject = () =>
@@ -209,12 +212,28 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
                 </div>
               </div>
               {editing ? (
-                <Input value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-6 font-medium" aria-label="Subject" />
+                <>
+                  <Input value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-6 font-medium" aria-label="Subject" aria-invalid={subjectEmpty} aria-describedby={subjectEmpty ? "subject-error" : undefined} />
+                  {subjectEmpty && (
+                    <p id="subject-error" role="alert" className="mt-1.5 flex items-center gap-1.5 text-sm text-warning-fg">
+                      <AlertTriangle className="size-4" aria-hidden="true" />
+                      Subject is required.
+                    </p>
+                  )}
+                </>
               ) : (
                 <h2 className="mt-7 text-[1.45rem] leading-snug font-semibold text-foreground">{subject}</h2>
               )}
             </div>
-            <div className="px-6 pb-10 sm:px-14 sm:pb-14">{editing ? <LetterEditor initial={body} onChange={setBody} /> : <LetterView body={body} registry={ctx.registry} />}</div>
+            <div className="px-6 pb-10 sm:px-14 sm:pb-14">
+              {editing ? <LetterEditor initial={body} onChange={setBody} /> : <LetterView body={body} registry={ctx.registry} />}
+              {bodyEmpty && (
+                <p id="body-error" role="alert" className="mt-2 flex items-center gap-1.5 text-sm text-warning-fg">
+                  <AlertTriangle className="size-4" aria-hidden="true" />
+                  Letter text is required.
+                </p>
+              )}
+            </div>
           </motion.article>
         </div>
 
@@ -297,8 +316,10 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
       {/* ---------- action bar ---------- */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card lg:left-[248px]">
         <div className="mx-auto flex max-w-[1320px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
-          <span className="hidden text-sm text-muted-foreground sm:inline">
-            {!actionable
+          <span id="approve-reason" className="hidden text-sm text-muted-foreground sm:inline">
+            {actionable && canApprove && invalidReason
+              ? invalidReason
+              : !actionable
               ? `This draft is ${draft.status.replace(/_/g, " ")}.`
               : canApprove
                 ? edited
@@ -311,7 +332,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
               <X data-icon="inline-start" />
               Reject
             </Button>
-            <Button variant="ai" size="lg" disabled={!actionable || !canApprove || pending || handoff} onClick={approve}>
+            <Button variant="ai" size="lg" disabled={!actionable || !canApprove || pending || handoff || !!invalidReason} onClick={approve} title={invalidReason ?? undefined} aria-describedby={invalidReason ? "approve-reason" : undefined}>
               {pending ? <Loader2 className="animate-spin" data-icon="inline-start" /> : <Send data-icon="inline-start" />}
               {edited ? "Approve with edits" : "Approve"}
               <Kbd className="ml-1 hidden bg-white/20 text-white sm:inline-flex" aria-hidden="true">A</Kbd>

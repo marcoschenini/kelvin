@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, CircleCheck, Clock, FileCheck2, FlaskConical, Loader2, Play, Radio, Route, X } from "lucide-react";
@@ -48,11 +48,19 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
   const [running, setRunning] = useState<null | { total: number; mode: string }>(null);
   const [live, setLive] = useState<EvalCaseResult[]>([]);
 
+  const starting = useRef(false);
+
   async function start(mode: "deterministic" | "live") {
+    if (starting.current) return;
+    starting.current = true;
     setRunning({ total: 0, mode });
     setLive([]);
     try {
       const res = await fetch("/api/eval", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode }) });
+      if (res.status === 409) {
+        toast.info("Evaluation already running", { description: "An evaluation is already running. Wait for it to finish." });
+        return;
+      }
       if (!res.ok || !res.body) throw new Error(`Evaluation failed to start (${res.status})`);
       const reader = res.body.getReader();
       const dec = new TextDecoder();
@@ -76,6 +84,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
     } catch (err) {
       toast.error("Evaluation failed", { description: err instanceof Error ? err.message : String(err) });
     } finally {
+      starting.current = false;
       setRunning(null);
       router.refresh();
     }
@@ -84,6 +93,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
   const rows = running ? live : results;
   const s = running ? null : run?.summary;
   const wrong = rows.filter((r) => !r.correct);
+  const complete = !running && run?.status === "completed" && !!s && rows.length === s.cases;
 
   return (
     <div className="flex flex-col gap-6">
@@ -148,7 +158,9 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
           <h2 id="wrong-heading" className="text-[1.2rem] font-semibold">
             Wrong answers
           </h2>
-          {wrong.length === 0 ? (
+          {wrong.length === 0 && !complete ? (
+            <p className="mt-2 text-sm text-muted-foreground">None so far. This run has not completed all cases, so it is not a full pass.</p>
+          ) : wrong.length === 0 ? (
             <p className="mt-2 flex items-center gap-2 text-sm text-success-fg">
               <CircleCheck className="size-4" aria-hidden="true" />
               None in this run: every case matches its answer key.
