@@ -241,7 +241,7 @@ export function LiveGlobe({
           role="tooltip"
         >
           <div className="num font-semibold">
-            {hov.ship.shipmentRef} · {hov.ship.origin} → {hov.ship.destination}
+            {hov.ref} · {hov.ship.origin} → {hov.ship.destination}
           </div>
           <div className="mt-0.5 text-muted-foreground">{hov.leg.activity}</div>
           <div className="num mt-1 font-medium">{formatTemp(hov.tempC)}</div>
