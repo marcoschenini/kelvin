@@ -29,7 +29,8 @@ async function ModelSection() {
   const provider = providerName();
   const model = process.env.AI_MODEL ?? (provider === "openrouter" ? `anthropic/${DEFAULT_MODEL}` : DEFAULT_MODEL);
   return (
-    <dl className="num grid grid-cols-2 gap-4 text-sm lg:grid-cols-4">
+    <div className="flex flex-col gap-4">
+      <dl className="num grid grid-cols-2 gap-4 text-sm lg:grid-cols-4">
       <div>
         <dt className="eyebrow text-[10.5px] text-muted-foreground">Provider</dt>
         <dd className="mt-1 font-medium">{provider}</dd>
@@ -48,10 +49,11 @@ async function ModelSection() {
           {live ? "Live model with tools" : "Deterministic planner (no API key set)"}
         </dd>
       </div>
-      <p className="col-span-full text-xs text-muted-foreground">
+      </dl>
+      <p className="text-xs text-muted-foreground">
         Set AI_PROVIDER, AI_MODEL, AI_EFFORT and ANTHROPIC_API_KEY or OPENROUTER_API_KEY in .env.local, then restart the server.
       </p>
-    </dl>
+    </div>
   );
 }
 
@@ -66,7 +68,8 @@ async function DataSection() {
     /* malformed URL: the database open already reports it */
   }
   return (
-    <dl className="num grid grid-cols-2 gap-4 text-sm lg:grid-cols-3">
+    <div className="flex flex-col gap-4">
+      <dl className="num grid grid-cols-2 gap-4 text-sm lg:grid-cols-3">
       <div>
         <dt className="eyebrow text-[10.5px] text-muted-foreground">Database</dt>
         <dd className="mt-1 font-medium">{hosted ? "Supabase Postgres" : "Embedded Postgres (PGlite)"}</dd>
@@ -82,10 +85,11 @@ async function DataSection() {
           {hosted && files === "supabase" ? "Shared by every instance and developer" : hosted ? "Database shared, documents local" : "This machine only"}
         </dd>
       </div>
-      <p className="col-span-full text-xs text-muted-foreground">
+      </dl>
+      <p className="text-xs text-muted-foreground">
         Set DB_MODE=supabase, DATABASE_URL, NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to use Supabase. Seed it once with npm run seed. Reset demo resets the data for everyone using it.
       </p>
-    </dl>
+    </div>
   );
 }
 

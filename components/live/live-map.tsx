@@ -286,7 +286,7 @@ export function LiveMap() {
             >
               {f !== "all" && <span className={cn("size-2 rounded-full", STATUS[f].dot)} aria-hidden="true" />}
               {f === "all" ? "All" : STATUS[f].label}
-              <span className="num opacity-70">{mounted ? counts[f] : ""}</span>
+              <span className="num">{mounted ? counts[f] : ""}</span>
             </button>
           ))}
         </div>

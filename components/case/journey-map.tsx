@@ -201,7 +201,11 @@ export function JourneyMap({ journey, deliveredAt }: { journey: Journey; deliver
 /** Step-by-step tracking strip: who held the cargo, where, and when. */
 export function CustodyChain({ chain, deliveredAt }: { chain: ChainStep[]; deliveredAt: string | null }) {
   return (
-    <ol className="flex snap-x gap-2 overflow-x-auto pb-1" aria-label="Custody chain">
+    <ol
+      className="flex snap-x gap-2 overflow-x-auto rounded-md pb-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      aria-label="Custody chain"
+      tabIndex={0}
+    >
       {chain.map((s, i) => {
         const Icon = s.mode === "air" ? Plane : s.mode === "road" ? Truck : STAY_ICON[s.role];
         return (

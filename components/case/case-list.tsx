@@ -99,7 +99,7 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
                 data-case-row
                 className={cn(
                   GRID,
-                  "group px-5 py-4 transition-colors hover:bg-muted/60 focus-visible:bg-ai-soft focus-visible:outline-none",
+                  "group px-5 py-4 transition-colors hover:bg-muted/60 focus-visible:bg-ai-soft focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset",
                 )}
               >
                 <span className="flex min-w-0 items-center gap-3">
