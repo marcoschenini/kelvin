@@ -6,7 +6,7 @@ import { StatusChip } from "@/components/kit/status-chip";
 import { PersonaAvatar } from "@/components/shell/persona-switcher";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getPersona } from "@/lib/domain/personas";
-import { formatEUR } from "@/lib/format";
+import { formatDateTime, formatEUR } from "@/lib/format";
 import type { CaseListItem } from "@/lib/queries/cases";
 import { cn } from "@/lib/utils";
 
@@ -24,8 +24,9 @@ export function RouteLabel({ origin, destination, className }: { origin: string 
 }
 
 /** Where the case came from; demo cases carry no label. */
-function sourceLabel(scenario: string) {
-  return scenario === "live" ? "Live monitoring" : scenario === "upload" ? "Uploaded" : null;
+function sourceLabel(c: CaseListItem) {
+  if (c.scenario === "live") return `Live monitoring${c.deliveredAt ? ` · delivered ${formatDateTime(c.deliveredAt)}` : ""}`;
+  return c.scenario === "upload" ? "Uploaded" : null;
 }
 
 /** Small screens: one card per case instead of the wide table. */
@@ -47,7 +48,7 @@ function CaseCards({ items }: { items: CaseListItem[] }) {
                 )}
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-heading text-[18px] font-semibold">{c.shipmentRef}</span>
-                  {sourceLabel(c.scenario) && <span className="block text-[11px] text-muted-foreground">{sourceLabel(c.scenario)}</span>}
+                  {sourceLabel(c) && <span className="block text-[11px] text-muted-foreground">{sourceLabel(c)}</span>}
                   <span className="block truncate text-xs text-muted-foreground">{c.product ?? c.title}</span>
                 </span>
                 <ChevronRight className="mt-1 size-4 shrink-0 text-subtle" aria-hidden="true" />
@@ -116,7 +117,7 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
                   )}
                   <span className="min-w-0">
                     <span className="block truncate font-heading text-[17px] font-semibold group-hover:underline group-hover:underline-offset-2">{c.shipmentRef}</span>
-                    {sourceLabel(c.scenario) && <span className="block text-[11px] text-muted-foreground">{sourceLabel(c.scenario)}</span>}
+                    {sourceLabel(c) && <span className="block text-[11px] text-muted-foreground">{sourceLabel(c)}</span>}
                     <span className="block truncate text-xs text-muted-foreground">{c.product ?? c.title}</span>
                   </span>
                 </span>

@@ -107,3 +107,9 @@ Newest first. One entry per request: date — request — who did what — verdi
 
 - **Request (Vito):** Kelvin is sold to one pharma company, so the live map should not show six different shippers; remove the synthetic-data and legal notes and use the space.
 - **Chief:** every live shipment now belongs to Rheinfeld Biologics (shipper of demo cases A/B/C), by origin entity (GmbH, B.V., AG, Inc., Pte Ltd…), seeded values unchanged; client named in the Live header; "Next arrivals" panel (next 4 ETAs, click to select) replaces the synthetic-data note; footer now shows the client and main links. The "not legal advice" line remains in Settings → Rules.
+
+## 2026-11-19 — Live shipments become cases
+
+- **Request (Vito):** connect the live map and Cases: a shipment that warms up in transit should become a claims case when it is delivered.
+- **Team:** `backend` (live case creator with generated logger CSV + handling events, `/api/live/deliver`, `/api/cases/[id]/documents`, sync on the Cases page, missing-documents helper) and `frontend` (delivery detection + toast on /live, case source label, "Documents still missing" panel with upload and re-run) in parallel worktrees; `qa-reviewer` FAIL on the first integration (race on case creation, prepare_claim auto-start loop, case flood, uploaded documents unused, any trip accepted), fixed by both agents, re-QA PASS WITH NOTES. Chief fixed the last note: documents added after the last investigation trigger a new investigation automatically; live cases show their delivery time in the list.
+- **Open:** a ship can still collect more than one case over time (each excursion trip is its own case); Supabase mode not tested end to end.

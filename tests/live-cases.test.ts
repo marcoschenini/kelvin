@@ -129,6 +129,11 @@ describe("hardening", () => {
     const done = [{ kind: "prepare_claim", status: "completed", finishedAt: t(10) }];
     expect(decideAutoStart({ ...base, runs: done, docs: [{ createdAt: t(1) }] })).toBeNull();
     expect(decideAutoStart({ ...base, runs: done, docs: [{ createdAt: t(11) }] })).toBe("prepare_claim");
+    // New documents after the last investigation are read first, then the claim is prepared again.
+    const investigated = [{ kind: "investigate", status: "completed", finishedAt: t(5) }, ...done];
+    expect(decideAutoStart({ ...base, runs: investigated, docs: [{ createdAt: t(11) }] })).toBe("investigate");
+    const reinvestigated = [{ kind: "investigate", status: "completed", finishedAt: t(12) }, ...done];
+    expect(decideAutoStart({ ...base, runs: reinvestigated, docs: [{ createdAt: t(11) }] })).toBe("prepare_claim");
   });
 
   it("missingDocuments returns typed kinds", () => {
