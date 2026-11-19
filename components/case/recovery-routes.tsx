@@ -47,7 +47,7 @@ function RouteCard({ r, citations, qaPending }: { r: RankedRoute; citations: Cit
       ) : (
         <div>
           <div className="eyebrow text-[10.5px] text-muted-foreground">Recoverable if successful</div>
-          <AnimatedNumber value={r.recoverableEur} format="eur" className={cn("figure mt-1 block text-[1.75rem] leading-tight font-semibold", blocked && "text-muted-foreground")} />
+          <AnimatedNumber value={r.recoverableEur} format="eur" className={cn("figure mt-1 block text-[1.75rem] leading-tight font-semibold")} />
           <div className="mt-2 flex items-center gap-2">
             <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
               <div className={cn("h-full rounded-full", r.recommended ? "bg-ai" : "bg-subtle")} style={{ width: `${Math.round(r.probability * 100)}%` }} />

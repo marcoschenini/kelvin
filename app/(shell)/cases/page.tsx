@@ -10,13 +10,15 @@ import { EmptyState } from "@/components/kit/surfaces";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { computeKpis, listCases } from "@/lib/queries/cases";
-import { DEFAULT_RULES } from "@/lib/rules/config";
+import { getDb } from "@/lib/db/client";
+import { loadRules } from "@/lib/rules/load";
 import { cn } from "@/lib/utils";
 
 async function InboxContent() {
   await connection();
   const items = await listCases();
-  const k = computeKpis(items);
+  const rules = await loadRules(await getDb());
+  const k = computeKpis(items, { atRiskDays: rules.atRiskDays });
   return (
     <>
       <section aria-label="Key figures" className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-4 [&>div]:rounded-none [&>div]:border-0">
@@ -25,7 +27,7 @@ async function InboxContent() {
           compact
           label="Deadlines at risk"
           value={k.deadlinesAtRisk}
-          hint={`Due in under ${DEFAULT_RULES.atRiskDays} days`}
+          hint={`Due in under ${rules.atRiskDays} days`}
           emphasis={k.deadlinesAtRisk > 0 ? "warning" : undefined}
         />
         <KpiTile compact label="At stake" value={k.atStakeEur} format="eur" hint="Value of open shipments" />

@@ -1,5 +1,5 @@
 import { withCurrentDays } from "@/lib/rules/deadlines";
-import { DEFAULT_RULES } from "@/lib/rules/config";
+import { loadRules } from "@/lib/rules/load";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -143,7 +143,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
     listOutbox(id),
     loadReadings(id),
   ]);
-  const record = withCurrentDays(c.record as CaseRecord, new Date(), DEFAULT_RULES);
+  const record = withCurrentDays(c.record as CaseRecord, new Date(), await loadRules(await getDb()));
   const qaRow = decisionRows.find((d) => d.gate === "qa");
   const qa: "pending" | "released" | "rejected" = qaRow ? (qaRow.decision === "released" ? "released" : "rejected") : (record.qa?.status ?? "pending");
   const journey = buildJourney(record);
