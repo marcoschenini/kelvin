@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Boxes, Building2, Euro, Gauge, Plane, Search, ShieldAlert, Thermometer, Truck, Warehouse, X, type LucideIcon } from "lucide-react";
 import worldLand from "@/lib/geo/world-land.json";
+import { LiveGlobe } from "./live-globe";
 import { projectWorld } from "@/lib/geo/world";
 import { REGIONS, type RegionId } from "@/lib/geo/world";
 import { CUSTODY_META } from "@/lib/domain/parties";
@@ -221,6 +222,7 @@ export function LiveMap() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
+  const [view, setView] = useState<"globe" | "map">("globe");
 
   const states = useMemo(() => (now ? FLEET.map((s) => simulate(s, now)).filter((s) => s.inTransit) : []), [now]);
   const counts = useMemo(() => {
@@ -256,6 +258,8 @@ export function LiveMap() {
   // Every shipment's lane, drawn faintly so the network reads at a glance.
   const lanes = useMemo(() => visible.map((v) => ({ id: v.ship.id, role: v.leg.role, status: v.status, d: routePath(v.ship) })), [visible]);
 
+  const mapLabel = `Live map of ${counts.all} shipments in transit, ${counts.excursion} with an excursion and ${counts.at_risk} at risk. The list beside the map has the same data.`;
+
   const kpis: { label: string; value: string; icon: LucideIcon; tone: string }[] = [
     { label: "In transit", value: String(counts.all), icon: Boxes, tone: "text-foreground" },
     { label: "Value in transit", value: formatEURCompact(value), icon: Euro, tone: "text-foreground" },
@@ -278,6 +282,19 @@ export function LiveMap() {
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
+        <div className="flex rounded-lg border border-border bg-card p-0.5" role="group" aria-label="Map view">
+          {(["globe", "map"] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              aria-pressed={view === v}
+              className={cn("rounded-md px-2.5 py-1 text-xs font-medium transition-colors", view === v ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground")}
+            >
+              {v === "globe" ? "Globe" : "Map"}
+            </button>
+          ))}
+        </div>
         <div className="flex rounded-lg border border-border bg-card p-0.5" role="group" aria-label="Zoom to region">
           {(Object.keys(REGIONS) as RegionId[]).map((r) => (
             <button
@@ -324,13 +341,29 @@ export function LiveMap() {
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
         {/* Map */}
         <div className="relative overflow-hidden surface">
+          {view === "globe" ? (
+            mounted ? (
+              <LiveGlobe
+                states={visible}
+                selected={selected}
+                hover={hover}
+                region={region}
+                reduce={!!reduce}
+                label={mapLabel}
+                onSelect={setSelected}
+                onHover={setHover}
+              />
+            ) : (
+              <div className="grid aspect-[1000/560] place-items-center text-sm text-muted-foreground">Connecting to loggers…</div>
+            )
+          ) : (
           <div className="relative" style={{ aspectRatio: `${W} / ${H}` }}>
             <svg
               className="absolute inset-0 size-full"
               viewBox={`0 0 ${W} ${H}`}
               preserveAspectRatio="xMidYMid meet"
               role="img"
-              aria-label={`Live map of ${counts.all} shipments in transit, ${counts.excursion} with an excursion and ${counts.at_risk} at risk. The list beside the map has the same data.`}
+              aria-label={mapLabel}
             >
               <g
                 style={{
@@ -434,6 +467,7 @@ export function LiveMap() {
               </div>
             )}
           </div>
+          )}
 
           {/* legend + clock */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-2.5 text-xs text-muted-foreground">
