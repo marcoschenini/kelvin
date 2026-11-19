@@ -67,7 +67,7 @@ export async function runScript(kind: RunKind, ctx: AgentContext, say: (text: st
           ? "Product damaged: claim goes to the manager for approval."
           : "Excursion close to the stability limit: QA decides.";
     say(
-      `${attr ? `Custodian during the excursion: ${attr.custodian}. ` : ""}${verdict !== "usable" && top ? `Recommended route: ${ROUTE_META[top.route].label.toLowerCase()}, ${formatEUR(top.recoverableEur)}. ` : ""}${needs.length ? `Protective notice awaiting approval. ` : ""}${next}`,
+      `${attr ? `Custodian during the excursion: ${attr.custodian.replace(/\.$/, "")}. ` : ""}${verdict !== "usable" && top ? `Recommended route: ${ROUTE_META[top.route].label.toLowerCase()}, ${formatEUR(top.recoverableEur)}. ` : ""}${needs.length ? `Protective notice awaiting approval. ` : ""}${next}`,
     );
     return;
   }
