@@ -2,9 +2,10 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, UploadCloud } from "lucide-react";
+import { Loader2, RotateCw, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useAgentRun } from "@/components/agent/agent-run-context";
 import { cn } from "@/lib/utils";
 
 /** Compact uploader that attaches files to an existing case (does not start a run). */
@@ -14,7 +15,9 @@ export function MissingDocsUpload({ caseId, missing }: { caseId: string; missing
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const input = useRef<HTMLInputElement>(null);
+  const [added, setAdded] = useState(false);
   const router = useRouter();
+  const run = useAgentRun();
 
   const add = (list: FileList | null) => {
     if (!list) return;
@@ -32,8 +35,9 @@ export function MissingDocsUpload({ caseId, missing }: { caseId: string; missing
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Upload failed");
       const n = json.documents as number;
-      const msg = `${n} document${n === 1 ? "" : "s"} added. Re-run the analysis to use them.`;
-      toast.success(msg);
+      const msg = `${n} document${n === 1 ? "" : "s"} added`;
+      toast.success(msg, { action: { label: "Re-run analysis", onClick: () => run.start("investigate") } });
+      setAdded(true);
       setStatus(msg);
       setFiles([]);
       router.refresh();
@@ -91,6 +95,20 @@ export function MissingDocsUpload({ caseId, missing }: { caseId: string; missing
             {busy ? "Adding…" : `Add ${files.length} file${files.length === 1 ? "" : "s"}`}
           </Button>
         </div>
+      )}
+      {added && files.length === 0 && (
+        <Button
+          variant="ai"
+          className="self-start"
+          disabled={run.running !== null}
+          onClick={() => {
+            run.start("investigate");
+            setAdded(false);
+          }}
+        >
+          <RotateCw data-icon="inline-start" />
+          Re-run analysis with the new documents
+        </Button>
       )}
       <p role="status" aria-live="polite" className="sr-only">
         {status}

@@ -23,12 +23,12 @@ export function RouteLabel({ origin, destination, className }: { origin: string 
   );
 }
 
-/** Small screens: one card per case instead of the wide table. */
 /** Where the case came from; demo cases carry no label. */
 function sourceLabel(scenario: string) {
   return scenario === "live" ? "Live monitoring" : scenario === "upload" ? "Uploaded" : null;
 }
 
+/** Small screens: one card per case instead of the wide table. */
 function CaseCards({ items }: { items: CaseListItem[] }) {
   return (
     <ul role="list" aria-label="Cases" className="flex flex-col gap-3 lg:hidden">
