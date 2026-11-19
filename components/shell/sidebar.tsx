@@ -17,7 +17,7 @@ interface NavItem {
 }
 
 const ITEMS: NavItem[] = [
-  { href: "/", label: "Live shipments", icon: Globe2, match: (p) => p === "/" },
+  { href: "/live", label: "Live shipments", icon: Globe2, match: (p) => p.startsWith("/live") },
   { href: "/cases", label: "Cases", icon: Inbox, match: (p) => p.startsWith("/cases") && p !== "/cases/new" },
   { href: "/cases/new", label: "New case", icon: FilePlus2, match: (p) => p === "/cases/new" },
   { href: "/ask", label: "Ask Kelvin", icon: MessageSquareText, match: (p) => p.startsWith("/ask") },
@@ -87,7 +87,7 @@ export function Sidebar() {
         >
           <Menu className="size-5" />
         </button>
-        <Link href="/" aria-label="Kelvin home" className={cn("shrink-0 rounded-md", focusRing)}>
+        <Link href="/live" aria-label="Kelvin home" className={cn("shrink-0 rounded-md", focusRing)}>
           <KelvinLogo />
         </Link>
         <nav aria-label="Main" className="hidden h-16 min-w-0 items-center lg:flex">

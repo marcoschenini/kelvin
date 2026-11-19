@@ -87,3 +87,8 @@ Newest first. One entry per request: date — request — who did what — verdi
 - **Request (Vito):** accessibility review, then fix everything. Audit: axe-core on a local production build (9 pages × light/dark + approval), keyboard tab order, 390 px mobile, 200% zoom.
 - **Fixed:** upload file input no longer unlabelled or nested in the drop zone; custody chain scrollable by keyboard; visible focus ring on case-list rows; live-map filter counts readable (were 3.08:1); Settings `dl` lists valid; mobile menu button 44 px. Re-scan: no axe violations on any scanned page.
 - **Not verified:** real screen readers (VoiceOver/NVDA); text alternatives of the temperature chart and the maps.
+
+## 2026-11-19 — Welcome page with the cabin-window transition
+
+- **Request (Vito):** a transition like the "AERIVE" airplane-window zoom from a reference video; Vito chose a new welcome page and AI-generated images.
+- **Chief:** images generated with Higgsfield Z Image (free plan: GPT Image / Soul models need a paid plan), downloaded by Vito, converted to WebP (23–44 KB). Welcome page on `/`: scroll zooms through the left cabin window into the sunset sky, the clouds rise and dissolve into the page, then "Enter Kelvin" → `/live` (the map moved from `/`). Reduced motion: one still frame with the message and buttons. Checked with screenshots of a local production build at 1280×720 and 390×844. QA fixes: no hydration error under reduced motion (reduced variant only after hydration), final buttons inert until visible, visible "Skip intro" link, one h1, top-bar logo now goes to `/live`.

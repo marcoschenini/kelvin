@@ -1,0 +1,148 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useRef, useState, useSyncExternalStore } from "react";
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { ArrowRight } from "lucide-react";
+import { KelvinLogo } from "@/components/brand/logo";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+/*
+ * Scroll-driven welcome: we fly through the cabin window into the sky above the clouds,
+ * the clouds rise and dissolve into the page. Reference: the "AERIVE" window transition.
+ * Images live in public/welcome/ (AI-generated, see docs/team/LOG.md).
+ */
+const IMG = { window: "/welcome/window.webp", sky: "/welcome/sky.webp", clouds: "/welcome/clouds.webp" };
+/** Centre of the left cabin window inside window.webp (fractions of width/height): the zoom origin. */
+const WINDOW_ORIGIN = "36.5% 53%";
+
+/**
+ * A 16:9 layer that always covers the viewport, so the zoom origin stays on the same window at any screen ratio.
+ * Horizontally it slides (within the image) to keep that window as close to the centre as the edges allow,
+ * which matters on tall phone screens where the cover crop would otherwise cut it off.
+ */
+const WINDOW_LAYER = "absolute top-1/2 aspect-video w-[max(100vw,177.78vh)] -translate-y-1/2";
+const WINDOW_LEFT = "clamp(calc(100vw - max(100vw, 177.78vh)), calc(50vw - 0.365 * max(100vw, 177.78vh)), 0px)";
+
+function Cta({ className }: { className?: string }) {
+  return (
+    <div className={cn("flex flex-wrap items-center justify-center gap-3", className)}>
+      <Link href="/live" className={cn(buttonVariants({ size: "lg" }))}>
+        Enter Kelvin
+        <ArrowRight data-icon="inline-end" />
+      </Link>
+      <Link href="/cases" className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>
+        Open the claims cases
+      </Link>
+    </div>
+  );
+}
+
+function Headline({ children, className, as: Tag = "h2" }: { children: React.ReactNode; className?: string; as?: "h1" | "h2" }) {
+  return <Tag className={cn("font-heading text-[clamp(2.25rem,6vw,5.5rem)] leading-[0.95] font-semibold tracking-[-0.02em]", className)}>{children}</Tag>;
+}
+
+const noop = () => () => {};
+/** false on the server and during hydration, true after: keeps the first client render identical to the HTML. */
+function useHydrated() {
+  return useSyncExternalStore(noop, () => true, () => false);
+}
+
+function useStage(progress: MotionValue<number>) {
+  return {
+    zoom: useTransform(progress, [0, 0.32], [1, 7.5]),
+    sideOut: useTransform(progress, [0, 0.14], [1, 0]),
+    leftX: useTransform(progress, [0, 0.2], ["0vw", "-12vw"]),
+    rightX: useTransform(progress, [0, 0.2], ["0vw", "12vw"]),
+    sky: useTransform(progress, [0.22, 0.32], [0, 1]),
+    skyText: useTransform(progress, [0.36, 0.44, 0.56, 0.62], [0, 1, 1, 0]),
+    cloudsY: useTransform(progress, [0.58, 0.82], ["100%", "0%"]),
+    cream: useTransform(progress, [0.8, 0.92], [0, 1]),
+    finale: useTransform(progress, [0.9, 0.98], [0, 1]),
+    finaleY: useTransform(progress, [0.9, 0.98], [24, 0]),
+  };
+}
+
+export function WelcomeFlight() {
+  const prefersReduced = useReducedMotion();
+  const hydrated = useHydrated();
+  const reduce = hydrated && prefersReduced;
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const s = useStage(scrollYProgress);
+  // The way in is only focusable and clickable once it can be seen.
+  const [finaleOn, setFinaleOn] = useState(false);
+  useMotionValueEvent(s.finale, "change", (v) => setFinaleOn(v > 0.5));
+
+  if (reduce) {
+    // No scroll animation: one still frame above the clouds with the message and the way in.
+    return (
+      <main id="main" className="relative grid min-h-dvh place-items-center overflow-hidden bg-mascot text-white">
+        <Image src={IMG.sky} alt="" fill priority sizes="100vw" className="object-cover" />
+        <div className="relative flex max-w-3xl flex-col items-center gap-8 px-6 text-center">
+          <KelvinLogo descriptor={null} />
+          <Headline as="h1">From temperature excursion to recovered money.</Headline>
+          <p className="max-w-xl text-lg text-white/85">Kelvin follows every cold-chain shipment, finds who held the cargo when it warmed up, and prepares the claim for your approval.</p>
+          <Cta />
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main id="main" className="bg-background">
+      <Link
+        href="/live"
+        className="fixed top-4 right-4 z-20 rounded-full bg-black/35 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/55 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+      >
+        Skip intro
+      </Link>
+      <div ref={ref} className="relative h-[520vh]">
+        <div className="sticky top-0 h-dvh overflow-hidden bg-mascot text-white">
+          {/* 1. cabin window: zooms until we pass through it */}
+          <motion.div className={WINDOW_LAYER} style={{ scale: s.zoom, transformOrigin: WINDOW_ORIGIN, left: WINDOW_LEFT }}>
+            <Image src={IMG.window} alt="" fill priority sizes="100vw" className="object-cover" />
+          </motion.div>
+          <motion.div style={{ opacity: s.sideOut, x: s.leftX }} className="absolute top-[12%] left-[5%] max-w-[22rem] [text-shadow:0_2px_16px_rgb(0_0_0/0.5)]">
+            <Headline>Cold chain, in motion.</Headline>
+          </motion.div>
+          <motion.div style={{ opacity: s.sideOut, x: s.rightX }} className="absolute right-[5%] bottom-[12%] max-w-[22rem] text-right [text-shadow:0_2px_16px_rgb(0_0_0/0.5)]">
+            <Headline>Claims, recovered.</Headline>
+          </motion.div>
+
+          {/* 2. through the window: the sky above the clouds */}
+          <motion.div className="absolute inset-0" style={{ opacity: s.sky }}>
+            <Image src={IMG.sky} alt="" fill sizes="100vw" className="object-cover" />
+          </motion.div>
+          <motion.div style={{ opacity: s.skyText }} className="absolute inset-x-0 top-[22%] mx-auto max-w-2xl px-6 text-center">
+            <p className="font-heading text-[clamp(1.4rem,3vw,2.25rem)] leading-snug [text-shadow:0_1px_12px_rgb(14_27_51/0.55)]">
+              <span className="tracking-[0.18em] uppercase">Kelvin</span> follows every cold-chain shipment, finds who held the cargo when it warmed
+              up, and prepares the claim for your approval.
+            </p>
+          </motion.div>
+
+          {/* 3. the clouds rise and dissolve into the page */}
+          <motion.div className="absolute inset-0" style={{ y: s.cloudsY }}>
+            <Image src={IMG.clouds} alt="" fill sizes="100vw" className="object-cover brightness-110 [mask-image:linear-gradient(to_bottom,transparent,black_35%)]" />
+          </motion.div>
+          <motion.div className="absolute inset-0 bg-background" style={{ opacity: s.cream }} />
+
+          {/* 4. the way in */}
+          <motion.div
+            style={{ opacity: s.finale, y: s.finaleY }}
+            inert={!finaleOn}
+            className={cn("absolute inset-0 grid place-items-center px-6 text-foreground", !finaleOn && "pointer-events-none")}
+          >
+            <div className="flex max-w-3xl flex-col items-center gap-8 text-center">
+              <KelvinLogo descriptor={null} className="scale-150" />
+              <Headline as="h1">From temperature excursion to recovered money.</Headline>
+              <Cta />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </main>
+  );
+}
