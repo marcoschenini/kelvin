@@ -4,7 +4,7 @@
 
 Kelvin is an AI agent and web platform for pharma cold-chain claims recovery, built for a university course on Agentic AI (live demo on "Day 3"). Full brief: `docs/BRIEF.md`. Setup, scripts and architecture: `README.md`.
 
-- **Done:** M1 design system and shell, M2 data model and demo cases A/B/C, M3 agent tools, rules engine, status machine and audit, M4 case screen (chart, journey map, agent panel, citation viewer), M5 approval screen, settlement gate and simulated counterparties, M6 evaluation (24 answer-keyed cases), M8 Supabase mode (shared Postgres + Storage, `README.md` → Set up Supabase). There is a welcome page on `/` (scroll-driven cabin-window zoom, `components/welcome/welcome-flight.tsx`, images in `public/welcome/`), the live shipments map on `/live`, and a mobile layout.
+- **Done:** M1 design system and shell, M2 data model and demo cases A/B/C, M3 agent tools, rules engine, status machine and audit, M4 case screen (chart, journey map, agent panel, citation viewer), M5 approval screen, settlement gate and simulated counterparties, M6 evaluation (27 answer-keyed cases; the /eval page was removed on 2026-11-19, the harness still runs in `npm test` and `npm run eval`), M8 Supabase mode (shared Postgres + Storage, `README.md` → Set up Supabase). There is a welcome page on `/` (scroll-driven cabin-window zoom, `components/welcome/welcome-flight.tsx`, images in `public/welcome/`), the live shipments map on `/live`, and a mobile layout.
 - **Next:** M7 Replay mode (play `demo/recordings/*.json` offline), the 5-minute demo script in the README and final polish.
 - **Live site:** https://kelvin-roan.vercel.app. Every push to `master` redeploys it.
 

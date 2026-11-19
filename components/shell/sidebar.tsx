@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { FilePlus2, FlaskConical, Globe2, Inbox, Menu, MessageSquareText, Settings2, type LucideIcon } from "lucide-react";
+import { FilePlus2, Globe2, Inbox, Menu, MessageSquareText, Settings2, type LucideIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { KelvinLogo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,6 @@ const ITEMS: NavItem[] = [
   { href: "/cases", label: "Cases", icon: Inbox, match: (p) => p.startsWith("/cases") && p !== "/cases/new" },
   { href: "/cases/new", label: "New case", icon: FilePlus2, match: (p) => p === "/cases/new" },
   { href: "/ask", label: "Ask Kelvin", icon: MessageSquareText, match: (p) => p.startsWith("/ask") },
-  { href: "/eval", label: "Evaluation", icon: FlaskConical, match: (p) => p.startsWith("/eval") },
   // The design system lives under Settings → Appearance (/design is still reachable from there).
   { href: "/settings", label: "Settings", icon: Settings2, match: (p) => p.startsWith("/settings") || p.startsWith("/design") },
 ];
