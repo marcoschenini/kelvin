@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { useRef, useState, useSyncExternalStore } from "react";
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { KelvinLogo } from "@/components/brand/logo";
 import { buttonVariants } from "@/components/ui/button";
@@ -40,8 +40,14 @@ function Cta({ className }: { className?: string }) {
   );
 }
 
-function Headline({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <h2 className={cn("font-heading text-[clamp(2.25rem,6vw,5.5rem)] leading-[0.95] font-semibold tracking-[-0.02em]", className)}>{children}</h2>;
+function Headline({ children, className, as: Tag = "h2" }: { children: React.ReactNode; className?: string; as?: "h1" | "h2" }) {
+  return <Tag className={cn("font-heading text-[clamp(2.25rem,6vw,5.5rem)] leading-[0.95] font-semibold tracking-[-0.02em]", className)}>{children}</Tag>;
+}
+
+const noop = () => () => {};
+/** false on the server and during hydration, true after: keeps the first client render identical to the HTML. */
+function useHydrated() {
+  return useSyncExternalStore(noop, () => true, () => false);
 }
 
 function useStage(progress: MotionValue<number>) {
@@ -60,10 +66,15 @@ function useStage(progress: MotionValue<number>) {
 }
 
 export function WelcomeFlight() {
-  const reduce = useReducedMotion();
+  const prefersReduced = useReducedMotion();
+  const hydrated = useHydrated();
+  const reduce = hydrated && prefersReduced;
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const s = useStage(scrollYProgress);
+  // The way in is only focusable and clickable once it can be seen.
+  const [finaleOn, setFinaleOn] = useState(false);
+  useMotionValueEvent(s.finale, "change", (v) => setFinaleOn(v > 0.5));
 
   if (reduce) {
     // No scroll animation: one still frame above the clouds with the message and the way in.
@@ -72,7 +83,7 @@ export function WelcomeFlight() {
         <Image src={IMG.sky} alt="" fill priority sizes="100vw" className="object-cover" />
         <div className="relative flex max-w-3xl flex-col items-center gap-8 px-6 text-center">
           <KelvinLogo descriptor={null} />
-          <Headline>From temperature excursion to recovered money.</Headline>
+          <Headline as="h1">From temperature excursion to recovered money.</Headline>
           <p className="max-w-xl text-lg text-white/85">Kelvin follows every cold-chain shipment, finds who held the cargo when it warmed up, and prepares the claim for your approval.</p>
           <Cta />
         </div>
@@ -82,6 +93,12 @@ export function WelcomeFlight() {
 
   return (
     <main id="main" className="bg-background">
+      <Link
+        href="/live"
+        className="fixed top-4 right-4 z-20 rounded-full bg-black/35 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/55 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+      >
+        Skip intro
+      </Link>
       <div ref={ref} className="relative h-[520vh]">
         <div className="sticky top-0 h-dvh overflow-hidden bg-mascot text-white">
           {/* 1. cabin window: zooms until we pass through it */}
@@ -113,10 +130,14 @@ export function WelcomeFlight() {
           <motion.div className="absolute inset-0 bg-background" style={{ opacity: s.cream }} />
 
           {/* 4. the way in */}
-          <motion.div style={{ opacity: s.finale, y: s.finaleY }} className="absolute inset-0 grid place-items-center px-6 text-foreground">
+          <motion.div
+            style={{ opacity: s.finale, y: s.finaleY }}
+            inert={!finaleOn}
+            className={cn("absolute inset-0 grid place-items-center px-6 text-foreground", !finaleOn && "pointer-events-none")}
+          >
             <div className="flex max-w-3xl flex-col items-center gap-8 text-center">
               <KelvinLogo descriptor={null} className="scale-150" />
-              <Headline>From temperature excursion to recovered money.</Headline>
+              <Headline as="h1">From temperature excursion to recovered money.</Headline>
               <Cta />
             </div>
           </motion.div>

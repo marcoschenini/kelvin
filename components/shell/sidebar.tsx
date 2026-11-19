@@ -87,7 +87,7 @@ export function Sidebar() {
         >
           <Menu className="size-5" />
         </button>
-        <Link href="/" aria-label="Kelvin home" className={cn("shrink-0 rounded-md", focusRing)}>
+        <Link href="/live" aria-label="Kelvin home" className={cn("shrink-0 rounded-md", focusRing)}>
           <KelvinLogo />
         </Link>
         <nav aria-label="Main" className="hidden h-16 min-w-0 items-center lg:flex">
