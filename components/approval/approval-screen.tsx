@@ -295,7 +295,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
       </div>
 
       {/* ---------- action bar ---------- */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card lg:left-[248px]">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card">
         <div className="mx-auto flex max-w-[1320px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
           <span className="hidden text-sm text-muted-foreground sm:inline">
             {!actionable

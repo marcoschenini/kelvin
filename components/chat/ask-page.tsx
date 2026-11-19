@@ -117,7 +117,7 @@ export function AskPage({ cases, initial, mode, model }: { cases: AskCase[]; ini
 
         <section
           aria-labelledby="ask-title"
-          className="flex h-[calc(100dvh-15rem)] min-h-[32rem] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card"
+          className="flex h-[calc(100dvh-19rem)] min-h-[32rem] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card"
         >
           <header className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3.5">
             <RatelBadge size={44} state={busy ? "think" : cheer ? "celebrate" : "idle"} />

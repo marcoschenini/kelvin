@@ -3,96 +3,70 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { FilePlus2, FlaskConical, Globe2, Inbox, Menu, MessageSquareText, Scale, Settings2, type LucideIcon } from "lucide-react";
+import { FilePlus2, FlaskConical, Globe2, Inbox, Menu, MessageSquareText, Settings2, type LucideIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { KelvinLogo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
-import { PersonaSwitcher } from "./persona-switcher";
-import { ThemeToggle } from "./theme";
+import { UserMenu } from "./persona-switcher";
 
 interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
   match: (path: string) => boolean;
-  shortcut?: string;
 }
 
-const SECTIONS: { label: string; items: NavItem[] }[] = [
-  {
-    label: "Operations",
-    items: [
-      { href: "/", label: "Live shipments", icon: Globe2, match: (p) => p === "/" },
-      { href: "/cases", label: "Cases", icon: Inbox, match: (p) => p.startsWith("/cases") && p !== "/cases/new" },
-      { href: "/cases/new", label: "New case", icon: FilePlus2, match: (p) => p === "/cases/new" },
-      { href: "/ask", label: "Ask Kelvin", icon: MessageSquareText, match: (p) => p.startsWith("/ask") },
-    ],
-  },
-  {
-    label: "Quality",
-    items: [{ href: "/eval", label: "Evaluation", icon: FlaskConical, match: (p) => p.startsWith("/eval") }],
-  },
-  {
-    label: "Workspace",
-    // The design system lives under Settings → Appearance (/design is still reachable from there).
-    items: [{ href: "/settings", label: "Settings", icon: Settings2, match: (p) => p.startsWith("/settings") || p.startsWith("/design") }],
-  },
+const ITEMS: NavItem[] = [
+  { href: "/", label: "Live shipments", icon: Globe2, match: (p) => p === "/" },
+  { href: "/cases", label: "Cases", icon: Inbox, match: (p) => p.startsWith("/cases") && p !== "/cases/new" },
+  { href: "/cases/new", label: "New case", icon: FilePlus2, match: (p) => p === "/cases/new" },
+  { href: "/ask", label: "Ask Kelvin", icon: MessageSquareText, match: (p) => p.startsWith("/ask") },
+  { href: "/eval", label: "Evaluation", icon: FlaskConical, match: (p) => p.startsWith("/eval") },
+  // The design system lives under Settings → Appearance (/design is still reachable from there).
+  { href: "/settings", label: "Settings", icon: Settings2, match: (p) => p.startsWith("/settings") || p.startsWith("/design") },
 ];
 
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+const focusRing = "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
+
+/** Desktop link: text only, the active page is underlined in Kelvin red. */
+function TopLink({ item, active }: { item: NavItem; active: boolean }) {
+  return (
+    <Link
+      href={item.href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative flex h-16 items-center rounded-sm px-3 text-[14px] whitespace-nowrap transition-colors duration-150",
+        focusRing,
+        active ? "font-semibold text-foreground" : "font-medium text-foreground/70 hover:text-foreground",
+      )}
+    >
+      {item.label}
+      {active && <span className="absolute inset-x-3 bottom-0 h-[3px] rounded-t-sm bg-brand" aria-hidden="true" />}
+    </Link>
+  );
+}
+
+/** Mobile sheet link: icon + label, full width. */
+function SheetLink({ item, active }: { item: NavItem; active: boolean }) {
   const Icon = item.icon;
   return (
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group relative flex h-9 items-center gap-3 rounded-md pr-3 pl-4 text-[13.5px] transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-        active
-          ? "bg-sidebar-accent font-semibold text-foreground"
-          : "font-medium text-foreground/75 hover:bg-sidebar-accent/70 hover:text-foreground",
+        "relative flex h-11 items-center gap-3 rounded-md pr-3 pl-4 text-[15px] transition-colors",
+        focusRing,
+        active ? "bg-sidebar-accent font-semibold text-foreground" : "font-medium text-foreground/75 hover:bg-sidebar-accent/70 hover:text-foreground",
       )}
     >
-      {active && <span className="absolute top-1.5 bottom-1.5 left-0 w-[3px] rounded-r-sm bg-brand" aria-hidden="true" />}
-      <Icon className={cn("size-4", active ? "text-brand-fg" : "text-subtle group-hover:text-foreground")} strokeWidth={1.75} />
+      {active && <span className="absolute top-2 bottom-2 left-0 w-[3px] rounded-r-sm bg-brand" aria-hidden="true" />}
+      <Icon className={cn("size-4", active ? "text-brand-fg" : "text-subtle")} strokeWidth={1.75} />
       {item.label}
     </Link>
   );
 }
 
-function SidebarBody({ pathname, publicDemo }: { pathname: string; publicDemo: boolean }) {
-  return (
-    <>
-      <nav aria-label="Main" className="flex flex-1 flex-col gap-6 px-3 pt-4">
-        {SECTIONS.map((section) => (
-          <div key={section.label} className="flex flex-col gap-0.5">
-            <span className="eyebrow px-4 pb-2 text-subtle">{section.label}</span>
-            {section.items.map((item) => (
-              <NavLink key={item.href} item={item} active={item.match(pathname)} />
-            ))}
-          </div>
-        ))}
-      </nav>
-
-      <div className="flex flex-col gap-2 border-t border-sidebar-border p-3">
-        <div className="flex items-start gap-2 rounded-md px-2 py-1.5 text-[11px] leading-snug text-muted-foreground">
-          <Scale className="mt-px size-3.5 shrink-0" aria-hidden="true" />
-          <span>
-            Decision support only. Not legal advice.
-            {publicDemo && <span className="mt-1 block">Public demo with synthetic data. Cases reset from time to time.</span>}
-          </span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="min-w-0 flex-1">
-            <PersonaSwitcher />
-          </div>
-          <ThemeToggle />
-        </div>
-      </div>
-    </>
-  );
-}
-
-/** Desktop: fixed rail. Below lg: a compact top bar with a slide-in menu. */
+/** Horizontal top bar. Below lg the links move into a slide-in menu; the user menu stays in the bar. */
 export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
   const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
@@ -102,36 +76,43 @@ export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
     setLastPath(pathname);
     setOpen(false);
   }
-  const logo = (
-    <Link href="/" aria-label="Kelvin home" className="rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
-      <KelvinLogo />
-    </Link>
-  );
   return (
-    <>
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-sidebar-border bg-sidebar/95 px-4 backdrop-blur lg:hidden">
-        {logo}
+    <header className="sticky top-0 z-30 border-b border-sidebar-border bg-sidebar/95 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-[1320px] items-center gap-6 px-4 sm:px-6 lg:px-10">
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="grid size-10 place-items-center rounded-md text-muted-foreground hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className={cn("-ml-2 grid size-10 place-items-center rounded-md text-muted-foreground hover:bg-sidebar-accent hover:text-foreground lg:hidden", focusRing)}
           aria-label="Open menu"
         >
           <Menu className="size-5" />
         </button>
-      </header>
+        <Link href="/" aria-label="Kelvin home" className={cn("shrink-0 rounded-md", focusRing)}>
+          <KelvinLogo />
+        </Link>
+        <nav aria-label="Main" className="hidden h-16 min-w-0 items-center lg:flex">
+          {ITEMS.map((item) => (
+            <TopLink key={item.href} item={item} active={item.match(pathname)} />
+          ))}
+        </nav>
+        <div className="ml-auto">
+          <UserMenu publicDemo={publicDemo} />
+        </div>
+      </div>
+
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="w-[280px] gap-0 bg-sidebar p-0 lg:hidden">
           <SheetTitle className="sr-only">Menu</SheetTitle>
-          <div className="flex h-16 items-center border-b border-sidebar-border px-5">{logo}</div>
-          <SidebarBody pathname={pathname} publicDemo={publicDemo} />
+          <div className="flex h-16 items-center border-b border-sidebar-border px-5">
+            <KelvinLogo />
+          </div>
+          <nav aria-label="Main" className="flex flex-col gap-0.5 p-3">
+            {ITEMS.map((item) => (
+              <SheetLink key={item.href} item={item} active={item.match(pathname)} />
+            ))}
+          </nav>
         </SheetContent>
       </Sheet>
-
-      <aside className="sticky top-0 hidden h-dvh w-[248px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
-        <div className="flex h-[72px] items-center border-b border-sidebar-border px-5">{logo}</div>
-        <SidebarBody pathname={pathname} publicDemo={publicDemo} />
-      </aside>
-    </>
+    </header>
   );
 }
