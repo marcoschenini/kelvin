@@ -102,3 +102,8 @@ Newest first. One entry per request: date — request — who did what — verdi
 
 - **Request (Vito):** a nicer world map; chose real continents with arcing routes.
 - **Chief (main session, one component):** dotted land replaced by Natural Earth 1:110m land as one SVG path (`scripts/gen-map-land.ts` → `lib/geo/world-land.json`, same projection as the fleet), faint 30° graticule, every shipment's lane drawn as a faint great-circle arc (selected lane on top, others dimmed), hubs with IATA labels when zoomed. New `--map-coast` token. Checked with screenshots (world light/dark, Europe zoom); 175 tests. `lib/geo/world-dots.json` is no longer used by the live map. Then an interactive globe (`components/live/live-globe.tsx`, d3-geo orthographic): default view with a Globe / Map switch, drag or arrow keys to turn it, slow drift when idle, region buttons and selection turn it to face them; no page errors, checked with drag in headless Chrome.
+
+## 2026-11-19 — One client in the demo
+
+- **Request (Vito):** Kelvin is sold to one pharma company, so the live map should not show six different shippers; remove the synthetic-data and legal notes and use the space.
+- **Chief:** every live shipment now belongs to Rheinfeld Biologics (shipper of demo cases A/B/C), by origin entity (GmbH, B.V., AG, Inc., Pte Ltd…), seeded values unchanged; client named in the Live header; "Next arrivals" panel (next 4 ETAs, click to select) replaces the synthetic-data note; footer now shows the client and main links. The "not legal advice" line remains in Settings → Rules.

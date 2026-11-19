@@ -258,6 +258,7 @@ export function LiveMap() {
   // Every shipment's lane, drawn faintly so the network reads at a glance.
   const lanes = useMemo(() => visible.map((v) => ({ id: v.ship.id, role: v.leg.role, status: v.status, d: routePath(v.ship) })), [visible]);
 
+  const arrivals = [...visible].sort((a, b) => a.eta - b.eta).slice(0, 4);
   const mapLabel = `Live map of ${counts.all} shipments in transit, ${counts.excursion} with an excursion and ${counts.at_risk} at risk. The list beside the map has the same data.`;
 
   const kpis: { label: string; value: string; icon: LucideIcon; tone: string }[] = [
@@ -554,9 +555,36 @@ export function LiveMap() {
             )}
         </aside>
       </div>
-      <p className="text-xs text-muted-foreground">
-        Synthetic data: shipments, companies, positions and logger readings are simulated. Speeds above Live run a time-lapse of the same schedule.
-      </p>
+      {mounted && arrivals.length > 0 && (
+        <section aria-labelledby="next-arrivals" className="surface p-5">
+          <h2 id="next-arrivals" className="text-[1.25rem] font-semibold">
+            Next arrivals
+          </h2>
+          <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {arrivals.map((a) => (
+              <li key={a.ship.id}>
+                <button
+                  type="button"
+                  onClick={() => setSelected(a.ship.id)}
+                  className="surface-inset flex w-full flex-col gap-1 p-3 text-left transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                >
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="font-heading text-[16px] font-semibold">{a.ship.shipmentRef}</span>
+                    <StatusChip status={a.status} />
+                  </span>
+                  <span className="num text-xs text-muted-foreground">
+                    {a.ship.origin} → {a.ship.destination} · {AIRPORTS[a.ship.destination].city}
+                  </span>
+                  <span className="num text-sm font-medium">ETA {formatDateTime(new Date(a.eta))} UTC</span>
+                  <span className="num text-xs text-muted-foreground">
+                    {formatTemp(a.tempC)} · {a.leg.custodian}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }
