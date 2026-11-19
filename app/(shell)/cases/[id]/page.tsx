@@ -98,7 +98,7 @@ function routeCitations(record: CaseRecord): Record<RecoveryRoute, Citation[]> {
 
 function Card({ title, description, eyebrow, children, className, action }: { title: string; description?: string; eyebrow?: string; children: React.ReactNode; className?: string; action?: React.ReactNode }) {
   return (
-    <section className={cn("min-w-0 rounded-xl border border-border bg-card p-5 sm:p-7", className)}>
+    <section className={cn("min-w-0 surface p-5 sm:p-7", className)}>
       <SectionHeader title={title} description={description} eyebrow={eyebrow} action={action} />
       <div className="mt-5">{children}</div>
     </section>
@@ -381,7 +381,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
           </Group>
 
           {/* ---------- details: closed by default ---------- */}
-          <details className="group/details mt-4 rounded-xl border border-border bg-card">
+          <details className="group/details mt-4 surface">
             <summary className="flex cursor-pointer list-none items-center gap-4 rounded-xl px-5 py-4 select-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:px-7 [&::-webkit-details-marker]:hidden">
               <span className="min-w-0 flex-1">
                 <span className="block font-heading text-[1.05rem] font-semibold">Analysis details &amp; audit trail</span>

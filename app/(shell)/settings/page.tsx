@@ -112,7 +112,7 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
   return (
     <div className="flex flex-col gap-3">
       <h2 className="eyebrow font-sans text-muted-foreground">{label}</h2>
-      <div className="divide-y divide-border rounded-xl border border-border bg-card">{children}</div>
+      <div className="divide-y divide-border surface">{children}</div>
     </div>
   );
 }

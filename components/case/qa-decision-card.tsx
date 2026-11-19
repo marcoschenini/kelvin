@@ -15,7 +15,7 @@ const VERDICT: Record<QaVerdict, { label: string; summary: string; chip: string;
 
 function Compare({ label, measured, allowed, over }: { label: string; measured: string; allowed: string; over: boolean | null }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="surface-inset p-4">
       <div className="eyebrow text-[10.5px] text-muted-foreground">{label}</div>
       <div className="mt-1.5 flex items-baseline justify-between gap-3">
         <span className="figure text-[1.5rem] leading-tight font-semibold">{measured}</span>
@@ -45,7 +45,7 @@ export function QaDecisionCard({
   const v = VERDICT[assessment.verdict];
   const a = assessment.allowance;
   return (
-    <section aria-label="Quality assessment" className={cn("min-w-0 rounded-xl border border-border bg-card p-5 sm:p-7", className)}>
+    <section aria-label="Quality assessment" className={cn("min-w-0 surface p-5 sm:p-7", className)}>
       <SectionHeader eyebrow="Quality" title="Quality assessment" description="The excursion compared with the product's stability allowance" />
       <div className="mt-5 flex flex-col gap-5">
         <div className="flex flex-wrap items-center gap-3">

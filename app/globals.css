@@ -148,6 +148,9 @@
   --backdrop-glow-3: color-mix(in oklab, var(--foreground) 8%, transparent);
   --backdrop-floor: color-mix(in oklab, var(--foreground) 9%, transparent);
   --backdrop-grain: 0.045;
+  --backdrop-clouds: 0.16;
+  --surface-fill: color-mix(in oklab, var(--card) 72%, transparent);
+  --surface-shadow: inset 0 1px 0 rgb(255 255 255 / 0.65), 0 12px 32px -20px rgb(14 27 51 / 0.28);
 
   --ai-from: #1b2f57;
   --ai-to: #1b2f57;
@@ -230,6 +233,9 @@
   --backdrop-glow-3: color-mix(in oklab, var(--cold) 9%, transparent);
   --backdrop-floor: color-mix(in oklab, #000000 38%, transparent);
   --backdrop-grain: 0.06;
+  --backdrop-clouds: 0.07;
+  --surface-fill: color-mix(in oklab, var(--card) 66%, transparent);
+  --surface-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 16px 40px -20px rgb(0 0 0 / 0.6);
 
   --ai-from: #a9bce0;
   --ai-to: #a9bce0;
@@ -364,6 +370,29 @@
     filter: blur(40px);
     animation: kelvin-drift 48s ease-in-out infinite alternate;
     will-change: transform;
+  }
+  /* Clouds from the welcome page, barely there behind every screen. */
+  .kelvin-clouds {
+    position: absolute;
+    inset: 0;
+    background: url("/welcome/clouds.webp") center 30% / cover no-repeat;
+    opacity: var(--backdrop-clouds);
+  }
+  .dark .kelvin-clouds {
+    mix-blend-mode: soft-light;
+  }
+  /* Glass panel: translucent, blurred, no border. Replaces the bordered card boxes. */
+  .surface {
+    border-radius: 1.25rem;
+    background: var(--surface-fill);
+    box-shadow: var(--surface-shadow);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    backdrop-filter: blur(18px) saturate(1.15);
+  }
+  /* Inner block inside a glass panel: a soft tint, no border. */
+  .surface-inset {
+    border-radius: 0.875rem;
+    background: color-mix(in oklab, var(--muted) 60%, transparent);
   }
   .kelvin-backdrop::after {
     content: "";

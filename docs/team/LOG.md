@@ -92,3 +92,8 @@ Newest first. One entry per request: date — request — who did what — verdi
 
 - **Request (Vito):** a transition like the "AERIVE" airplane-window zoom from a reference video; Vito chose a new welcome page and AI-generated images.
 - **Chief:** images generated with Higgsfield Z Image (free plan: GPT Image / Soul models need a paid plan), downloaded by Vito, converted to WebP (23–44 KB). Welcome page on `/`: scroll zooms through the left cabin window into the sunset sky, the clouds rise and dissolve into the page, then "Enter Kelvin" → `/live` (the map moved from `/`). Reduced motion: one still frame with the message and buttons. Checked with screenshots of a local production build at 1280×720 and 390×844. QA fixes: no hydration error under reduced motion (reduced variant only after hydration), final buttons inert until visible, visible "Skip intro" link, one h1, top-bar logo now goes to `/live`.
+
+## 2026-11-19 — Glass panels over clouds
+
+- **Request (Vito):** remove the boxy "Claude look" inside the tool and show clouds faintly behind the screens; chose glass panels and barely visible clouds.
+- **Chief (main session, centralised change):** new `.surface` / `.surface-inset` classes and `--surface-*` / `--backdrop-clouds` tokens in `app/globals.css`; 19 files moved from bordered card boxes to glass panels; KPI grids lose the 1 px divider lines; clouds layer added to the shell backdrop (soft-light in dark mode). Check: axe on 9 pages × light/dark, no violations; 175 tests.

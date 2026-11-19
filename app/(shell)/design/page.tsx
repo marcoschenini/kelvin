@@ -88,7 +88,7 @@ export default function DesignSystemPage() {
       />
 
       <Section title="Brand">
-        <div className="flex flex-wrap items-center gap-6 rounded-xl border border-border bg-card p-5 sm:gap-8 sm:p-8">
+        <div className="flex flex-wrap items-center gap-6 surface p-5 sm:gap-8 sm:p-8">
           <KelvinLogo className="scale-[1.6] origin-left" />
           <span className="w-16" />
           <KelvinGlyph className="size-14" />
@@ -100,7 +100,7 @@ export default function DesignSystemPage() {
       <Section title="Colour" description="Each semantic colour has a fill, an AA text shade and a soft surface.">
         <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
           {SWATCHES.map((s) => (
-            <div key={s.var} className="overflow-hidden rounded-xl border border-border bg-card">
+            <div key={s.var} className="overflow-hidden surface">
               <div className="h-14 border-b border-border" style={{ background: `var(${s.var})` }} />
               <div className="p-2.5">
                 <div className="text-xs font-medium">{s.name}</div>
@@ -112,7 +112,7 @@ export default function DesignSystemPage() {
         <div className="flex flex-wrap gap-3">
           <div className="bg-ai h-12 flex-1 rounded-xl" />
           {CUSTODY_PARTIES.map((p) => (
-            <div key={p} className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 text-sm">
+            <div key={p} className="flex items-center gap-2 surface px-3 text-sm">
               <span className="size-3 rounded-sm" style={{ background: CUSTODY_META[p].colorVar }} />
               {CUSTODY_META[p].label}
             </div>
@@ -121,7 +121,7 @@ export default function DesignSystemPage() {
       </Section>
 
       <Section title="Type" description="EB Garamond for headings and key figures, Public Sans for body and UI; tabular numbers for money and dates.">
-        <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5 sm:p-8">
+        <div className="flex flex-col gap-3 surface p-5 sm:p-8">
           <h1 className="text-3xl font-semibold tracking-[-0.015em] sm:text-5xl">Recover {formatEUR(190000)}</h1>
           <h2 className="text-2xl font-semibold">Excursion on the FRA ramp, airline custody</h2>
           <p className="max-w-2xl text-[15px] text-muted-foreground">
@@ -155,7 +155,7 @@ export default function DesignSystemPage() {
             <RouteChip key={r} route={r} recommended={r === "insurer"} />
           ))}
         </div>
-        <div className="flex flex-wrap items-center gap-6 rounded-xl border border-border bg-card p-5 sm:gap-8 sm:p-6">
+        <div className="flex flex-wrap items-center gap-6 surface p-5 sm:gap-8 sm:p-6">
           <DeadlineRing daysLeft={11} windowDays={14} label="Montreal notice" />
           <DeadlineRing daysLeft={5} windowDays={14} label="Montreal notice" />
           <DeadlineRing daysLeft={2} windowDays={14} label="Montreal notice" />
@@ -196,7 +196,7 @@ export default function DesignSystemPage() {
             { icon: FileText, title: "Contracts", d: "Duties, limits & insurance" },
             { icon: Mail, title: "Documents", d: "Emails, waybills & reports" },
           ].map((x) => (
-            <div key={x.title} className="flex items-center gap-4 rounded-xl border border-border bg-card p-5 shadow-card">
+            <div key={x.title} className="flex items-center gap-4 surface p-5">
               <IconTile icon={x.icon} tone="ai" />
               <div>
                 <div className="font-semibold">{x.title}</div>
@@ -223,7 +223,7 @@ export default function DesignSystemPage() {
                 { icon: Scale, title: "Liability", d: "Carrier, forwarder, insurer" },
                 { icon: Clock, title: "Deadlines", d: "e.g. 14-day notice limit" },
               ].map((x) => (
-                <div key={x.title} className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+                <div key={x.title} className="flex items-center gap-4 surface p-4">
                   <x.icon className="size-6 text-ai-fg" strokeWidth={1.75} aria-hidden="true" />
                   <div>
                     <div className="font-semibold">{x.title}</div>
@@ -234,7 +234,7 @@ export default function DesignSystemPage() {
             </div>
           </div>
         </AiSurface>
-        <div className="flex items-center gap-5 rounded-xl border border-border bg-card p-5 shadow-card">
+        <div className="flex items-center gap-5 surface p-5">
           <span className="num grid size-9 place-items-center rounded-full bg-ai-soft font-semibold text-ai-fg">2</span>
           <IconTile icon={ShieldCheck} tone="neutral" />
           <div className="flex-1 border-l border-border pl-5">
@@ -249,7 +249,7 @@ export default function DesignSystemPage() {
           <OutcomeCard tone="success" icon={CheckCircle2} title="No claim" description="Case closed with the reason, kept for audit." />
           <OutcomeCard tone="warning" icon={TriangleAlert} title="Possible claim" description="Evidence file and claim amount prepared." />
         </div>
-        <div className="flex items-center gap-5 rounded-xl border border-border bg-card p-5 shadow-card">
+        <div className="flex items-center gap-5 surface p-5">
           <span className="num grid size-9 place-items-center rounded-full bg-ai-soft font-semibold text-ai-fg">3</span>
           <IconTile icon={UserRound} tone="neutral" />
           <div className="flex-1 border-l border-border pl-5">

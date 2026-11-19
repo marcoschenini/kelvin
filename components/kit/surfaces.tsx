@@ -26,7 +26,7 @@ export function IconTile({
 
 /** Plain card surface for analysis areas (hairline, no wash). */
 export function AiSurface({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <div className={cn("relative rounded-xl border border-border bg-card", className)}>{children}</div>;
+  return <div className={cn("relative surface", className)}>{children}</div>;
 }
 
 /** Outcome card with a coloured rule on the left: green "No claim", amber "Possible claim". */
@@ -62,7 +62,7 @@ export function OutcomeCard({
   return (
     <div
       className={cn(
-        "relative flex items-start gap-4 overflow-hidden rounded-xl border border-border bg-card p-5 before:absolute before:inset-y-0 before:left-0 before:w-[3px]",
+        "relative flex items-start gap-4 overflow-hidden surface p-5 before:absolute before:inset-y-0 before:left-0 before:w-[3px]",
         rule,
         className,
       )}

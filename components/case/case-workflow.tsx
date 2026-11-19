@@ -55,7 +55,7 @@ function AwaitingReply({ caseId, from, paused }: { caseId: string; from: string;
     return () => clearTimeout(t);
   }, [caseId, from, paused, router]);
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm">
+    <div className="flex items-start gap-3 surface-inset px-4 py-3 text-sm">
       <Clock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
       <span>
         Awaiting a reply from <span className="font-medium">{from}</span>
@@ -183,7 +183,7 @@ export function CaseWorkflow({
       {negotiating && negotiation && (
         <div className="flex flex-col gap-3">
           <GateHeader badge="Manager decision" title="Settlement offer" description={`${negotiation.counterparty} offers less than the claim.`} />
-          <dl className="grid grid-cols-2 divide-x divide-border rounded-lg border border-border bg-card">
+          <dl className="grid grid-cols-2 divide-x divide-border surface-inset">
             <div className="p-3">
               <dt className="eyebrow text-muted-foreground">Offer</dt>
               <dd className="figure mt-1 text-xl font-semibold">{formatEUR(negotiation.offerEur)}</dd>
@@ -212,7 +212,7 @@ export function CaseWorkflow({
           <GateHeader badge="Manager approval" title={awaiting.some((d) => d.kind === "claim_letter") ? "Approve the claim" : "Approve outgoing message"} description="Nothing leaves Kelvin without a manager's approval." />
           <ul className="flex flex-col gap-2">
             {awaiting.map((d, i) => (
-              <li key={d.id} className="flex flex-col gap-2.5 rounded-lg border border-border bg-card p-3 text-sm">
+              <li key={d.id} className="flex flex-col gap-2.5 surface-inset p-3 text-sm">
                 <span className="min-w-0">
                   <span className="font-medium">{DRAFT_LABEL[d.kind] ?? d.kind}</span>
                   <span className="text-muted-foreground"> to {d.recipientName}</span>

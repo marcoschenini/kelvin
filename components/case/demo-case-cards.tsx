@@ -34,7 +34,7 @@ export function DemoCaseCards({ cases }: { cases: DemoCaseSummary[] }) {
         <form
           key={c.code}
           action={loadDemoCaseAction.bind(null, c.code)}
-          className="group flex flex-col gap-4 rounded-xl border border-border bg-card p-6 transition-colors hover:border-input"
+          className="group flex flex-col gap-4 surface p-6 transition-colors hover:bg-card/90"
         >
           <div className="flex items-start justify-between gap-3">
             <span className="figure grid size-10 place-items-center rounded-md border border-border text-lg font-semibold text-ai-fg">{c.code}</span>
