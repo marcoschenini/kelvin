@@ -519,7 +519,7 @@ export function LiveMap() {
             ) : (
               <div key="list" className="animate-in fade-in-0 slide-in-from-left-2 duration-200">
                 <div className="mb-2 flex items-baseline justify-between">
-                  <h2 className="text-[15px] font-semibold">Shipments in transit</h2>
+                  <h2 className="text-[1.25rem] font-semibold">Shipments in transit</h2>
                   <span className="num text-xs text-muted-foreground">{mounted ? visible.length : ""}</span>
                 </div>
                 <ul className="-mx-1 flex max-h-[34rem] flex-col overflow-y-auto" aria-label="Shipments">

@@ -41,7 +41,7 @@ function CaseCards({ items }: { items: CaseListItem[] }) {
                   <span className="figure grid size-9 shrink-0 place-items-center rounded-md border border-border text-base font-semibold text-ai-fg">{c.code}</span>
                 )}
                 <span className="min-w-0 flex-1">
-                  <span className="num block truncate text-[15px] font-semibold">{c.shipmentRef}</span>
+                  <span className="block truncate font-heading text-[18px] font-semibold">{c.shipmentRef}</span>
                   <span className="block truncate text-xs text-muted-foreground">{c.product ?? c.title}</span>
                 </span>
                 <ChevronRight className="mt-1 size-4 shrink-0 text-subtle" aria-hidden="true" />
@@ -109,7 +109,7 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
                     </span>
                   )}
                   <span className="min-w-0">
-                    <span className="num block truncate text-[14px] font-semibold group-hover:underline group-hover:underline-offset-2">{c.shipmentRef}</span>
+                    <span className="block truncate font-heading text-[17px] font-semibold group-hover:underline group-hover:underline-offset-2">{c.shipmentRef}</span>
                     <span className="block truncate text-xs text-muted-foreground">{c.product ?? c.title}</span>
                   </span>
                 </span>

@@ -148,7 +148,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
         <div className="min-w-0">
           <span className="eyebrow text-muted-foreground">Manager approval · {KIND_LABEL[draft.kind] ?? draft.kind}</span>
-          <h1 className="mt-2 text-[1.875rem] leading-[1.1] font-semibold tracking-[-0.015em] sm:text-[2.125rem]">Review and approve</h1>
+          <h1 className="mt-2 text-[2.375rem] leading-[1.02] font-semibold tracking-[-0.02em] sm:text-[3.25rem]">Review and approve</h1>
           <p className="mt-2 text-[15px] text-muted-foreground">
             {KIND_LABEL[draft.kind] ?? draft.kind} to {draft.recipientName}. Nothing is sent until a manager approves.
           </p>

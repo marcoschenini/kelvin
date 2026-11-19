@@ -302,6 +302,12 @@
   }
   h1,
   h2,
+  h3,
+  .font-heading {
+    font-variant-numeric: lining-nums;
+  }
+  h1,
+  h2,
   h3 {
     @apply font-heading;
     font-feature-settings: normal;

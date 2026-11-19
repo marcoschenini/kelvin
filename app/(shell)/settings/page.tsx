@@ -98,7 +98,7 @@ function Row({ id, title, description, children }: { id: string; title: string; 
   return (
     <section aria-labelledby={id} className="grid grid-cols-1 gap-5 px-6 py-7 lg:grid-cols-12 lg:gap-8 lg:px-8">
       <div className="lg:col-span-4">
-        <h2 id={id} className="text-[1.15rem] leading-tight font-semibold">
+        <h2 id={id} className="text-[1.45rem] leading-tight font-semibold">
           {title}
         </h2>
         <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>

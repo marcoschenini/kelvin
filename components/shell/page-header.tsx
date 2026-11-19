@@ -21,7 +21,7 @@ export function PageHeader({
     <header className={cn("flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-b border-border pb-6", className)}>
       <div className="min-w-0 max-w-3xl">
         {eyebrow && <div className="mb-2">{typeof eyebrow === "string" ? <span className="eyebrow text-muted-foreground">{eyebrow}</span> : eyebrow}</div>}
-        <h1 className="text-[1.875rem] leading-[1.1] font-semibold tracking-[-0.015em] text-foreground sm:text-[2.125rem]">{title}</h1>
+        <h1 className="text-[2.375rem] leading-[1.02] font-semibold tracking-[-0.02em] text-foreground sm:text-[3.25rem]">{title}</h1>
         {description && <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}

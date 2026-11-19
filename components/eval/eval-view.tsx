@@ -260,7 +260,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
 
       {history.length > 1 && (
         <section className="surface p-5 sm:p-7">
-          <h2 className="text-[1.2rem] font-semibold">Recent runs</h2>
+          <h2 className="text-[1.5rem] font-semibold">Recent runs</h2>
           <ul className="mt-3 divide-y divide-border text-sm">
             {history.map((h) => (
               <li key={h.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2">

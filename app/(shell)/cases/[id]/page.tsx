@@ -122,7 +122,7 @@ function Fact({ label, children, className }: { label: string; children: React.R
   return (
     <div className={cn("min-w-0", className)}>
       <dt className="eyebrow text-[10.5px] text-muted-foreground">{label}</dt>
-      <dd className="num mt-1.5 text-[14px] font-medium break-words text-foreground">{children}</dd>
+      <dd className="mt-1 font-heading text-[17px] leading-snug font-semibold break-words text-foreground [font-variant-numeric:lining-nums_tabular-nums]">{children}</dd>
     </div>
   );
 }
@@ -225,7 +225,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
                   {c.code && c.scenario === "demo" ? `Case ${c.code} · ` : "Case · "}Temperature excursion
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <h1 className="num text-[1.875rem] leading-[1.1] font-semibold tracking-[-0.015em] sm:text-[2.25rem]">{c.shipmentRef}</h1>
+                  <h1 className="text-[2.375rem] leading-[1.02] font-semibold tracking-[-0.02em] sm:text-[3.25rem]">{c.shipmentRef}</h1>
                   <StatusChip status={c.status} />
                 </div>
                 <p className="mt-2 text-[15px] text-muted-foreground">{c.title}</p>
