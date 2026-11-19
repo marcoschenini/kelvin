@@ -206,6 +206,8 @@ export type LiveStatus = "in_range" | "at_risk" | "excursion";
 
 export interface LiveState {
   ship: FleetShipment;
+  /** Shipment reference of this trip: every trip is its own shipment (see tripRef). */
+  ref: string;
   tripIndex: number;
   /** false between trips (delivered, next trip not started) */
   inTransit: boolean;
@@ -254,6 +256,16 @@ export function tempAt(ship: FleetShipment, h: number, tripIndex: number): numbe
   return Math.round(t * 10) / 10;
 }
 
+/**
+ * Each trip of a lane is a new shipment with its own reference, so a delivered shipment (now a case)
+ * never shows up again on the map under the same number. Deterministic per (ship, trip).
+ */
+export function tripRef(ship: FleetShipment, tripIndex: number): string {
+  const lane = Number(ship.id.replace(/\D/g, "")) || 0;
+  const n = 10000 + ((((lane * 7919 + tripIndex * 104729) % 90000) + 90000) % 90000);
+  return `KV-${n}`;
+}
+
 export function simulate(ship: FleetShipment, now: number): LiveState {
   const sinceEpoch = now / HOUR + ship.offsetHours;
   const tripIndex = Math.floor(sinceEpoch / ship.cycleHours);
@@ -283,6 +295,7 @@ export function simulate(ship: FleetShipment, now: number): LiveState {
   return {
     ship,
     tripIndex,
+    ref: tripRef(ship, tripIndex),
     inTransit,
     tripStart,
     eta: tripStart + ship.tripHours * HOUR,

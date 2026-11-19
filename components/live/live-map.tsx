@@ -117,7 +117,7 @@ function Detail({ s, now, caseId, onClose }: { s: LiveState; now: number; caseId
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
-            <span className="num text-lg font-semibold">{ship.shipmentRef}</span>
+            <span className="num text-lg font-semibold">{s.ref}</span>
             <StatusChip status={s.status} />
           </div>
           <div className="num mt-0.5 text-sm text-muted-foreground">
@@ -257,7 +257,7 @@ export function LiveMap() {
           if (!res.ok) return;
           const { caseId } = (await res.json()) as { caseId: string; created: boolean };
           setCases((c) => ({ ...c, [cur.ship.id]: caseId }));
-          toast(`${cur.ship.shipmentRef} delivered with an excursion`, {
+          toast(`${before.ref} delivered with an excursion`, {
             description: "Case opened in Cases",
             action: { label: "Open case", onClick: () => router.push(`/cases/${caseId}`) },
           });
@@ -278,12 +278,12 @@ export function LiveMap() {
     .filter(
       (s) =>
         !q ||
-        [s.ship.shipmentRef, s.ship.product, s.ship.origin, s.ship.destination, AIRPORTS[s.ship.origin].city, AIRPORTS[s.ship.destination].city, s.leg.custodian]
+        [s.ref, s.ship.product, s.ship.origin, s.ship.destination, AIRPORTS[s.ship.origin].city, AIRPORTS[s.ship.destination].city, s.leg.custodian]
           .join(" ")
           .toLowerCase()
           .includes(q),
     )
-    .sort((a, b) => STATUS[a.status].rank - STATUS[b.status].rank || a.ship.shipmentRef.localeCompare(b.ship.shipmentRef));
+    .sort((a, b) => STATUS[a.status].rank - STATUS[b.status].rank || a.ref.localeCompare(b.ref));
   const sel = states.find((s) => s.ship.id === selected) ?? null;
   const hov = states.find((s) => s.ship.id === hover) ?? null;
   // Zoom: fit the region box inside the map frame, centred and clamped to the map.
@@ -499,7 +499,7 @@ export function LiveMap() {
                 role="tooltip"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="num font-semibold">{hov.ship.shipmentRef}</span>
+                  <span className="num font-semibold">{hov.ref}</span>
                   <StatusChip status={hov.status} />
                 </div>
                 <div className="num mt-0.5 text-muted-foreground">
@@ -578,7 +578,7 @@ export function LiveMap() {
                           <span className={cn("size-2 shrink-0 rounded-full", STATUS[s.status].dot)} aria-label={STATUS[s.status].label} />
                           <span className="min-w-0 flex-1">
                             <span className="num block text-sm font-medium">
-                              {s.ship.shipmentRef} <span className="font-normal text-muted-foreground">{s.ship.origin} → {s.ship.destination}</span>
+                              {s.ref} <span className="font-normal text-muted-foreground">{s.ship.origin} → {s.ship.destination}</span>
                             </span>
                             <span className="flex items-center gap-1 truncate text-xs text-muted-foreground">
                               <LegIcon s={s} className="size-3 shrink-0" style={{ color: CUSTODY_META[s.leg.role].colorVar }} />
@@ -610,7 +610,7 @@ export function LiveMap() {
                   className="surface-inset flex w-full flex-col gap-1 p-3 text-left transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
                   <span className="flex items-center justify-between gap-2">
-                    <span className="font-heading text-[16px] font-semibold">{a.ship.shipmentRef}</span>
+                    <span className="font-heading text-[16px] font-semibold">{a.ref}</span>
                     <StatusChip status={a.status} />
                   </span>
                   <span className="num text-xs text-muted-foreground">

@@ -4,7 +4,7 @@ import { auditEvents, cases, documents } from "@/lib/db/schema";
 import { DEFAULT_PERSONA_ID } from "@/lib/domain/personas";
 import { formatDate } from "@/lib/format";
 import { putFile } from "@/lib/storage";
-import { CLIENT, FLEET, tempAt, type FleetShipment } from "./fleet";
+import { CLIENT, FLEET, tempAt, tripRef, type FleetShipment } from "./fleet";
 
 const HOUR = 3_600_000;
 const STEP_H = 1 / 12; // 5-minute logger interval, as in the demo seed
@@ -72,8 +72,10 @@ function handlingJson(ship: FleetShipment, tripStart: Date): string {
 
 /** Opens a claims case for a delivered live trip with an excursion. Idempotent. Trip dates are anchored so it ends at `deliveredAt`. */
 export async function createLiveCase(db: DB, shipId: string, tripIndex: number, deliveredAt: Date = new Date()): Promise<{ caseId: string; created: boolean } | null> {
-  const ship = FLEET.find((s) => s.id === shipId);
-  if (!ship) return null;
+  const lane = FLEET.find((s) => s.id === shipId);
+  if (!lane) return null;
+  // The case is about this trip: use the trip's own shipment reference everywhere (CSV, events, title).
+  const ship = { ...lane, shipmentRef: tripRef(lane, tripIndex) };
   const exc = tripExcursion(ship, tripIndex);
   if (!exc) return null;
   const id = liveCaseId(ship.id, tripIndex);
