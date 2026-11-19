@@ -60,7 +60,7 @@ function CaseCards({ items }: { items: CaseListItem[] }) {
                 {c.recommendedRoute && c.status !== "closed_no_claim" && c.status !== "no_claim" && <RouteChip route={c.recommendedRoute} recommended />}
                 <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
                   <PersonaAvatar persona={owner} className="size-5 text-[8px]" />
-                  {owner.name}
+                  {owner.title}
                 </span>
               </span>
             </Link>
@@ -120,7 +120,7 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
                 </span>
                 <span className="flex min-w-0 items-center gap-2">
                   <PersonaAvatar persona={owner} className="size-6 text-[9px]" />
-                  <span className="truncate text-[13px]">{owner.name}</span>
+                  <span className="truncate text-[13px]">{owner.title}</span>
                 </span>
                 <span>
                   {c.status === "new" || (c.status === "investigating" && c.daysLeft == null) ? (

@@ -2,6 +2,11 @@
 
 Newest first. One entry per request: date — request — who did what — verdict — outcome.
 
+## 2026-11-19 — Roles without names
+
+- **Request (Marco):** remove "Acting as Tom Becker" and the clickable names; keep the process. Asked: keep the theme switch; keep role switching but without names; also remove names from the Owner column and from hints/chat. Letter sign-off and audit trail keep the names.
+- **Chief (Marco's session):** user menu shows "Role · Claims Manager" with QA / CM / LA badges and what each role can do; Owner column shows the role; hints say "Switch your role to …"; chat answers and prompts say "the claims manager" / "QA Lead". Gates unchanged (QA Lead decides QA, Claims Manager approves). Checked in the browser; lint ✓, typecheck ✓, 175/175 tests ✓, build ✓.
+
 ## 2026-11-19 — Background with depth on every page
 
 - **Request (Marco):** the flat cold-chain scene on the home was too busy and badly placed; brainstormed a replacement: "a background that gives depth, more minimal, gradient style but with more dimension", fixed behind the page, the same on every page.
