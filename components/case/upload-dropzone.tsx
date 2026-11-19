@@ -104,7 +104,7 @@ export function UploadDropzone() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.18 }}
-            className="rounded-xl border border-border bg-card p-2"
+            className="surface p-2"
           >
             <ul className="divide-y divide-border">
               {files.map((f) => {

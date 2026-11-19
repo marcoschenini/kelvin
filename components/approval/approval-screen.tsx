@@ -156,7 +156,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
         <HumanDecisionBadge label="Manager decision" />
       </header>
 
-      <section aria-label="Summary" className="grid grid-cols-1 gap-4 rounded-xl border border-border bg-card px-6 py-5 text-sm sm:grid-cols-12 sm:gap-0 sm:divide-x sm:divide-border">
+      <section aria-label="Summary" className="grid grid-cols-1 gap-4 surface px-6 py-5 text-sm sm:grid-cols-12 sm:gap-0 sm:divide-x sm:divide-border">
         <div className="min-w-0 sm:col-span-3 sm:pr-6">
           <div className="eyebrow text-[10.5px] text-muted-foreground">Recipient</div>
           <div className="mt-1.5 font-semibold">{draft.recipientName}</div>
@@ -240,14 +240,14 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
         {/* ---------- evidence ---------- */}
         <aside aria-label="Evidence" className="flex flex-col gap-4 lg:sticky lg:top-[88px] lg:col-span-4">
           {draft.amountEur != null && (
-            <div className="relative overflow-hidden rounded-xl border border-border bg-card p-5">
+            <div className="relative overflow-hidden surface p-5">
               <span className="absolute inset-y-0 left-0 w-[3px] bg-brand" aria-hidden="true" />
               <div className="eyebrow text-muted-foreground">Amount claimed</div>
               <AnimatedNumber value={draft.amountEur} format="eur" className="figure mt-2 block text-[2.25rem] leading-none font-semibold text-brand-fg" />
               <div className="mt-2 text-xs text-muted-foreground capitalize">{ctx.route ? `${ctx.route} route` : ""}</div>
             </div>
           )}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="surface p-5">
             <div className="eyebrow text-muted-foreground">Key facts</div>
             <ul className="mt-3 flex flex-col gap-2.5 text-sm">
               {ctx.excursion && (
@@ -271,7 +271,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
               )}
             </ul>
           </div>
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="surface p-5">
             <div className="flex items-center justify-between">
               <div className="eyebrow text-muted-foreground">Sources</div>
               <span className={cn("text-xs font-medium", coverage.uncited.length ? "text-warning-fg" : "text-success-fg")}>
@@ -293,7 +293,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
               </div>
             )}
           </div>
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="surface p-5">
             <div className="eyebrow text-muted-foreground">Annexes</div>
             <ul className="mt-3 flex flex-col gap-1.5 text-sm">
               {draft.annexes.map((a) => (
@@ -352,7 +352,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
           >
             <motion.div
               role="status"
-              className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card px-10 py-8 text-center shadow-raised"
+              className="flex flex-col items-center gap-3 surface px-10 py-8 text-center shadow-raised"
               initial={{ y: 8, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.22, delay: 0.1, ease: [0.2, 0, 0, 1] }}

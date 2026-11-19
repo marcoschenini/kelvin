@@ -128,7 +128,7 @@ export function AnalysisStatus({ className }: { className?: string }) {
     const mode = modeLabel(info?.mode ?? null, info?.model ?? null);
     const phase = phaseOf(running, steps);
     return (
-      <section aria-label="Analysis in progress" className={cn("overflow-hidden rounded-xl border border-ai-fg/25 bg-card shadow-card", className)}>
+      <section aria-label="Analysis in progress" className={cn("overflow-hidden rounded-xl border border-ai-fg/25 bg-card", className)}>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-border bg-ai-soft px-5 py-3.5 sm:px-6">
           <span className="relative flex size-2.5 shrink-0" aria-hidden="true">
             <span className="absolute inline-flex size-full rounded-full bg-ai-fg/40 motion-safe:animate-ping" />
@@ -189,7 +189,7 @@ export function PendingWhileRunning({ ready, children, className, lines = 3 }: {
   if (ready) return <>{children}</>;
   if (!running) return <>{children}</>;
   return (
-    <div className={cn("rounded-xl border border-border bg-card p-6", className)} aria-busy="true" aria-label="Loading">
+    <div className={cn("surface p-6", className)} aria-busy="true" aria-label="Loading">
       <Skeleton className="h-3 w-28" />
       <Skeleton className="mt-4 h-7 w-2/5" />
       <div className="mt-6 flex flex-col gap-2.5">

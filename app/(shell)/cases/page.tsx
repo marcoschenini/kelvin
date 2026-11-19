@@ -21,7 +21,7 @@ async function InboxContent() {
   const k = computeKpis(items, { atRiskDays: rules.atRiskDays });
   return (
     <>
-      <section aria-label="Key figures" className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-4 [&>div]:rounded-none [&>div]:border-0">
+      <section aria-label="Key figures" className="grid grid-cols-2 overflow-hidden surface [&>*]:rounded-none! [&>*]:bg-transparent! [&>*]:shadow-none! [&>*]:[backdrop-filter:none]! md:grid-cols-4 [&>div]:rounded-none [&>div]:border-0">
         <KpiTile compact label="Open cases" value={k.openCases} hint={k.awaitingHuman ? `${k.awaitingHuman} awaiting a human decision` : "Across all routes"} />
         <KpiTile
           compact
@@ -64,7 +64,7 @@ async function InboxContent() {
 function InboxSkeleton() {
   return (
     <>
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-4">
+      <div className="grid grid-cols-2 overflow-hidden surface [&>*]:rounded-none! [&>*]:bg-transparent! [&>*]:shadow-none! [&>*]:[backdrop-filter:none]! md:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="bg-card p-5">
             <Skeleton className="h-3.5 w-24" />

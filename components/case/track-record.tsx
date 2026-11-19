@@ -8,7 +8,7 @@ import { formatEUR } from "@/lib/format";
 /** Compact track record per payer: how many claims, how much came back. */
 export function TrackRecord({ rows }: { rows: InboxKpis["trackRecord"] }) {
   return (
-    <section aria-label="Track record by payer" className="rounded-xl border border-border bg-card p-5 sm:p-7">
+    <section aria-label="Track record by payer" className="surface p-5 sm:p-7">
       <SectionHeader title="Track record by payer" description="Closed claims and what they recovered" icon={Trophy} />
       {rows.length === 0 ? (
         <p className="mt-4 text-sm text-muted-foreground">No closed claims yet. The record builds up as cases close.</p>

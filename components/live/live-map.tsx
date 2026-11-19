@@ -248,7 +248,7 @@ export function LiveMap() {
   return (
     <div className="flex flex-col gap-4">
       {/* KPIs */}
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 overflow-hidden surface [&>*]:rounded-none! [&>*]:bg-transparent! [&>*]:shadow-none! [&>*]:[backdrop-filter:none]! sm:grid-cols-3 lg:grid-cols-5">
         {kpis.map((kp) => (
           <div key={kp.label} className="flex flex-col bg-card px-5 pt-4 pb-4">
             <span className="eyebrow text-muted-foreground">{kp.label}</span>
@@ -304,7 +304,7 @@ export function LiveMap() {
 
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
         {/* Map */}
-        <div className="relative overflow-hidden rounded-xl border border-border bg-card">
+        <div className="relative overflow-hidden surface">
           <div className="relative" style={{ aspectRatio: `${W} / ${H}` }}>
             <svg
               className="absolute inset-0 size-full"
@@ -433,7 +433,7 @@ export function LiveMap() {
         </div>
 
         {/* Side panel */}
-        <aside className="rounded-2xl border border-border bg-card p-4 shadow-card">
+        <aside className="surface p-4">
           {sel ? (
               <div key="detail" className="animate-in fade-in-0 slide-in-from-right-2 duration-200">
                 <Detail s={sel} now={now} onClose={() => setSelected(null)} />

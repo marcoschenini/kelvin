@@ -8,7 +8,9 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex min-h-dvh flex-col">
       {/* Background with depth on every page: fixed, decorative (see .kelvin-backdrop in globals.css) */}
-      <div aria-hidden="true" className="kelvin-backdrop" />
+      <div aria-hidden="true" className="kelvin-backdrop">
+        <div className="kelvin-clouds" />
+      </div>
       <a
         href="#main"
         className="sr-only z-50 rounded-lg bg-card px-3 py-2 text-sm shadow-raised focus:not-sr-only focus:fixed focus:top-3 focus:left-3"

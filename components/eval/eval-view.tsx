@@ -125,7 +125,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
 
       {s && (
         <>
-          <section aria-label="Headline metrics" className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border xl:grid-cols-4">
+          <section aria-label="Headline metrics" className="grid grid-cols-2 overflow-hidden surface [&>*]:rounded-none! [&>*]:bg-transparent! [&>*]:shadow-none! [&>*]:[backdrop-filter:none]! xl:grid-cols-4">
             <Metric label="Route accuracy" value={pct(s.routeAccuracy)} sub="Recommended payer matches the answer key" icon={Route} good={s.routeAccuracy === 1} />
             <Metric label="Deadline accuracy" value={pct(s.deadlineAccuracy)} sub="Every notice date matches" icon={Clock} good={s.deadlineAccuracy === 1} />
             <Metric label="Citation coverage" value={pct(s.citationCoverage)} sub="Factual paragraphs in letters with a source" icon={FileCheck2} good={s.citationCoverage === 1} />
@@ -154,7 +154,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
       )}
 
       {rows.length > 0 && (
-        <section aria-labelledby="wrong-heading" className="rounded-xl border border-border bg-card p-5 sm:p-7">
+        <section aria-labelledby="wrong-heading" className="surface p-5 sm:p-7">
           <h2 id="wrong-heading" className="text-[1.2rem] font-semibold">
             Wrong answers
           </h2>
@@ -195,7 +195,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
       )}
 
       {rows.length > 0 && (
-        <section aria-label="Results per case" className="overflow-hidden rounded-xl border border-border bg-card">
+        <section aria-label="Results per case" className="overflow-hidden surface">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[56rem] text-sm">
               <thead className="border-b border-foreground/15 text-left text-[11px] font-semibold tracking-[0.08em] text-foreground uppercase">
@@ -259,7 +259,7 @@ export function EvalView({ run, results, history, liveAvailable }: { run: EvalRu
       )}
 
       {history.length > 1 && (
-        <section className="rounded-xl border border-border bg-card p-5 sm:p-7">
+        <section className="surface p-5 sm:p-7">
           <h2 className="text-[1.2rem] font-semibold">Recent runs</h2>
           <ul className="mt-3 divide-y divide-border text-sm">
             {history.map((h) => (

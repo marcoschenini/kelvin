@@ -34,7 +34,7 @@ function CaseCards({ items }: { items: CaseListItem[] }) {
             <Link
               href={`/cases/${c.id}`}
               data-case-row
-              className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors active:bg-muted/50"
+              className="flex flex-col gap-3 surface p-4 transition-colors active:bg-muted/50"
             >
               <span className="flex items-start gap-3">
                 {c.code && c.scenario === "demo" && (
@@ -75,7 +75,7 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
   return (
     <>
     <CaseCards items={items} />
-    <div className="hidden overflow-hidden rounded-xl border border-border bg-card lg:block">
+    <div className="hidden overflow-hidden surface lg:block">
       <div
         className={cn(GRID, "border-b border-foreground/15 px-5 py-3 text-[11px] font-semibold tracking-[0.08em] text-foreground uppercase")}
         aria-hidden="true"
@@ -152,14 +152,14 @@ export function CaseListSkeleton({ rows = 3 }: { rows?: number }) {
     <>
     <div className="flex flex-col gap-3 lg:hidden" aria-busy="true" aria-label="Loading cases">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-card">
+        <div key={i} className="flex flex-col gap-3 surface p-4">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-3 w-48" />
           <Skeleton className="h-5 w-40 rounded-full" />
         </div>
       ))}
     </div>
-    <div className="hidden overflow-hidden rounded-xl border border-border bg-card lg:block" aria-busy="true" aria-label="Loading cases">
+    <div className="hidden overflow-hidden surface lg:block" aria-busy="true" aria-label="Loading cases">
       <div className="border-b border-border px-5 py-3">
         <Skeleton className="h-3 w-40" />
       </div>

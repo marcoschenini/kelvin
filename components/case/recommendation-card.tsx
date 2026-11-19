@@ -189,7 +189,7 @@ export function RecommendationCard({
 }) {
   const overdue = deadline.daysLeft != null && deadline.daysLeft < 0;
   return (
-    <section aria-labelledby="recommendation-title" className="overflow-hidden rounded-xl border border-border bg-card">
+    <section aria-labelledby="recommendation-title" className="overflow-hidden surface">
       <div className="grid grid-cols-1 lg:grid-cols-12">
         <div className="relative p-6 lg:col-span-8 lg:p-8">
           <span className={cn("absolute inset-y-0 left-0 w-[3px]", RULE[rec.verdict.tone])} aria-hidden="true" />

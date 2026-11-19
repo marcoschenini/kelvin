@@ -28,7 +28,7 @@ export function KpiTile({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col rounded-xl border border-border bg-card px-5 pt-4 pb-5", compact && "px-4 pt-3 pb-3.5", className)}>
+    <div className={cn("flex flex-col surface px-5 pt-4 pb-5", compact && "px-4 pt-3 pb-3.5", className)}>
       <span className="eyebrow text-muted-foreground">{label}</span>
       {value == null ? (
         <span className={cn("figure mt-3 block text-[2.125rem] leading-none font-semibold text-subtle", compact && "mt-2 text-[1.625rem]")} aria-label="Not available yet">
