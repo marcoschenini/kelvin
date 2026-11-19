@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { KelvinGlyph } from "@/components/brand/logo";
 import { Sidebar } from "@/components/shell/sidebar";
-import { CLIENT } from "@/lib/live/fleet";
 
 const FOOTER_LINKS = [
   ["/live", "Live shipments"],
@@ -34,9 +33,7 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
         <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-5 text-[13px] text-muted-foreground sm:px-6 lg:px-10">
           <span className="flex items-center gap-2.5">
             <KelvinGlyph variant="bare" className="size-6" />
-            <span>
-              Kelvin · Cold-chain claims recovery for <span className="font-medium text-foreground">{CLIENT}</span>
-            </span>
+            <span>Kelvin · Cold-chain claims recovery</span>
           </span>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-1">
             {FOOTER_LINKS.map(([href, label]) => (
