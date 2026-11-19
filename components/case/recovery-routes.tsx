@@ -38,17 +38,25 @@ function RouteCard({ r, citations, qaPending }: { r: RankedRoute; citations: Cit
         {r.recommended ? <span className="eyebrow rounded-sm bg-ai px-1.5 py-0.5 text-[10px] text-white dark:text-background">Recommended</span> : blocked ? <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground"><CircleSlash className="size-3" />Not viable</span> : <span className="num text-xs text-muted-foreground">#{r.rank}</span>}
       </div>
 
-      <div>
-        <div className="eyebrow text-[10.5px] text-muted-foreground">Recoverable if successful</div>
-        <AnimatedNumber value={r.recoverableEur} format="eur" className={cn("figure mt-1 block text-[1.75rem] leading-tight font-semibold", blocked && "text-muted-foreground")} />
-        <div className="mt-2 flex items-center gap-2">
-          <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
-            <div className={cn("h-full rounded-full", r.recommended ? "bg-ai" : "bg-subtle")} style={{ width: `${Math.round(r.probability * 100)}%` }} />
-          </div>
-          <span className="num w-24 text-right text-[11px] text-muted-foreground">{Math.round(r.probability * 100)}% · {formatEUR(r.expectedEur)}</span>
+      {blocked ? (
+        <div>
+          <div className="eyebrow text-[10.5px] text-muted-foreground">Recoverable</div>
+          <div className="figure mt-1 block text-[1.75rem] leading-tight font-semibold text-muted-foreground">{formatEUR(0)}</div>
+          <div className="mt-2 text-[11px] text-muted-foreground">Route closed. Without the blocker: up to {formatEUR(r.recoverableEur)}.</div>
         </div>
-        <div className="mt-0.5 text-[10.5px] text-subtle">likelihood · expected value</div>
-      </div>
+      ) : (
+        <div>
+          <div className="eyebrow text-[10.5px] text-muted-foreground">Recoverable if successful</div>
+          <AnimatedNumber value={r.recoverableEur} format="eur" className={cn("figure mt-1 block text-[1.75rem] leading-tight font-semibold", blocked && "text-muted-foreground")} />
+          <div className="mt-2 flex items-center gap-2">
+            <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+              <div className={cn("h-full rounded-full", r.recommended ? "bg-ai" : "bg-subtle")} style={{ width: `${Math.round(r.probability * 100)}%` }} />
+            </div>
+            <span className="num w-24 text-right text-[11px] text-muted-foreground">{Math.round(r.probability * 100)}% · {formatEUR(r.expectedEur)}</span>
+          </div>
+          <div className="mt-0.5 text-[10.5px] text-subtle">likelihood · expected value</div>
+        </div>
+      )}
 
       <dl className="flex flex-col gap-1.5 border-t border-border pt-3 text-xs">
         <div className="flex justify-between gap-2">

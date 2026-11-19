@@ -268,7 +268,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
               <div className="mt-3 rounded-md border border-dashed border-warning/60 bg-warning-soft p-3 text-xs text-warning-fg">
                 <div className="flex items-center gap-1.5 font-semibold">
                   <AlertTriangle className="size-3.5" aria-hidden="true" />
-                  {coverage.uncited.length || assumptions.length} statement(s) without a source
+                  {coverage.uncited.length || assumptions.length} {(coverage.uncited.length || assumptions.length) === 1 ? "statement" : "statements"} without a source
                 </div>
                 <p className="mt-1">They will be marked as assumptions. Add a source like [S3] or confirm them before approving.</p>
               </div>

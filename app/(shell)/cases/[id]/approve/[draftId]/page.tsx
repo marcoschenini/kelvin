@@ -1,3 +1,5 @@
+import { withCurrentDays } from "@/lib/rules/deadlines";
+import { DEFAULT_RULES } from "@/lib/rules/config";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
@@ -19,7 +21,7 @@ async function Content({ params }: { params: Promise<{ id: string; draftId: stri
   const [c, drafts, docs] = await Promise.all([getCase(id), listDrafts(id), listDocuments(id)]);
   const draft = drafts.find((d) => d.id === draftId);
   if (!c || !draft) notFound();
-  const record = c.record as CaseRecord;
+  const record = withCurrentDays(c.record as CaseRecord, new Date(), DEFAULT_RULES);
   const ex = record.excursions?.find((e) => e.direction === "high") ?? record.excursions?.[0];
   const route = draft.route ?? c.recommendedRoute;
   const deadline = record.deadlines?.find((d) => d.route === route && d.kind === "notice") ?? null;
