@@ -96,14 +96,14 @@ export function pending(ctx: PortfolioContext): Answer {
   const lines: string[] = [];
   const byCase = new Map(ctx.cases.map((c) => [c.id, c]));
   if (ctx.waiting.length) {
-    lines.push(`**${ctx.waiting.length}** draft(s) wait for the claims manager's approval (Tom Becker):`);
+    lines.push(`**${ctx.waiting.length}** draft(s) wait for the claims manager's approval:`);
     for (const d of ctx.waiting) {
       const c = byCase.get(d.caseId);
       lines.push(`- ${c ? nameOf(c) : d.caseId}: ${d.kind.replace(/_/g, " ")} to ${d.recipientName}${d.amountEur ? `, ${formatEUR(d.amountEur)}` : ""}`);
     }
   }
   const qa = ctx.cases.filter((c) => c.status === "awaiting_qa");
-  if (qa.length) lines.push(`QA decision needed (Elena Weber): ${qa.map(nameOf).join(", ")}.`);
+  if (qa.length) lines.push(`QA decision needed (QA Lead): ${qa.map(nameOf).join(", ")}.`);
   const offers = ctx.cases.filter((c) => c.record.negotiation);
   for (const c of offers) lines.push(`- ${nameOf(c)}: open offer ${formatEUR(c.record.negotiation!.offerEur)} from ${c.record.negotiation!.counterparty}; the manager accepts or counters.`);
   const fresh = ctx.cases.filter((c) => c.status === "new");

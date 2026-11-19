@@ -104,7 +104,8 @@ describe("built-in answers", () => {
   it("refuses to act and says who does", async () => {
     const a = chat.answer(await load("demo-b"), "action");
     expect(a.text).toMatch(/can't do that/);
-    expect(a.text).toContain("Tom Becker");
+    expect(a.text).toContain("claims manager");
+    expect(a.text).not.toMatch(/Tom Becker|Elena Weber/);
   });
 });
 

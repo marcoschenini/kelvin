@@ -325,7 +325,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
                 ? edited
                   ? "You changed the text. Approving sends your version."
                   : "Approving hands the letter to the Outbox."
-                : `Act as Tom Becker (Claims Manager) to approve. You are ${persona.name}.`}
+                : `Switch your role to Claims Manager to approve. Your role: ${persona.title}.`}
           </span>
           <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
             <Button variant="ghost" disabled={!actionable || !canApprove || pending} onClick={() => setRejectOpen(true)}>
@@ -358,7 +358,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
               transition={{ duration: 0.22, delay: 0.1, ease: [0.2, 0, 0, 1] }}
             >
               <CircleCheck className="size-10 text-success" strokeWidth={1.5} aria-hidden="true" />
-              <div className="font-heading text-xl font-semibold">Approved by {persona.name}</div>
+              <div className="font-heading text-xl font-semibold">Approved by the {persona.title}</div>
               <div className="text-sm text-muted-foreground">Queued in the Outbox. Replies are tracked on the case.</div>
             </motion.div>
           </motion.div>

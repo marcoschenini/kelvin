@@ -176,7 +176,7 @@ export function CaseWorkflow({
               Reject batch
             </Button>
           </div>
-          {!ROLE_CAN[persona.role].qaGate && <span className="text-xs text-muted-foreground">Act as Elena Weber (QA Lead) to decide.</span>}
+          {!ROLE_CAN[persona.role].qaGate && <span className="text-xs text-muted-foreground">Switch your role to QA Lead to decide.</span>}
         </div>
       )}
 
@@ -203,7 +203,7 @@ export function CaseWorkflow({
               Accept {formatEUR(negotiation.offerEur)}
             </Button>
           </div>
-          {!isManager && <p className="text-xs text-muted-foreground">Act as Tom Becker (Claims Manager) to decide.</p>}
+          {!isManager && <p className="text-xs text-muted-foreground">Switch your role to Claims Manager to decide.</p>}
         </div>
       )}
 

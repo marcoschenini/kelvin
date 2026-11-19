@@ -1,6 +1,8 @@
 /**
- * The demo has no login. An "Acting as" switcher picks one of these personas so
- * every human decision is written to the audit log with a name and a role.
+ * The demo has no login. A role switcher (top right) picks one of these personas so
+ * every human decision is written to the audit log with a name and a role. The UI
+ * shows only the role (title, QA / CM / LA badge); the names stay in the audit trail
+ * and the letter sign-off.
  */
 
 export type PersonaRole = "qa" | "manager" | "analyst";

@@ -211,9 +211,9 @@ export function nextAction(ctx: ChatContext): Answer {
   const approved = ctx.drafts.filter((d) => d.status === "approved");
   const lines = [`Status: **${statusLabel(s)}**. ${STATUS_META[s as CaseStatus]?.description ?? ""}.`];
   if (s === "new" || s === "investigating") lines.push("Kelvin is (or will be) analysing the case: nothing for you to do yet.");
-  if (s === "awaiting_qa") lines.push("A QA lead must decide whether the product is still usable (switch persona to Elena Weber, QA Lead).");
+  if (s === "awaiting_qa") lines.push("A QA lead must decide whether the product is still usable (switch your role to QA Lead, top right).");
   if (waiting.length) {
-    lines.push("Waiting for a manager's approval (Tom Becker):");
+    lines.push("Waiting for the claims manager's approval:");
     waiting.forEach((d) => lines.push(`- ${d.kind.replace(/_/g, " ")} to ${d.recipientName}${d.amountEur ? `, ${formatEUR(d.amountEur)}` : ""}`));
   }
   if (approved.length) lines.push(`${approved.length} approved message(s) ready to send: Kelvin sends them on the next follow-up.`);
@@ -305,7 +305,7 @@ export function actionRequest(ctx: ChatContext): Answer {
     text: [
       "I can't do that: Ask Kelvin only reads and explains, it never drafts, approves or sends.",
       "- Kelvin's analysis drafts the letters and notices by itself.",
-      "- The claims manager (Tom Becker) approves or rejects each one on its approval screen (Next action → Review and approve).",
+      "- The claims manager approves or rejects each one on its approval screen (Next action → Review and approve; switch your role to Claims Manager, top right).",
       "- Once approved, Kelvin sends it through the Outbox and follows up on the reply.",
       pending.text,
     ].join("\n"),
