@@ -19,7 +19,7 @@ const ts = (name: string) => timestamp(name, { withTimezone: true, mode: "date" 
 
 /* ------------------------------------------------------------------ cases */
 
-export type CaseScenario = "demo" | "eval" | "upload";
+export type CaseScenario = "demo" | "eval" | "upload" | "live";
 
 export const cases = pgTable(
   "cases",

@@ -5,6 +5,7 @@ import { agentRuns, agentSteps, auditEvents, cases, decisions, documents, drafts
 import { isClosed } from "@/lib/domain/case-status";
 import type { CaseRecord } from "@/lib/case/record";
 import type { RecoveryRoute } from "@/lib/domain/parties";
+import { syncLiveCases } from "@/lib/live/live-cases";
 import { daysUntil } from "@/lib/format";
 import { DEFAULT_RULES } from "@/lib/rules/config";
 import type { CaseOutcome } from "@/lib/rules/types";
@@ -19,10 +20,11 @@ function withDaysLeft(c: CaseRow, now: Date): CaseListItem {
   return { ...c, daysLeft: c.nearestDeadlineAt && !isClosed(c.status) ? daysUntil(c.nearestDeadlineAt, now) : null };
 }
 
-const SCENARIO_ORDER = { demo: 0, upload: 1, eval: 2 } as const;
+const SCENARIO_ORDER = { demo: 0, live: 1, upload: 1, eval: 2 } as const;
 
 export async function listCases(opts: { includeEval?: boolean } = {}): Promise<CaseListItem[]> {
   const db = await getDb();
+  await syncLiveCases(db);
   const rows = await db.select().from(cases).orderBy(asc(cases.code), desc(cases.createdAt));
   const now = new Date();
   return rows

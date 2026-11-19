@@ -206,6 +206,7 @@ export type LiveStatus = "in_range" | "at_risk" | "excursion";
 
 export interface LiveState {
   ship: FleetShipment;
+  tripIndex: number;
   /** false between trips (delivered, next trip not started) */
   inTransit: boolean;
   tripStart: number;
@@ -281,6 +282,7 @@ export function simulate(ship: FleetShipment, now: number): LiveState {
   const status: LiveStatus = peak > 8 ? "excursion" : tempC >= 7.3 || peak >= 7.5 ? "at_risk" : "in_range";
   return {
     ship,
+    tripIndex,
     inTransit,
     tripStart,
     eta: tripStart + ship.tripHours * HOUR,
