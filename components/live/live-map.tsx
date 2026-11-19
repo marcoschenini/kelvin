@@ -109,12 +109,6 @@ function Sparkline({ points, now }: { points: { t: number; c: number }[]; now: n
   );
 }
 
-/** Trip number of a state (LiveState.tripIndex once the backend contract lands; same formula otherwise). */
-function tripOf(s: LiveState, now: number): number {
-  const t = (s as LiveState & { tripIndex?: number }).tripIndex;
-  return t ?? Math.floor((now / 3_600_000 + s.ship.offsetHours) / s.ship.cycleHours);
-}
-
 function Detail({ s, now, caseId, onClose }: { s: LiveState; now: number; caseId?: string; onClose: () => void }) {
   const ship = s.ship;
   const pts = useMemo(() => history(s, now), [s, now]);
@@ -180,13 +174,17 @@ function Detail({ s, now, caseId, onClose }: { s: LiveState; now: number; caseId
           <p className="mt-1 text-muted-foreground">
             The logger left 2–8 °C on this trip. Kelvin opens a case when this shipment is delivered.
           </p>
-          {caseId && (
-            <Link href={`/cases/${caseId}`} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-ai-fg hover:underline">
-              Open case
-              <ArrowRight className="size-3.5" aria-hidden="true" />
-            </Link>
-          )}
         </div>
+      )}
+
+      {caseId && (
+        <p className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+          Last delivery opened a case ·
+          <Link href={`/cases/${caseId}`} className="inline-flex items-center gap-1 font-medium text-ai-fg hover:underline">
+            Open case
+            <ArrowRight className="size-3.5" aria-hidden="true" />
+          </Link>
+        </p>
       )}
 
       <dl className="num grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
@@ -246,7 +244,7 @@ export function LiveMap() {
     for (const cur of allStates) {
       const before = prev.get(cur.ship.id);
       if (!before || !before.inTransit || cur.inTransit || cur.status !== "excursion") continue;
-      const tripIndex = tripOf(before, now);
+      const tripIndex = before.tripIndex;
       const key = `${cur.ship.id}:${tripIndex}`;
       if (sentKeys.current.has(key)) continue;
       sentKeys.current.add(key);
@@ -258,7 +256,7 @@ export function LiveMap() {
         .then(async (res) => {
           if (!res.ok) return;
           const { caseId } = (await res.json()) as { caseId: string; created: boolean };
-          setCases((c) => ({ ...c, [key]: caseId }));
+          setCases((c) => ({ ...c, [cur.ship.id]: caseId }));
           toast(`${cur.ship.shipmentRef} delivered with an excursion`, {
             description: "Case opened in Cases",
             action: { label: "Open case", onClick: () => router.push(`/cases/${caseId}`) },
@@ -558,7 +556,7 @@ export function LiveMap() {
         <aside className="surface p-4">
           {sel ? (
               <div key="detail" className="animate-in fade-in-0 slide-in-from-right-2 duration-200">
-                <Detail s={sel} now={now} caseId={cases[`${sel.ship.id}:${tripOf(sel, now)}`]} onClose={() => setSelected(null)} />
+                <Detail s={sel} now={now} caseId={cases[sel.ship.id]} onClose={() => setSelected(null)} />
               </div>
             ) : (
               <div key="list" className="animate-in fade-in-0 slide-in-from-left-2 duration-200">
