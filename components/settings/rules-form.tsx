@@ -16,7 +16,7 @@ export function RulesForm({ rules }: { rules: RulesConfig }) {
     else if (state?.error) toast.error("Not saved", { description: state.error });
   }, [state]);
   return (
-    <form action={action} className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <form action={action} className="grid grid-cols-2 items-end gap-4 xl:grid-cols-4">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="eurPerSdr">EUR per SDR</Label>
         <Input id="eurPerSdr" name="eurPerSdr" type="number" step="0.0001" defaultValue={rules.sdr.eurPerSdr} className="num" />
@@ -26,14 +26,14 @@ export function RulesForm({ rules }: { rules: RulesConfig }) {
         <Input id="sdrAsOf" name="sdrAsOf" type="date" defaultValue={rules.sdr.asOf} className="num" />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="earlyNoticeThresholdDays">Early notice when ≤ N days left</Label>
+        <Label htmlFor="earlyNoticeThresholdDays">Early notice (days left)</Label>
         <Input id="earlyNoticeThresholdDays" name="earlyNoticeThresholdDays" type="number" min={0} max={30} defaultValue={rules.earlyNoticeThresholdDays} className="num" />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="atRiskDays">Red when &lt; N days left</Label>
+        <Label htmlFor="atRiskDays">At risk below (days)</Label>
         <Input id="atRiskDays" name="atRiskDays" type="number" min={0} max={30} defaultValue={rules.atRiskDays} className="num" />
       </div>
-      <p className="col-span-2 text-xs text-muted-foreground lg:col-span-3">
+      <p className="col-span-2 self-start text-xs text-muted-foreground xl:col-span-3">
         Montreal: {rules.montreal.sdrPerKg} SDR/kg (since {rules.montreal.limitEffectiveFrom}), damage notice {rules.montreal.damageNoticeDays} days, delay{" "}
         {rules.montreal.delayNoticeDays} days, time bar {rules.montreal.timeBarYears} years. Rate source: {rules.sdr.source}.
       </p>
