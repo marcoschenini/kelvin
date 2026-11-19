@@ -16,10 +16,15 @@ import { cn } from "@/lib/utils";
  */
 const IMG = { window: "/welcome/window.webp", sky: "/welcome/sky.webp", clouds: "/welcome/clouds.webp" };
 /** Centre of the left cabin window inside window.webp (fractions of width/height): the zoom origin. */
-const WINDOW_ORIGIN = "37% 51%";
+const WINDOW_ORIGIN = "36.5% 53%";
 
-/** A 16:9 layer that always covers the viewport, so the zoom origin stays on the same window at any screen ratio. */
-const COVER = "absolute top-1/2 left-1/2 aspect-video w-[max(100vw,177.78vh)] -translate-x-1/2 -translate-y-1/2";
+/**
+ * A 16:9 layer that always covers the viewport, so the zoom origin stays on the same window at any screen ratio.
+ * Horizontally it slides (within the image) to keep that window as close to the centre as the edges allow,
+ * which matters on tall phone screens where the cover crop would otherwise cut it off.
+ */
+const WINDOW_LAYER = "absolute top-1/2 aspect-video w-[max(100vw,177.78vh)] -translate-y-1/2";
+const WINDOW_LEFT = "clamp(calc(100vw - max(100vw, 177.78vh)), calc(50vw - 0.365 * max(100vw, 177.78vh)), 0px)";
 
 function Cta({ className }: { className?: string }) {
   return (
@@ -80,13 +85,13 @@ export function WelcomeFlight() {
       <div ref={ref} className="relative h-[520vh]">
         <div className="sticky top-0 h-dvh overflow-hidden bg-mascot text-white">
           {/* 1. cabin window: zooms until we pass through it */}
-          <motion.div className={COVER} style={{ scale: s.zoom, transformOrigin: WINDOW_ORIGIN }}>
+          <motion.div className={WINDOW_LAYER} style={{ scale: s.zoom, transformOrigin: WINDOW_ORIGIN, left: WINDOW_LEFT }}>
             <Image src={IMG.window} alt="" fill priority sizes="100vw" className="object-cover" />
           </motion.div>
-          <motion.div style={{ opacity: s.sideOut, x: s.leftX }} className="absolute top-[12%] left-[5%] max-w-[22rem]">
+          <motion.div style={{ opacity: s.sideOut, x: s.leftX }} className="absolute top-[12%] left-[5%] max-w-[22rem] [text-shadow:0_2px_16px_rgb(0_0_0/0.5)]">
             <Headline>Cold chain, in motion.</Headline>
           </motion.div>
-          <motion.div style={{ opacity: s.sideOut, x: s.rightX }} className="absolute right-[5%] bottom-[12%] max-w-[22rem] text-right">
+          <motion.div style={{ opacity: s.sideOut, x: s.rightX }} className="absolute right-[5%] bottom-[12%] max-w-[22rem] text-right [text-shadow:0_2px_16px_rgb(0_0_0/0.5)]">
             <Headline>Claims, recovered.</Headline>
           </motion.div>
 
@@ -95,7 +100,7 @@ export function WelcomeFlight() {
             <Image src={IMG.sky} alt="" fill sizes="100vw" className="object-cover" />
           </motion.div>
           <motion.div style={{ opacity: s.skyText }} className="absolute inset-x-0 top-[22%] mx-auto max-w-2xl px-6 text-center">
-            <p className="font-heading text-[clamp(1.4rem,3vw,2.25rem)] leading-snug">
+            <p className="font-heading text-[clamp(1.4rem,3vw,2.25rem)] leading-snug [text-shadow:0_1px_12px_rgb(14_27_51/0.55)]">
               <span className="tracking-[0.18em] uppercase">Kelvin</span> follows every cold-chain shipment, finds who held the cargo when it warmed
               up, and prepares the claim for your approval.
             </p>
@@ -103,7 +108,7 @@ export function WelcomeFlight() {
 
           {/* 3. the clouds rise and dissolve into the page */}
           <motion.div className="absolute inset-0" style={{ y: s.cloudsY }}>
-            <Image src={IMG.clouds} alt="" fill sizes="100vw" className="object-cover brightness-110" />
+            <Image src={IMG.clouds} alt="" fill sizes="100vw" className="object-cover brightness-110 [mask-image:linear-gradient(to_bottom,transparent,black_35%)]" />
           </motion.div>
           <motion.div className="absolute inset-0 bg-background" style={{ opacity: s.cream }} />
 
