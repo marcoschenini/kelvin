@@ -93,7 +93,7 @@ export function EmptyState({
   return (
     <div className={cn("flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center", className)}>
       <IconTile icon={Icon} tone="neutral" size="lg" />
-      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
+      <h3 className="mt-4 font-heading text-[1.35rem] font-semibold">{title}</h3>
       {description && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
@@ -119,7 +119,7 @@ export function SectionHeader({
     <div className={cn("flex items-start justify-between gap-4", className)}>
       <div className="min-w-0">
         {eyebrow && <div className="eyebrow mb-1 text-muted-foreground">{eyebrow}</div>}
-        <h2 className="text-[1.2rem] leading-tight font-semibold text-foreground">{title}</h2>
+        <h2 className="font-heading text-[1.5rem] leading-tight font-semibold tracking-[-0.01em] text-foreground">{title}</h2>
         {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
       {action}
