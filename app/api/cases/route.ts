@@ -16,6 +16,6 @@ export async function POST(req: Request) {
   const jar = await cookies();
   const persona = getPersona(jar.get(PERSONA_COOKIE)?.value);
   const loaded = await Promise.all(files.map(async (f) => ({ name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) })));
-  const result = await createCaseFromUpload(loaded, persona);
+  const result = await createCaseFromUpload(loaded, persona, persona.id);
   return Response.json(result, { status: 201 });
 }

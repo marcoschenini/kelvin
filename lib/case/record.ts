@@ -31,6 +31,14 @@ export interface ExcursionWindow {
   citationId: string;
 }
 
+/**
+ * End of an excursion as shown to users: start + minutes (each reading covers one logger interval).
+ * The stored `end` stays the last reading's timestamp (used for custody attribution).
+ */
+export function excursionShownEnd(e: { start: string; minutes: number }): string {
+  return new Date(Date.parse(e.start) + e.minutes * 60_000).toISOString();
+}
+
 export interface CustodySegmentRecord {
   seq: number;
   role: CustodyParty;

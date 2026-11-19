@@ -2,7 +2,7 @@ import "server-only";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import type { Citation } from "@/lib/domain/citation";
 import { formatDate, formatDateTime, formatDuration, formatEUR, formatTemp } from "@/lib/format";
-import type { CaseRecord } from "@/lib/case/record";
+import { excursionShownEnd, type CaseRecord } from "@/lib/case/record";
 import { A4, DocBuilder, winAnsi } from "@/seed/pdf/kit";
 
 /**
@@ -46,7 +46,7 @@ export async function buildEvidencePack(input: EvidenceInput): Promise<{ bytes: 
   d.kv([
     ["Air waybill", `${r.shipment?.awbNumber ?? "-"}  (${r.shipment?.origin ?? ""} -> ${r.shipment?.destination ?? ""}, ${r.shipment?.flight ?? ""})`],
     ["Value / weight", `${r.shipment?.valueEur != null ? formatEUR(r.shipment.valueEur) : "-"} / ${r.shipment?.weightKg ?? "-"} kg, declared value for carriage ${r.shipment?.declaredValueEur != null ? formatEUR(r.shipment.declaredValueEur) : "NVD"}`],
-    ["Excursion", ex ? `${formatDuration(ex.minutes)} above 8 °C, peak ${formatTemp(ex.peakC)}, ${formatDateTime(ex.start)}-${formatDateTime(ex.end)} UTC [${ex.citationId}]` : "none"],
+    ["Excursion", ex ? `${formatDuration(ex.minutes)} above 8 °C, peak ${formatTemp(ex.peakC)}, ${formatDateTime(ex.start)}-${formatDateTime(excursionShownEnd(ex))} UTC [${ex.citationId}]` : "none"],
     ["Custody at excursion", r.custody?.attribution ? `${r.custody.attribution.custodian} (${r.custody.attribution.role}) - ${r.custody.attribution.location}` : "-"],
     ["QA disposition", r.qa?.status ?? "pending"],
     ["Recommended route", top ? `${top.route} - ${formatEUR(top.recoverableEur)}` : "-"],

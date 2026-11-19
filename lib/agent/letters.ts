@@ -2,7 +2,7 @@ import type { CaseRow } from "@/lib/db/schema";
 import type { Citation } from "@/lib/domain/citation";
 import type { RecoveryRoute } from "@/lib/domain/parties";
 import { formatDate, formatDuration, formatEUR, formatTemp, formatTime } from "@/lib/format";
-import type { CaseRecord } from "@/lib/case/record";
+import { excursionShownEnd, type CaseRecord } from "@/lib/case/record";
 import type { Deadline, RankedRoute } from "@/lib/rules/types";
 import type { Counterparty } from "./parties";
 
@@ -48,7 +48,7 @@ function facts(ctx: LetterContext) {
   );
   if (ex) {
     parts.push(
-      `The accompanying data logger recorded a temperature excursion outside the required +2 °C to +8 °C: ${formatDuration(ex.minutes)} above 8 °C ${span(ex.start, ex.end)}, with a peak of ${formatTemp(ex.peakC)}.${t(ex.citationId)}`,
+      `The accompanying data logger recorded a temperature excursion outside the required +2 °C to +8 °C: ${formatDuration(ex.minutes)} above 8 °C ${span(ex.start, excursionShownEnd(ex))}, with a peak of ${formatTemp(ex.peakC)}.${t(ex.citationId)}`,
     );
   }
   if (attr) {

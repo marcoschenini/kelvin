@@ -127,6 +127,8 @@ export async function recordApproval(
   if (draft.status !== "awaiting_approval") throw new GateError(`Draft is ${draft.status}, not awaiting approval.`);
   if (args.decision === "rejected" && !args.reason?.trim()) throw new GateError("A reason is required to reject.");
   if (args.decision === "approved_with_edits" && !args.editedBody?.trim()) throw new GateError("Edited text is required.");
+  if (args.decision !== "rejected" && !(args.decision === "approved_with_edits" ? (args.editedSubject ?? draft.subject) : draft.subject)?.trim())
+    throw new GateError("The subject line cannot be empty.");
 
   const id = `dec-${nanoid(8)}`;
   const at = new Date();
