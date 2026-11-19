@@ -20,7 +20,7 @@ function kb(bytes: number) {
   return bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function UploadDropzone() {
+export function UploadDropzone({ className }: { className?: string }) {
   const [files, setFiles] = useState<File[]>([]);
   const [over, setOver] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -50,7 +50,7 @@ export function UploadDropzone() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={cn("flex flex-col gap-4", className)}>
       <div
         role="button"
         tabIndex={0}

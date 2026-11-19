@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageContainer, PageHeader } from "@/components/shell/page-header";
 import { DemoCaseCards, type DemoCaseSummary } from "@/components/case/demo-case-cards";
+import { UploadChecklist } from "@/components/case/upload-checklist";
 import { UploadDropzone } from "@/components/case/upload-dropzone";
 import { DEMO_CASES } from "@/seed/cases/demo";
 
@@ -37,9 +38,12 @@ export default function NewCasePage() {
           <h2 id="upload-heading" className="text-[1.2rem] font-semibold">
             Upload files
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">Logger CSV, air waybill, contract, policy and invoice.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Drop all the shipment files at once; each one is recognised on upload.</p>
         </div>
-        <UploadDropzone />
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-12">
+          <UploadDropzone className="lg:col-span-7" />
+          <UploadChecklist className="lg:col-span-5" />
+        </div>
       </section>
 
       <section id="demo" aria-labelledby="demo-heading" className="flex scroll-mt-24 flex-col gap-3">
