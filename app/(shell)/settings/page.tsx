@@ -30,7 +30,7 @@ async function ModelSection() {
   const model = process.env.AI_MODEL ?? (provider === "openrouter" ? `anthropic/${DEFAULT_MODEL}` : DEFAULT_MODEL);
   return (
     <div className="flex flex-col gap-4">
-      <dl className="num grid grid-cols-2 gap-4 text-sm lg:grid-cols-4">
+      <dl className="num grid grid-cols-2 gap-4 text-sm xl:grid-cols-4">
       <div>
         <dt className="eyebrow text-[10.5px] text-muted-foreground">Provider</dt>
         <dd className="mt-1 font-medium">{provider}</dd>
