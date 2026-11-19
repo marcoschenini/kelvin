@@ -52,7 +52,7 @@ export function assessStability(
       ...base,
       verdict: "damaged",
       basis: "beyond_allowance",
-      reasons: [`${measured}, beyond ${limits}: ${which.join(" and ")}.`, "The product can no longer be shown to be within its stability data, so the claim path applies."],
+      reasons: [`${which.join(" and ").replace(/^t/, "T")}.`, "The product can no longer be shown to be within its stability data, so the claim path applies."],
     };
   }
   if (peakNear || minNear) {

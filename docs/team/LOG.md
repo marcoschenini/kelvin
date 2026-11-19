@@ -65,6 +65,12 @@ Newest first. One entry per request: date — request — who did what — verdi
 - **Environment notes (cloud session only):** worktree isolation is denied by this session's policy, so agents ran in the main checkout; `qa-reviewer` and `ai-engineer` were created after the session's agent list loaded, so they ran from their definition files via a general agent. First push refused (Claude GitHub App not yet installed on `marcoschenini/kelvin`).
 - **Outcome:** team configured and tested; next step is backlog item 1 (Replay engine).
 
+## 2026-11-19 — Classmate bug reports, unslop, UX critique
+
+- **Request (Vito):** fix four bugs reported by classmates (excursion duration, upload owner, empty subject, eval double-submit); earlier the same day: unslop the UI copy (PR #13) and three UX fixes from a design critique (PR #14).
+- **Chief:** verified each bug in the code first (all four real), then ran `backend` (duration display, upload owner, server subject guard), `frontend` (approval validation, eval click guard, honest banner) and `ai-engineer` (eval single-run lock, 409, stale cleanup) in parallel worktrees; merged into `feature/classmate-bugs`.
+- **QA (`qa-reviewer`):** PASS WITH NOTES on all three branches and on their combined merge — lint, typecheck, 175 tests, build (fonts mocked), eval 27/27, demo A/B/C unchanged. Minor notes fixed by the Chief: chart band no longer disappears when an excursion reaches the end of the log; PDF chart band uses the shown end; double full stop in the narration; badges use the rules from Settings.
+- **Open:** eval lock is per process (Supabase with several instances could still race; next step a partial unique index); Ask Kelvin still uses stored `daysLeft`; `demo/recordings/*.json` hold the old narration (regenerate before M7 Replay); CLAUDE.md and the brief still say 24 eval cases, the set has 27.
 ## 2026-11-19 — Top navigation and new type
 
 - **Request (Vito):** fonts like lilly.com/at and a horizontal menu on top instead of the left sidebar; free font stand-ins and a user menu chosen by Vito.

@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 type Tone = "success" | "warning" | "neutral" | "brand";
 
 const ROUTE_OBJECT: Record<RecoveryRoute, string> = {
-  carrier: "the airline",
+  carrier: "the carrier",
   forwarder: "the forwarder",
   insurer: "the cargo insurer",
 };

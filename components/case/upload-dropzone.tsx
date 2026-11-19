@@ -77,8 +77,7 @@ export function UploadDropzone() {
         </span>
         <p className="mt-4 text-[15px] font-semibold">Drop the case files here</p>
         <p className="mt-1 max-w-md text-sm text-muted-foreground">
-          Logger CSV, air waybill, forwarder contract, insurance policy, commercial invoice, handling log (JSON) and emails (.eml). Kelvin
-          sorts them automatically.
+          Logger CSV, air waybill, forwarder contract, insurance policy, commercial invoice, handling log (JSON) and emails (.eml). Each file is classified on upload.
         </p>
         <input
           ref={input}

@@ -1,4 +1,4 @@
-import { formatEUR } from "@/lib/format";
+import { formatDate, formatEUR } from "@/lib/format";
 import type { RecoveryRoute } from "@/lib/domain/parties";
 import type { RulesConfig } from "./config";
 import type { Deadline, LiabilityInput, RankedRoute, RouteLiability } from "./types";
@@ -45,7 +45,7 @@ export function rankRoutes(
     const blockers = [...r.blockers];
     if (notice && notice.status === "overdue") {
       p = 0;
-      blockers.push(`Notice period lapsed (${-notice.daysLeft} days ago): ${notice.basis}.`);
+      blockers.push(`Notice period lapsed on ${formatDate(notice.dueAt)}: ${notice.basis}.`);
       reasons.push("Notice deadline has passed");
     }
     const expectedEur = Math.round(r.recoverableEur * p);

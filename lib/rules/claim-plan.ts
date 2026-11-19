@@ -17,7 +17,7 @@ export function buildClaimPlan(
   const primary = ranked.find((r) => r.recommended);
   if (!primary || primary.recoverableEur <= 0) return [];
   const plan: ClaimPlanItem[] = [
-    { route: primary.route, role: "primary", amountEur: primary.recoverableEur, reason: `Recommended route: ${primary.reasons[0] ?? "highest expected recovery"}.`, order: 1 },
+    { route: primary.route, role: "primary", amountEur: primary.recoverableEur, reason: `${primary.reasons[0] ?? "Highest expected recovery"}.`, order: 1 },
   ];
   if (primary.route === "insurer" && input.custodyAtExcursion) {
     const secRoute = ROUTE_OF_CUSTODY[input.custodyAtExcursion];

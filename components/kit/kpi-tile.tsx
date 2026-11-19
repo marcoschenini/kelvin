@@ -10,6 +10,7 @@ export function KpiTile({
   format = "number",
   hint,
   emphasis,
+  compact,
   className,
 }: {
   label: string;
@@ -22,13 +23,15 @@ export function KpiTile({
   tone?: Tone;
   /** Colours the value itself, e.g. amber when deadlines are at risk. */
   emphasis?: "danger" | "success" | "warning" | "brand";
+  /** Smaller figure and padding, for a single row above a list. */
+  compact?: boolean;
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col rounded-xl border border-border bg-card px-5 pt-4 pb-5", className)}>
+    <div className={cn("flex flex-col rounded-xl border border-border bg-card px-5 pt-4 pb-5", compact && "px-4 pt-3 pb-3.5", className)}>
       <span className="eyebrow text-muted-foreground">{label}</span>
       {value == null ? (
-        <span className="figure mt-3 block text-[2.125rem] leading-none font-semibold text-subtle" aria-label="Not available yet">
+        <span className={cn("figure mt-3 block text-[2.125rem] leading-none font-semibold text-subtle", compact && "mt-2 text-[1.625rem]")} aria-label="Not available yet">
           —
         </span>
       ) : (
@@ -37,6 +40,7 @@ export function KpiTile({
           format={format}
           className={cn(
             "figure mt-3 block text-[2.125rem] leading-none font-semibold text-foreground",
+            compact && "mt-2 text-[1.625rem]",
             emphasis === "danger" && "text-danger-fg",
             emphasis === "warning" && "text-warning-fg",
             emphasis === "success" && "text-success-fg",
@@ -44,7 +48,7 @@ export function KpiTile({
           )}
         />
       )}
-      {hint && <div className="mt-2.5 text-xs text-muted-foreground">{hint}</div>}
+      {hint && <div className={cn("mt-2.5 text-xs text-muted-foreground", compact && "mt-1.5")}>{hint}</div>}
     </div>
   );
 }

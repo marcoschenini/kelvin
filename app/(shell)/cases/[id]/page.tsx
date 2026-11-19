@@ -1,3 +1,5 @@
+import { withCurrentDays } from "@/lib/rules/deadlines";
+import { loadRules } from "@/lib/rules/load";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -120,7 +122,7 @@ function Fact({ label, children, className }: { label: string; children: React.R
   return (
     <div className={cn("min-w-0", className)}>
       <dt className="eyebrow text-[10.5px] text-muted-foreground">{label}</dt>
-      <dd className="num mt-1.5 truncate text-[14px] font-medium text-foreground">{children}</dd>
+      <dd className="num mt-1.5 text-[14px] font-medium break-words text-foreground">{children}</dd>
     </div>
   );
 }
@@ -141,7 +143,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
     listOutbox(id),
     loadReadings(id),
   ]);
-  const record = c.record as CaseRecord;
+  const record = withCurrentDays(c.record as CaseRecord, new Date(), await loadRules(await getDb()));
   const qaRow = decisionRows.find((d) => d.gate === "qa");
   const qa: "pending" | "released" | "rejected" = qaRow ? (qaRow.decision === "released" ? "released" : "rejected") : (record.qa?.status ?? "pending");
   const journey = buildJourney(record);
@@ -235,11 +237,11 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
                 {...chatModelInfo()}
               />
             </div>
-            <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4 lg:grid-cols-7 lg:gap-x-0 lg:divide-x lg:divide-border [&>div]:lg:px-5 [&>div:first-child]:lg:pl-0">
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4 xl:grid-cols-7 xl:gap-x-0 xl:divide-x xl:divide-border [&>div]:xl:px-5 [&>div:first-child]:xl:pl-0">
               <Fact label="Route">
                 <RouteLabel origin={c.origin} destination={c.destination} />
               </Fact>
-              <Fact label="Product" className="lg:col-span-2">
+              <Fact label="Product" className="xl:col-span-2">
                 {c.product ?? "—"}
               </Fact>
               <Fact label="Value">{c.valueEur != null ? formatEUR(c.valueEur) : "—"}</Fact>

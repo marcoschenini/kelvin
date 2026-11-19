@@ -35,7 +35,7 @@ export function protectiveNoticesNeeded(
       route: r.route,
       deadlineId: d.id,
       daysLeft: d.daysLeft,
-      reason: `${d.basis}: ${d.daysLeft} day(s) left and ${qa === "pending" ? "QA has not decided yet" : "required data is still missing"}.`,
+      reason: `${d.basis}: ${d.daysLeft} ${d.daysLeft === 1 ? "day" : "days"} left and ${qa === "pending" ? "QA has not decided yet" : "required data is still missing"}.`,
     });
   }
   return out;
