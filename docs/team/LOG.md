@@ -76,3 +76,9 @@ Newest first. One entry per request: date — request — who did what — verdi
 - **Request (Vito):** fonts like lilly.com/at and a horizontal menu on top instead of the left sidebar; free font stand-ins and a user menu chosen by Vito.
 - **Chief:** done in the main session (one area, frontend only); `qa-reviewer` PASS WITH NOTES. Fixed from QA: legal note always visible again (page footer, BRIEF requirement), approval evidence panel and `#demo` anchor no longer hidden under the 64 px header, stale font names in the verify skill.
 - **Open:** real font rendering checked only on the Vercel preview (fonts mocked in the sandbox).
+
+## 2026-11-19 — Accessibility fixes (WCAG 2.1 AA audit)
+
+- **Request (Vito):** accessibility review, then fix everything. Audit: axe-core on a local production build (9 pages × light/dark + approval), keyboard tab order, 390 px mobile, 200% zoom.
+- **Fixed:** upload file input no longer unlabelled or nested in the drop zone; custody chain scrollable by keyboard; visible focus ring on case-list rows; live-map filter counts readable (were 3.08:1); Settings `dl` lists valid; mobile menu button 44 px. Re-scan: no axe violations on any scanned page.
+- **Not verified:** real screen readers (VoiceOver/NVDA); text alternatives of the temperature chart and the maps.

@@ -79,16 +79,19 @@ export function UploadDropzone() {
         <p className="mt-1 max-w-md text-sm text-muted-foreground">
           Logger CSV, air waybill, forwarder contract, insurance policy, commercial invoice, handling log (JSON) and emails (.eml). Each file is classified on upload.
         </p>
-        <input
-          ref={input}
-          type="file"
-          multiple
-          accept=".csv,.json,.pdf,.eml,.txt"
-          className="sr-only"
-          tabIndex={-1}
-          onChange={(e) => add(e.target.files)}
-        />
       </div>
+      {/* Outside the drop zone (no nested controls); the zone above is the labelled control for assistive tech. */}
+      <input
+        ref={input}
+        type="file"
+        multiple
+        accept=".csv,.json,.pdf,.eml,.txt"
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden="true"
+        aria-label="Case files"
+        onChange={(e) => add(e.target.files)}
+      />
 
       <AnimatePresence initial={false}>
         {files.length > 0 && (

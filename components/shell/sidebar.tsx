@@ -82,7 +82,7 @@ export function Sidebar() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className={cn("-ml-2 grid size-10 place-items-center rounded-md text-muted-foreground hover:bg-sidebar-accent hover:text-foreground lg:hidden", focusRing)}
+          className={cn("-ml-2 grid size-11 place-items-center rounded-md text-muted-foreground hover:bg-sidebar-accent hover:text-foreground lg:hidden", focusRing)}
           aria-label="Open menu"
         >
           <Menu className="size-5" />
