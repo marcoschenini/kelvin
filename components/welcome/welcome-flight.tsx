@@ -53,6 +53,8 @@ function useHydrated() {
 function useStage(progress: MotionValue<number>) {
   return {
     zoom: useTransform(progress, [0, 0.32], [1, 7.5]),
+    // Once the sky fully covers it, the (huge) scaled window layer is dropped so the browser stops painting it.
+    windowVisibility: useTransform(progress, (v) => (v < 0.33 ? "visible" : "hidden")),
     sideOut: useTransform(progress, [0, 0.14], [1, 0]),
     leftX: useTransform(progress, [0, 0.2], ["0vw", "-12vw"]),
     rightX: useTransform(progress, [0, 0.2], ["0vw", "12vw"]),
@@ -102,7 +104,10 @@ export function WelcomeFlight() {
       <div ref={ref} className="relative h-[520vh]">
         <div className="sticky top-0 h-dvh overflow-hidden bg-mascot text-white">
           {/* 1. cabin window: zooms until we pass through it */}
-          <motion.div className={WINDOW_LAYER} style={{ scale: s.zoom, transformOrigin: WINDOW_ORIGIN, left: WINDOW_LEFT }}>
+          <motion.div
+            className={cn(WINDOW_LAYER, "will-change-transform")}
+            style={{ scale: s.zoom, transformOrigin: WINDOW_ORIGIN, left: WINDOW_LEFT, visibility: s.windowVisibility }}
+          >
             <Image src={IMG.window} alt="" fill priority sizes="100vw" className="object-cover" />
           </motion.div>
           <motion.div style={{ opacity: s.sideOut, x: s.leftX }} className="absolute top-[12%] left-[5%] max-w-[22rem] [text-shadow:0_2px_16px_rgb(0_0_0/0.5)]">
