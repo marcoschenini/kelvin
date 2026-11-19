@@ -76,7 +76,7 @@ export function computeDeadlines(input: DeadlineInput, cfg: RulesConfig): Deadli
       id: "contract_time_bar",
       route: "forwarder",
       label: "Legal proceedings against the forwarder",
-      basis: `Forwarder contract time bar: ${input.contract.timeBarYears} year(s) from delivery`,
+      basis: `Forwarder contract time bar: ${input.contract.timeBarYears} ${input.contract.timeBarYears === 1 ? "year" : "years"} from delivery`,
       dueAt: addYears(input.deliveredAt, input.contract.timeBarYears).toISOString(),
       windowDays: 365 * input.contract.timeBarYears,
       kind: "time_bar",
@@ -103,4 +103,27 @@ export function nearestOpenDeadline(deadlines: Deadline[], routes?: Set<string>)
       .filter((d) => d.kind === "notice" && d.daysLeft >= 0 && (!routes || (d.route && routes.has(d.route))))
       .sort((a, b) => a.daysLeft - b.daysLeft)[0] ?? null
   );
+}
+
+type Dated = { dueAt: Date | string; daysLeft: number; status?: Deadline["status"] };
+
+/**
+ * Deadlines stored on a case record carry `daysLeft` as of the analysis run.
+ * Screens call this to count from today instead, so every badge on a page
+ * agrees with the dates next to it.
+ */
+export function withCurrentDays<R extends { deadlines?: Dated[] | null; ranking?: { noticeDeadline?: Dated | null }[] | null }>(
+  record: R,
+  now: Date,
+  cfg: Pick<RulesConfig, "atRiskDays">,
+): R {
+  const fresh = <D extends Dated>(d: D): D => {
+    const daysLeft = daysUntil(d.dueAt, now);
+    return d.status ? { ...d, daysLeft, status: status(daysLeft, cfg as RulesConfig) } : { ...d, daysLeft };
+  };
+  return {
+    ...record,
+    deadlines: record.deadlines?.map(fresh) ?? record.deadlines,
+    ranking: record.ranking?.map((r) => (r.noticeDeadline ? { ...r, noticeDeadline: fresh(r.noticeDeadline) } : r)) ?? record.ranking,
+  };
 }
