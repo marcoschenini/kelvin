@@ -67,7 +67,7 @@ function SheetLink({ item, active }: { item: NavItem; active: boolean }) {
 }
 
 /** Horizontal top bar. Below lg the links move into a slide-in menu; the user menu stays in the bar. */
-export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
+export function Sidebar() {
   const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
@@ -96,7 +96,7 @@ export function Sidebar({ publicDemo = false }: { publicDemo?: boolean }) {
           ))}
         </nav>
         <div className="ml-auto">
-          <UserMenu publicDemo={publicDemo} />
+          <UserMenu />
         </div>
       </div>
 

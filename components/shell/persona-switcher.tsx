@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown, Moon, Scale, Sun } from "lucide-react";
+import { Check, ChevronDown, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
@@ -58,8 +58,8 @@ export function PersonaAvatar({ persona, className }: { persona: Persona; classN
   );
 }
 
-/** Top-bar user menu: who you are acting as, persona switch, theme and the legal note. */
-export function UserMenu({ publicDemo = false }: { publicDemo?: boolean }) {
+/** Top-bar user menu: who you are acting as, persona switch and theme. */
+export function UserMenu() {
   const persona = usePersona();
   const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
@@ -104,14 +104,6 @@ export function UserMenu({ publicDemo = false }: { publicDemo?: boolean }) {
           {dark ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}
           {dark ? "Light mode" : "Dark mode"}
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <div className="flex items-start gap-2 px-2 py-1.5 text-[11px] leading-snug text-muted-foreground">
-          <Scale className="mt-px size-3.5 shrink-0" aria-hidden="true" />
-          <span>
-            Decision support only. Not legal advice.
-            {publicDemo && <span className="mt-1 block">Public demo with synthetic data. Cases reset from time to time.</span>}
-          </span>
-        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -219,7 +219,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
         </div>
 
         {/* ---------- evidence ---------- */}
-        <aside aria-label="Evidence" className="flex flex-col gap-4 lg:sticky lg:top-6 lg:col-span-4">
+        <aside aria-label="Evidence" className="flex flex-col gap-4 lg:sticky lg:top-[88px] lg:col-span-4">
           {draft.amountEur != null && (
             <div className="relative overflow-hidden rounded-xl border border-border bg-card p-5">
               <span className="absolute inset-y-0 left-0 w-[3px] bg-brand" aria-hidden="true" />

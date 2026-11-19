@@ -64,3 +64,9 @@ Newest first. One entry per request: date — request — who did what — verdi
   - `qa-reviewer` (Opus): **PASS WITH NOTES** — lint ✓, typecheck ✓ (after `next typegen`), tests 66/66 ✓, eval 24/24 ✓, build not verifiable here (Google Fonts blocked by the sandbox). Findings: M1 gate order (fixed: `kelvin-verify` now runs `npx next typegen` first); m1 `lib/queries/cases.ts:44` hard-codes the at-risk threshold instead of `rules.atRiskDays`; m2 `components/kit/deadline-pill.tsx:10-11` uses red for deadlines that are near but not overdue (conflicts with AGENTS.md) — both added to the backlog, not changed.
 - **Environment notes (cloud session only):** worktree isolation is denied by this session's policy, so agents ran in the main checkout; `qa-reviewer` and `ai-engineer` were created after the session's agent list loaded, so they ran from their definition files via a general agent. First push refused (Claude GitHub App not yet installed on `marcoschenini/kelvin`).
 - **Outcome:** team configured and tested; next step is backlog item 1 (Replay engine).
+
+## 2026-11-19 — Top navigation and new type
+
+- **Request (Vito):** fonts like lilly.com/at and a horizontal menu on top instead of the left sidebar; free font stand-ins and a user menu chosen by Vito.
+- **Chief:** done in the main session (one area, frontend only); `qa-reviewer` PASS WITH NOTES. Fixed from QA: legal note always visible again (page footer, BRIEF requirement), approval evidence panel and `#demo` anchor no longer hidden under the 64 px header, stale font names in the verify skill.
+- **Open:** real font rendering checked only on the Vercel preview (fonts mocked in the sandbox).
