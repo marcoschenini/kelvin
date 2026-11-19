@@ -1,8 +1,15 @@
 import { Suspense } from "react";
-import { Scale } from "lucide-react";
+import Link from "next/link";
+import { KelvinGlyph } from "@/components/brand/logo";
 import { Sidebar } from "@/components/shell/sidebar";
+import { CLIENT } from "@/lib/live/fleet";
 
-const publicDemo = !!process.env.VERCEL || process.env.KELVIN_AUTOSEED === "1";
+const FOOTER_LINKS = [
+  ["/live", "Live shipments"],
+  ["/cases", "Cases"],
+  ["/ask", "Ask Kelvin"],
+  ["/settings", "Settings"],
+] as const;
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -24,13 +31,21 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
         {children}
       </main>
       <footer className="border-t border-border">
-        <p className="mx-auto flex max-w-[1320px] items-start gap-2 px-4 py-4 text-[12px] leading-snug text-muted-foreground sm:px-6 lg:px-10">
-          <Scale className="mt-px size-3.5 shrink-0" aria-hidden="true" />
-          <span>
-            Decision support only. Not legal advice.
-            {publicDemo && " Public demo with synthetic data. Cases reset from time to time."}
+        <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-5 text-[13px] text-muted-foreground sm:px-6 lg:px-10">
+          <span className="flex items-center gap-2.5">
+            <KelvinGlyph variant="bare" className="size-6" />
+            <span>
+              Kelvin · Cold-chain claims recovery for <span className="font-medium text-foreground">{CLIENT}</span>
+            </span>
           </span>
-        </p>
+          <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-1">
+            {FOOTER_LINKS.map(([href, label]) => (
+              <Link key={href} href={href} className="rounded-sm hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </footer>
     </div>
   );

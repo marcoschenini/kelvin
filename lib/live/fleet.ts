@@ -48,7 +48,13 @@ export type Airport = keyof typeof AIRPORTS;
 
 const FORWARDERS = ["NordStar Logistics", "Polder Freight Solutions", "Alpenkühl Logistik", "Harbor & Crane Logistics", "Sakura Cold Express", "Southern Cross Pharma Logistics"];
 const AIRLINES = ["Boreal Air Cargo", "Westwind Cargo Airlines", "Aurora Freight Airlines", "Pacifica Cargo", "Corvus Cargo", "Halcyon Air Freight"];
-const SHIPPERS = ["Rheinfeld Biologics", "Lumen Therapeutics", "Calder Pharma", "Vireo Vaccines", "Ostrava Biotech", "Kestrel Biosciences"];
+/** The demo client: every live shipment belongs to Rheinfeld Biologics (the shipper of demo cases A, B, C), by origin entity. */
+export const CLIENT = "Rheinfeld Biologics";
+const CLIENT_ENTITY: Partial<Record<string, string>> = {
+  FRA: "GmbH", AMS: "B.V.", BRU: "SA", BSL: "AG", ZRH: "AG", CDG: "SAS", LHR: "Ltd", MXP: "S.r.l.", MAD: "S.L.", CPH: "A/S", DUB: "Ltd",
+  BOS: "Inc.", JFK: "Inc.", ORD: "Inc.", ATL: "Inc.", RDU: "Inc.", IND: "Inc.", LAX: "Inc.", YYZ: "Canada Inc.", MEX: "S.A. de C.V.", GRU: "Ltda.",
+  DXB: "FZE", BOM: "India Pvt Ltd", SIN: "Pte Ltd", HKG: "Ltd", PVG: "Co., Ltd", NRT: "K.K.", ICN: "Korea Ltd", SYD: "Pty Ltd", JNB: "(Pty) Ltd",
+};
 const PRODUCTS = [
   "Orenvacept 40 mg PFS",
   "Lumetrazumab 200 mg vials",
@@ -172,7 +178,8 @@ function buildFleet(): FleetShipment[] {
       id: `live-${String(i + 1).padStart(2, "0")}`,
       shipmentRef: `KV-${(41200 + i * 37).toString()}`,
       product: pick(PRODUCTS),
-      shipper: pick(SHIPPERS),
+      // rand() is still drawn here so the rest of the seeded fleet (values, temperatures) stays as before.
+      shipper: (rand(), `${CLIENT} ${CLIENT_ENTITY[o] ?? ""}`.trim()),
       forwarder,
       airline,
       flight: `${code} ${100 + Math.floor(rand() * 800)}`,
