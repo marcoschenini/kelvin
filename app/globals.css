@@ -177,6 +177,8 @@
   --custody-airline: #2d6bc4;
   --custody-consignee: #9aa3b2;
   --map-land: #d5dae2;
+  --map-coast: #b9c1ce;
+  --map-ocean: color-mix(in oklab, var(--card) 70%, #e8eef6);
   --chart-ink: #2c3a52;
 
   --chart-1: #1b2f57;
@@ -261,6 +263,8 @@
   --custody-airline: #3987e5;
   --custody-consignee: #64708a;
   --map-land: #24324c;
+  --map-coast: #3a4a68;
+  --map-ocean: color-mix(in oklab, var(--card) 80%, #0b1324);
   --chart-ink: #c8d1df;
 
   --chart-1: #a9bce0;
