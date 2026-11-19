@@ -56,7 +56,12 @@ export function UploadDropzone() {
         tabIndex={0}
         aria-label="Upload case files: drop files here or press Enter to browse"
         onClick={() => input.current?.click()}
-        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && input.current?.click()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            input.current?.click();
+          }
+        }}
         onDragOver={(e) => {
           e.preventDefault();
           setOver(true);
@@ -89,7 +94,6 @@ export function UploadDropzone() {
         className="sr-only"
         tabIndex={-1}
         aria-hidden="true"
-        aria-label="Case files"
         onChange={(e) => add(e.target.files)}
       />
 
