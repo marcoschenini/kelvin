@@ -25,6 +25,8 @@ import { AgentRunProvider, type LiveStep } from "@/components/agent/agent-run-co
 import { AnalysisStatus, PendingWhileRunning } from "@/components/case/analysis-status";
 import { AskKelvin } from "@/components/case/ask-kelvin";
 import { chatModelInfo } from "@/lib/chat/llm";
+import { MissingDocsUpload } from "@/components/case/missing-docs-upload";
+import { missingDocuments } from "@/lib/case/missing-docs";
 import { RouteLabel } from "@/components/case/case-list";
 import { CaseWorkflow } from "@/components/case/case-workflow";
 import { QaDecisionCard } from "@/components/case/qa-decision-card";
@@ -195,6 +197,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
   }));
 
   const rec = deriveRecommendation({ status: c.status, record, qa, recoveredEur: c.recoveredEur, valueEur: c.valueEur });
+  const missing = missingDocuments(docs);
   const openDrafts = drafts.filter((d) => d.status !== "sent");
 
   return (
@@ -229,6 +232,9 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
                   <StatusChip status={c.status} />
                 </div>
                 <p className="mt-2 text-[15px] text-muted-foreground">{c.title}</p>
+                {(c.scenario as string) === "live" && (
+                  <p className="mt-1 text-sm text-muted-foreground">Opened from live monitoring when the shipment was delivered.</p>
+                )}
               </div>
               <AskKelvin
                 caseId={c.id}
@@ -369,6 +375,12 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
                 })}
               </ul>
             </Card>
+
+            {missing.length > 0 && (
+              <Card eyebrow="Documents" title="Documents still missing" description="Add them so the next analysis can use them.">
+                <MissingDocsUpload caseId={c.id} missing={missing.map((m) => m.label)} />
+              </Card>
+            )}
 
             <Card eyebrow="Correspondence" title="Messages and drafts" description={`${outbox.length} message${outbox.length === 1 ? "" : "s"} in the simulated Outbox · ${openDrafts.length} draft${openDrafts.length === 1 ? "" : "s"}`}>
               <CorrespondenceThread

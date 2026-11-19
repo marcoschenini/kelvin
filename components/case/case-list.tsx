@@ -24,6 +24,11 @@ export function RouteLabel({ origin, destination, className }: { origin: string 
 }
 
 /** Small screens: one card per case instead of the wide table. */
+/** Where the case came from; demo cases carry no label. */
+function sourceLabel(scenario: string) {
+  return scenario === "live" ? "Live monitoring" : scenario === "upload" ? "Uploaded" : null;
+}
+
 function CaseCards({ items }: { items: CaseListItem[] }) {
   return (
     <ul role="list" aria-label="Cases" className="flex flex-col gap-3 lg:hidden">
@@ -42,6 +47,7 @@ function CaseCards({ items }: { items: CaseListItem[] }) {
                 )}
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-heading text-[18px] font-semibold">{c.shipmentRef}</span>
+                  {sourceLabel(c.scenario) && <span className="block text-[11px] text-muted-foreground">{sourceLabel(c.scenario)}</span>}
                   <span className="block truncate text-xs text-muted-foreground">{c.product ?? c.title}</span>
                 </span>
                 <ChevronRight className="mt-1 size-4 shrink-0 text-subtle" aria-hidden="true" />
@@ -110,6 +116,7 @@ export function CaseList({ items }: { items: CaseListItem[] }) {
                   )}
                   <span className="min-w-0">
                     <span className="block truncate font-heading text-[17px] font-semibold group-hover:underline group-hover:underline-offset-2">{c.shipmentRef}</span>
+                    {sourceLabel(c.scenario) && <span className="block text-[11px] text-muted-foreground">{sourceLabel(c.scenario)}</span>}
                     <span className="block truncate text-xs text-muted-foreground">{c.product ?? c.title}</span>
                   </span>
                 </span>
