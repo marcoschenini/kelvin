@@ -26,6 +26,7 @@ import { AnalysisStatus, PendingWhileRunning } from "@/components/case/analysis-
 import { AskKelvin } from "@/components/case/ask-kelvin";
 import { chatModelInfo } from "@/lib/chat/llm";
 import { MissingDocsUpload } from "@/components/case/missing-docs-upload";
+import { decideAutoStart } from "@/lib/case/auto-start";
 import { missingDocuments } from "@/lib/case/missing-docs";
 import { RouteLabel } from "@/components/case/case-list";
 import { CaseWorkflow } from "@/components/case/case-workflow";
@@ -156,17 +157,7 @@ async function CaseContent({ params }: { params: Promise<{ id: string }> }) {
   const approvedDrafts = drafts.filter((d) => d.status === "approved");
   const closed = c.status.startsWith("closed_");
   // Kelvin picks up automatically whenever there is work only it can do.
-  const autoStart: RunKind | null = run.busy
-    ? null
-    : c.status === "new"
-      ? "investigate"
-      : (c.status === "awaiting_qa" && qa === "rejected") || (c.status === "claim_prepared" && !drafts.some((d) => d.kind === "claim_letter" && d.status === "awaiting_approval"))
-        ? "prepare_claim"
-        : c.status === "no_claim"
-          ? "close"
-          : !closed && (approvedDrafts.length > 0 || unhandled.length > 0)
-            ? "follow_up"
-            : null;
+  const autoStart = decideAutoStart({ busy: run.busy, status: c.status, qa, closed, hasClaimLetterAwaitingApproval: drafts.some((d) => d.kind === "claim_letter" && d.status === "awaiting_approval"), hasApprovedDrafts: approvedDrafts.length > 0, hasUnhandled: unhandled.length > 0, runs: run.runs, docs });
   const autoStartKey = `${approvedDrafts.map((d) => d.id).join(",")}|${unhandled.map((m) => m.id).join(",")}`;
   const waitingFor = !closed && !approvedDrafts.length && !unhandled.length ? await awaitingReplyFrom(await getDb(), id) : null;
 

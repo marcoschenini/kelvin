@@ -99,3 +99,40 @@ describe("missingDocuments", () => {
     expect(missingDocuments([{ kind: "awb" }, { kind: "email", title: "Email (stability-data.eml)" }]).map((m) => m.kind)).toEqual(["invoice", "contract", "policy"]);
   });
 });
+
+describe("hardening", () => {
+  it("concurrent createLiveCase: exactly one creates, no throw, no duplicate rows", async () => {
+    const { createLiveCase, liveCaseId } = await import("@/lib/live/live-cases");
+    const rs = await Promise.all([1, 2, 3].map(() => createLiveCase(db, bad.id, 777, DELIVERED)));
+    expect(rs.filter((r) => r?.created).length).toBe(1);
+    const id = liveCaseId(bad.id, 777);
+    expect((await db.select().from(schema.documents).where(eq(schema.documents.caseId, id))).length).toBe(2);
+    expect((await db.select().from(schema.auditEvents).where(eq(schema.auditEvents.caseId, id))).length).toBe(3);
+  });
+
+  it("syncLiveCases opens at most one case per ship", async () => {
+    const { syncLiveCases } = await import("@/lib/live/live-cases");
+    const fresh = drizzle(new PGlite(), { schema });
+    await migrate(fresh, { migrationsFolder: path.join(process.cwd(), "lib/db/migrations") });
+    const n = await syncLiveCases(fresh as unknown as DB, Date.UTC(2026, 10, 12), 24 * 30);
+    const rows = await fresh.select().from(schema.cases);
+    expect(rows.length).toBe(n);
+    expect(new Set(rows.map((r) => r.shipmentRef)).size).toBe(rows.length);
+    expect(rows[0]?.title).toMatch(/, delivered /);
+  });
+
+  it("autoStart does not loop on prepare_claim without new documents", async () => {
+    const { decideAutoStart } = await import("@/lib/case/auto-start");
+    const base = { busy: false, status: "claim_prepared", qa: "pending" as const, closed: false, hasClaimLetterAwaitingApproval: false, hasApprovedDrafts: false, hasUnhandled: false };
+    const t = (n: number) => new Date(n);
+    expect(decideAutoStart({ ...base, runs: [], docs: [{ createdAt: t(1) }] })).toBe("prepare_claim");
+    const done = [{ kind: "prepare_claim", status: "completed", finishedAt: t(10) }];
+    expect(decideAutoStart({ ...base, runs: done, docs: [{ createdAt: t(1) }] })).toBeNull();
+    expect(decideAutoStart({ ...base, runs: done, docs: [{ createdAt: t(11) }] })).toBe("prepare_claim");
+  });
+
+  it("missingDocuments returns typed kinds", () => {
+    const k: ReturnType<typeof missingDocuments>[number]["kind"] = "awb";
+    expect(k).toBe("awb");
+  });
+});

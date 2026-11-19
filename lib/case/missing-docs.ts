@@ -1,7 +1,9 @@
 import type { DocumentKind } from "@/lib/db/schema";
 import { isStabilityEmail } from "@/lib/agent/stability-doc";
 
-const REQUIRED: { kind: DocumentKind; label: string }[] = [
+export type MissingKind = "awb" | "invoice" | "contract" | "policy" | "stability_email";
+
+const REQUIRED: { kind: MissingKind & DocumentKind; label: string }[] = [
   { kind: "awb", label: "Air waybill" },
   { kind: "invoice", label: "Commercial invoice" },
   { kind: "contract", label: "Forwarder contract" },
@@ -13,8 +15,8 @@ const REQUIRED: { kind: DocumentKind; label: string }[] = [
  * seeded emails are titled by their subject, uploads as "Email (file.eml)", so an
  * email counts as stability data when its title is a stability subject or mentions "stability".
  */
-export function missingDocuments(docs: { kind: DocumentKind; title?: string }[]): { kind: string; label: string }[] {
-  const out: { kind: string; label: string }[] = REQUIRED.filter((r) => !docs.some((d) => d.kind === r.kind)).map((r) => ({ kind: r.kind, label: r.label }));
+export function missingDocuments(docs: { kind: DocumentKind; title?: string }[]): { kind: MissingKind; label: string }[] {
+  const out: { kind: MissingKind; label: string }[] = REQUIRED.filter((r) => !docs.some((d) => d.kind === r.kind)).map((r) => ({ kind: r.kind, label: r.label }));
   const hasStability = docs.some((d) => d.kind === "email" && !!d.title && (isStabilityEmail(d.title) || /stability/i.test(d.title)));
   if (!hasStability) out.push({ kind: "stability_email", label: "Stability data from the manufacturer" });
   return out;

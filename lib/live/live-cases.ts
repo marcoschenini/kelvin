@@ -1,8 +1,8 @@
 import "server-only";
-import { eq } from "drizzle-orm";
 import type { DB } from "@/lib/db/client";
 import { auditEvents, cases, documents } from "@/lib/db/schema";
 import { DEFAULT_PERSONA_ID } from "@/lib/domain/personas";
+import { formatDate } from "@/lib/format";
 import { putFile } from "@/lib/storage";
 import { CLIENT, FLEET, tempAt, type FleetShipment } from "./fleet";
 
@@ -77,59 +77,59 @@ export async function createLiveCase(db: DB, shipId: string, tripIndex: number, 
   const exc = tripExcursion(ship, tripIndex);
   if (!exc) return null;
   const id = liveCaseId(ship.id, tripIndex);
-  const [existing] = await db.select({ id: cases.id }).from(cases).where(eq(cases.id, id));
-  if (existing) return { caseId: id, created: false };
-
   const tripStart = new Date(deliveredAt.getTime() - ship.tripHours * HOUR);
   const files = [
     { kind: "logger" as const, title: `Logger ${ship.loggerId}`, filename: `logger-${ship.loggerId}.csv`, mime: "text/csv", text: loggerCsv(ship, tripIndex, tripStart) },
     { kind: "handling_events" as const, title: "Handling events (track & trace)", filename: `handling-events-${ship.shipmentRef}.json`, mime: "application/json", text: handlingJson(ship, tripStart) },
   ].map((f, i) => ({ ...f, id: `${id}-${f.kind}-${String(i + 1).padStart(2, "0")}`, bytes: new TextEncoder().encode(f.text) }));
-  for (const f of files) await putFile(`cases/${id}/${f.filename}`, f.bytes);
-
-  await db.insert(cases).values({
-    id,
-    shipmentRef: ship.shipmentRef,
-    title: `Live monitoring: ${ship.shipmentRef} ${ship.origin} → ${ship.destination}`,
-    scenario: "live",
-    status: "new",
-    ownerPersonaId: DEFAULT_PERSONA_ID,
-    product: ship.product,
-    origin: ship.origin,
-    destination: ship.destination,
-    valueEur: ship.valueEur,
-    weightKg: ship.weightKg,
-    shipperName: ship.shipper || CLIENT,
-    deliveredAt,
-    discoveredAt: deliveredAt,
-    record: {},
-    createdAt: deliveredAt,
-    updatedAt: deliveredAt,
+  const created = await db.transaction(async (tx) => {
+    const [row] = await tx.insert(cases).values({
+      id,
+      shipmentRef: ship.shipmentRef,
+      title: `Live monitoring: ${ship.shipmentRef} ${ship.origin} → ${ship.destination}, delivered ${formatDate(deliveredAt)}`,
+      scenario: "live",
+      status: "new",
+      ownerPersonaId: DEFAULT_PERSONA_ID,
+      product: ship.product,
+      origin: ship.origin,
+      destination: ship.destination,
+      valueEur: ship.valueEur,
+      weightKg: ship.weightKg,
+      shipperName: ship.shipper || CLIENT,
+      deliveredAt,
+      discoveredAt: deliveredAt,
+      record: {},
+      createdAt: deliveredAt,
+      updatedAt: deliveredAt,
+    }).onConflictDoNothing().returning({ id: cases.id });
+    if (!row) return false; // another call opened it first
+    for (const f of files) await putFile(`cases/${id}/${f.filename}`, f.bytes);
+    await tx.insert(documents).values(
+      files.map((f) => ({ id: f.id, caseId: id, kind: f.kind, title: f.title, filename: f.filename, mime: f.mime, storagePath: `cases/${id}/${f.filename}`, sizeBytes: f.bytes.byteLength, pages: null, createdAt: deliveredAt })),
+    );
+    await tx.insert(auditEvents).values([
+      {
+        caseId: id,
+        at: deliveredAt,
+        actorType: "system",
+        actorName: "Kelvin live monitoring",
+        eventType: "case_opened",
+        input: { source: "live monitoring", note: "Case opened from live monitoring", shipId: ship.id, tripIndex },
+        output: { shipmentRef: ship.shipmentRef, peakC: exc.peakC, minutesOutOfRange: exc.minutesOutOfRange, documents: files.length },
+      },
+      ...files.map((f) => ({
+        caseId: id,
+        at: deliveredAt,
+        actorType: "system" as const,
+        actorName: "Kelvin intake",
+        eventType: "document_received",
+        input: { filename: f.filename, kind: f.kind },
+        output: { documentId: f.id, bytes: f.bytes.byteLength, pages: null },
+      })),
+    ]);
+    return true;
   });
-  await db.insert(documents).values(
-    files.map((f) => ({ id: f.id, caseId: id, kind: f.kind, title: f.title, filename: f.filename, mime: f.mime, storagePath: `cases/${id}/${f.filename}`, sizeBytes: f.bytes.byteLength, pages: null, createdAt: deliveredAt })),
-  );
-  await db.insert(auditEvents).values([
-    {
-      caseId: id,
-      at: deliveredAt,
-      actorType: "system",
-      actorName: "Kelvin live monitoring",
-      eventType: "case_opened",
-      input: { source: "live monitoring", note: "Case opened from live monitoring", shipId: ship.id, tripIndex },
-      output: { shipmentRef: ship.shipmentRef, peakC: exc.peakC, minutesOutOfRange: exc.minutesOutOfRange, documents: files.length },
-    },
-    ...files.map((f) => ({
-      caseId: id,
-      at: deliveredAt,
-      actorType: "system" as const,
-      actorName: "Kelvin intake",
-      eventType: "document_received",
-      input: { filename: f.filename, kind: f.kind },
-      output: { documentId: f.id, bytes: f.bytes.byteLength, pages: null },
-    })),
-  ]);
-  return { caseId: id, created: true };
+  return { caseId: id, created };
 }
 
 /** Opens cases for every trip with an excursion that ended (real time) within the lookback. Returns how many were created. */
@@ -140,8 +140,10 @@ export async function syncLiveCases(db: DB, now: number = Date.now(), lookbackHo
     const endOf = (k: number) => (k * ship.cycleHours - ship.offsetHours + ship.tripHours) * HOUR;
     const kMax = Math.floor((now / HOUR + ship.offsetHours - ship.tripHours) / ship.cycleHours);
     for (let k = kMax; endOf(k) >= now - lookbackHours * HOUR; k--) {
-      const r = await createLiveCase(db, ship.id, k, new Date(endOf(k)));
-      if (r?.created) created++;
+      if (!tripExcursion(ship, k)) continue;
+      // One case per ship: only the most recent trip with an excursion.
+      if ((await createLiveCase(db, ship.id, k, new Date(endOf(k))))?.created) created++;
+      break;
     }
   }
   return created;
