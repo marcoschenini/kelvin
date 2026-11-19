@@ -121,7 +121,7 @@ export function AgentRunProvider({
         if (e.reason === "busy") {
           // Another tab or person already has Kelvin working on this case: not a failure of the analysis.
           finished.current = { durationMs: e.durationMs, busy: true };
-          toast.info("Kelvin is already working on this case", { description: "Reload the page in a moment to see the result." });
+          toast.info("Analysis already running on this case", { description: "Reload in a moment to see the result." });
           break;
         }
         finished.current = { durationMs: e.durationMs, error: e.status === "failed" ? e.error : undefined };
