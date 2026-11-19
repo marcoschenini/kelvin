@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { CartesianGrid, ComposedChart, Line, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import type { CustodySegmentRecord, ExcursionWindow } from "@/lib/case/record";
+import { excursionShownEnd, type CustodySegmentRecord, type ExcursionWindow } from "@/lib/case/record";
 import { CUSTODY_META } from "@/lib/domain/parties";
 import { formatDateTime, formatDuration, formatTemp } from "@/lib/format";
 
@@ -102,7 +102,7 @@ export function TemperatureChart({
             <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="0" />
             <ReferenceArea y1={2} y2={8} fill="var(--cold-soft)" fillOpacity={1} stroke="none" ifOverflow="hidden" />
             {excursions.map((e) => (
-              <ReferenceArea key={e.index} x1={Date.parse(e.start)} x2={Date.parse(e.end)} fill="var(--warning-soft)" fillOpacity={1} stroke="var(--warning)" strokeOpacity={0.35} />
+              <ReferenceArea key={e.index} x1={Date.parse(e.start)} x2={Date.parse(excursionShownEnd(e))} ifOverflow="hidden" fill="var(--warning-soft)" fillOpacity={1} stroke="var(--warning)" strokeOpacity={0.35} />
             ))}
             <ReferenceLine y={8} stroke="var(--cold)" strokeDasharray="4 4" strokeOpacity={0.6} />
             <ReferenceLine y={2} stroke="var(--cold)" strokeDasharray="4 4" strokeOpacity={0.6} />

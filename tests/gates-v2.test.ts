@@ -129,6 +129,13 @@ describe("manager rejects a claim letter", () => {
     await gates.recordApproval(db, id, { draftId: `${id}-d2`, decision: "rejected", reason: "Not needed", actor: getPersona("tom") });
     expect((await row(id)).status).toBe("awaiting_approval");
   });
+  it("refuses to approve with an empty or blank subject", async () => {
+    const id = await awaitingApproval();
+    await expect(
+      gates.recordApproval(db, id, { draftId: `${id}-d1`, decision: "approved_with_edits", editedSubject: "  ", editedBody: "New body", actor: getPersona("tom") }),
+    ).rejects.toThrow(/subject/i);
+    expect((await row(id)).status).toBe("awaiting_approval");
+  });
   it("only a manager can reject", async () => {
     const id = await awaitingApproval();
     await expect(gates.recordApproval(db, id, { draftId: `${id}-d1`, decision: "rejected", reason: "x", actor: getPersona("elena") })).rejects.toThrow(gates.GateError);

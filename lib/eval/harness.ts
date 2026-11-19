@@ -1,5 +1,5 @@
 import "server-only";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import type { DB } from "@/lib/db/client";
 import { and } from "drizzle-orm";
@@ -177,19 +177,52 @@ export type EvalEvent =
   | { type: "done"; runId: string; summary: EvalSummary }
   | { type: "error"; error: string };
 
+export class EvalBusyError extends Error {
+  constructor() {
+    super("An evaluation is already running");
+    this.name = "EvalBusyError";
+  }
+}
+
+/** Runs older than this are treated as crashed (route maxDuration 300 s + margin). */
+export const EVAL_STALE_MS = 6 * 60_000;
+
+// In-process mutex: serialises check-and-insert within one server process (PGlite is single-process).
+let claimLock: Promise<unknown> = Promise.resolve();
+
+export type EvalClaim = { runId: string; mode: "live" | "deterministic"; model: string | null; total: number; limit?: number };
+
+/** Atomically claims the single evaluation slot: fails stale "running" rows, rejects if a fresh one exists, else inserts. */
+export function claimEvalRun(db: DB, opts: { mode?: "live" | "deterministic"; limit?: number } = {}): Promise<EvalClaim> {
+  const task = claimLock.then(async () => {
+    const handle = opts.mode === "deterministic" ? null : await getModel();
+    const mode = handle ? "live" : "deterministic";
+    const total = EVAL_CASES.slice(0, opts.limit ?? EVAL_CASES.length).length;
+    const cutoff = new Date(Date.now() - EVAL_STALE_MS);
+    await db
+      .update(evalRuns)
+      .set({ status: "failed", summary: { error: "Stale run (no completion)" }, finishedAt: new Date() })
+      .where(and(eq(evalRuns.status, "running"), lt(evalRuns.startedAt, cutoff)));
+    const active = await db.select({ id: evalRuns.id }).from(evalRuns).where(eq(evalRuns.status, "running")).limit(1);
+    if (active.length) throw new EvalBusyError();
+    const runId = `eval-${nanoid(8)}`;
+    await db.insert(evalRuns).values({ id: runId, mode, model: handle?.id ?? null, status: "running", total });
+    return { runId, mode, model: handle?.id ?? null, total, limit: opts.limit } satisfies EvalClaim;
+  });
+  claimLock = task.catch(() => undefined);
+  return task;
+}
+
 export async function runEvaluation(
   db: DB,
-  opts: { mode?: "live" | "deterministic"; limit?: number; onEvent?: (e: EvalEvent) => void } = {},
+  opts: { mode?: "live" | "deterministic"; limit?: number; claim?: EvalClaim; onEvent?: (e: EvalEvent) => void } = {},
 ): Promise<{ runId: string; summary: EvalSummary; results: EvalCaseResult[] }> {
-  const handle = opts.mode === "deterministic" ? null : await getModel();
-  const mode = handle ? "live" : "deterministic";
-  const list = EVAL_CASES.slice(0, opts.limit ?? EVAL_CASES.length);
-  const runId = `eval-${nanoid(8)}`;
-  await db.insert(evalRuns).values({ id: runId, mode, model: handle?.id ?? null, status: "running", total: list.length });
-  opts.onEvent?.({ type: "started", runId, total: list.length, mode, model: handle?.id ?? null });
-
+  const claim = opts.claim ?? (await claimEvalRun(db, opts));
+  const { runId, mode } = claim;
+  const list = EVAL_CASES.slice(0, claim.limit ?? opts.limit ?? EVAL_CASES.length);
   const results: EvalCaseResult[] = [];
   try {
+    opts.onEvent?.({ type: "started", runId, total: list.length, mode, model: claim.model });
     for (const [i, c] of list.entries()) {
       const r = await evaluateCase(db, c, mode);
       results.push(r);

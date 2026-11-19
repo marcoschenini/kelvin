@@ -1,4 +1,5 @@
 import "server-only";
+import { DEFAULT_PERSONA_ID } from "@/lib/domain/personas";
 import { nanoid } from "nanoid";
 import { getDb } from "@/lib/db/client";
 import { auditEvents, cases, documents, type DocumentKind } from "@/lib/db/schema";
@@ -49,7 +50,7 @@ const KIND_TITLE: Record<DocumentKind, string> = {
 };
 
 /** Creates a case from uploaded files. The agent fills in shipment facts when it runs. */
-export async function createCaseFromUpload(files: { name: string; bytes: Uint8Array }[], actor: { name: string; title: string }) {
+export async function createCaseFromUpload(files: { name: string; bytes: Uint8Array }[], actor: { name: string; title: string }, ownerPersonaId: string = DEFAULT_PERSONA_ID) {
   if (!files.length) throw new Error("No files uploaded");
   const db = await getDb();
   const id = `up-${nanoid(8).toLowerCase().replace(/[^a-z0-9]/g, "x")}`;
@@ -65,7 +66,7 @@ export async function createCaseFromUpload(files: { name: string; bytes: Uint8Ar
     title: `Uploaded case (${files.length} documents)`,
     scenario: "upload",
     status: "new",
-    ownerPersonaId: "tom",
+    ownerPersonaId,
     discoveredAt: now,
     record: {},
   });

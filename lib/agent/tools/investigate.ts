@@ -4,7 +4,7 @@ import { cases } from "@/lib/db/schema";
 import type { Citation } from "@/lib/domain/citation";
 import type { CustodyParty } from "@/lib/domain/parties";
 import { formatDateTime, formatDuration, formatEUR, formatTemp } from "@/lib/format";
-import { getRecord, patchRecord, registerCitations, type ClauseRef, type CustodySegmentRecord, type ExcursionWindow } from "@/lib/case/record";
+import { getRecord, patchRecord, registerCitations, type ClauseRef, type CustodySegmentRecord, type ExcursionWindow, excursionShownEnd } from "@/lib/case/record";
 import type { ContractTermsParsed, ExtraCost, PolicyTermsParsed } from "@/lib/rules/types";
 import { findClause, findPhrase, parseClauses, quoteOf, type Clause } from "../clauses";
 import { docText, findDocument, findDocuments, getDocumentById, parseAwb, parseEml, parseInvoice, pdfPages } from "../docs";
@@ -63,7 +63,7 @@ export const parseLogger = defineTool({
       documentId: doc.id,
       rows: [w.rowStart, w.rowEnd],
       label: `Logger r.${w.rowStart}–${w.rowEnd}`,
-      title: `${doc.filename}: rows ${w.rowStart}–${w.rowEnd}, ${formatDateTime(w.start)}–${formatDateTime(w.end)} UTC, peak ${formatTemp(w.peakC)}`,
+      title: `${doc.filename}: rows ${w.rowStart}–${w.rowEnd}, ${formatDateTime(w.start)}–${formatDateTime(excursionShownEnd(w))} UTC, peak ${formatTemp(w.peakC)}`,
     }));
     const registered = await registerCitations(ctx.db, ctx.caseId, citations);
     const excursions: ExcursionWindow[] = windows.map((w, i) => ({ ...w, index: i, citationId: registered[i].id! }));
@@ -88,7 +88,7 @@ export const parseLogger = defineTool({
         intervalMin,
         readings: rows.length,
         range: { minC: Math.min(...temps), maxC: Math.max(...temps) },
-        excursions: excursions.map((e) => ({ ...e, startUtc: e.start, endUtc: e.end, citation: e.citationId })),
+        excursions: excursions.map((e) => ({ ...e, startUtc: e.start, endUtc: excursionShownEnd(e), citation: e.citationId })),
       },
       summary: main
         ? `${excursions.length} excursion${excursions.length > 1 ? "s" : ""} in ${rows.length} readings: peak ${formatTemp(main.peakC)}, ${formatDuration(main.minutes)} above 8 °C (rows ${main.rowStart}–${main.rowEnd}).`

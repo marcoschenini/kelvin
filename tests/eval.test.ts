@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
+import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import * as schema from "@/lib/db/schema";
 import type { DB } from "@/lib/db/client";
@@ -32,4 +33,45 @@ describe("evaluation set", () => {
     // part-payment: exactly one appeal
     expect(results.find((r) => r.caseId === "eval-27")?.actual.appeals).toBe(1);
   }, 240_000);
+});
+
+describe("single evaluation run guard", () => {
+  async function fresh() {
+    const d = drizzle(new PGlite(), { schema });
+    await migrate(d, { migrationsFolder: path.join(process.cwd(), "lib/db/migrations") });
+    return d as unknown as DB;
+  }
+
+  it("rejects a second concurrent start and allows one after the first finishes", async () => {
+    const db = await fresh();
+    const { runEvaluation, EvalBusyError } = await import("@/lib/eval/harness");
+    const first = runEvaluation(db, { mode: "deterministic", limit: 1 });
+    const second = runEvaluation(db, { mode: "deterministic", limit: 1 });
+    const [a, b] = await Promise.allSettled([first, second]);
+    expect(a.status).toBe("fulfilled");
+    expect(b.status).toBe("rejected");
+    expect((b as PromiseRejectedResult).reason).toBeInstanceOf(EvalBusyError);
+    await expect(runEvaluation(db, { mode: "deterministic", limit: 1 })).resolves.toBeDefined();
+  }, 120_000);
+
+  it("a stale running row does not block and is marked failed; a fresh one blocks", async () => {
+    const db = await fresh();
+    const { claimEvalRun, EvalBusyError, EVAL_STALE_MS } = await import("@/lib/eval/harness");
+    await db.insert(schema.evalRuns).values({ id: "old", mode: "deterministic", status: "running", total: 1, startedAt: new Date(Date.now() - EVAL_STALE_MS - 1000) });
+    const c = await claimEvalRun(db, { mode: "deterministic", limit: 1 });
+    const old = await db.select().from(schema.evalRuns).where(eq(schema.evalRuns.id, "old"));
+    expect(old[0].status).toBe("failed");
+    await expect(claimEvalRun(db, { mode: "deterministic" })).rejects.toBeInstanceOf(EvalBusyError);
+    expect(c.runId).toMatch(/^eval-/);
+  });
+
+  it("a run whose event sink throws (aborted stream) ends failed, not running", async () => {
+    const db = await fresh();
+    const { runEvaluation } = await import("@/lib/eval/harness");
+    await expect(
+      runEvaluation(db, { mode: "deterministic", limit: 2, onEvent: (e) => { if (e.type === "case") throw new Error("aborted"); } }),
+    ).rejects.toThrow("aborted");
+    const rows = await db.select().from(schema.evalRuns);
+    expect(rows.map((r) => r.status)).toEqual(["failed"]);
+  }, 120_000);
 });
