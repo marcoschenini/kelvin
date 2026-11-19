@@ -29,7 +29,7 @@ npm run agent -- B --deterministic --qa rejected --approve   # optional end-to-e
 ## Interpreting failures
 - `Cannot open database … lock`: a dev server or another script holds `.data/`. Stop it and retry; do not delete the lock while a process is alive.
 - `TS2304: Cannot find name 'PageProps' / 'RouteContext' / 'LayoutProps'`: `.next/types` is missing; run `npx next typegen` and retry.
-- `next/font` cannot fetch Inter / JetBrains Mono: the machine has no access to Google Fonts (sandboxed cloud session or offline). Re-run the build with the bundled mock so everything except the font download is still verified:
+- `next/font` cannot fetch EB Garamond / Public Sans / JetBrains Mono: the machine has no access to Google Fonts (sandboxed cloud session or offline). Re-run the build with the bundled mock so everything except the font download is still verified:
   `NEXT_FONT_GOOGLE_MOCKED_RESPONSES="$PWD/.claude/skills/kelvin-verify/font-mocks.cjs" npm run build`
   Say in the report that fonts were mocked; the real font download is verified by the Vercel preview build.
 - Build errors about native SWC/Turbopack: the `--webpack` flag was removed; restore it.

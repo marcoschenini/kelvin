@@ -238,7 +238,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
         </div>
 
         {/* ---------- evidence ---------- */}
-        <aside aria-label="Evidence" className="flex flex-col gap-4 lg:sticky lg:top-6 lg:col-span-4">
+        <aside aria-label="Evidence" className="flex flex-col gap-4 lg:sticky lg:top-[88px] lg:col-span-4">
           {draft.amountEur != null && (
             <div className="relative overflow-hidden rounded-xl border border-border bg-card p-5">
               <span className="absolute inset-y-0 left-0 w-[3px] bg-brand" aria-hidden="true" />
@@ -314,7 +314,7 @@ export function ApprovalScreen({ draft, ctx }: { draft: ApprovalDraft; ctx: Appr
       </div>
 
       {/* ---------- action bar ---------- */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card lg:left-[248px]">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card">
         <div className="mx-auto flex max-w-[1320px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
           <span id="approve-reason" className="hidden text-sm text-muted-foreground sm:inline">
             {actionable && canApprove && invalidReason

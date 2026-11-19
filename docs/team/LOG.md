@@ -71,3 +71,8 @@ Newest first. One entry per request: date — request — who did what — verdi
 - **Chief:** verified each bug in the code first (all four real), then ran `backend` (duration display, upload owner, server subject guard), `frontend` (approval validation, eval click guard, honest banner) and `ai-engineer` (eval single-run lock, 409, stale cleanup) in parallel worktrees; merged into `feature/classmate-bugs`.
 - **QA (`qa-reviewer`):** PASS WITH NOTES on all three branches and on their combined merge — lint, typecheck, 175 tests, build (fonts mocked), eval 27/27, demo A/B/C unchanged. Minor notes fixed by the Chief: chart band no longer disappears when an excursion reaches the end of the log; PDF chart band uses the shown end; double full stop in the narration; badges use the rules from Settings.
 - **Open:** eval lock is per process (Supabase with several instances could still race; next step a partial unique index); Ask Kelvin still uses stored `daysLeft`; `demo/recordings/*.json` hold the old narration (regenerate before M7 Replay); CLAUDE.md and the brief still say 24 eval cases, the set has 27.
+## 2026-11-19 — Top navigation and new type
+
+- **Request (Vito):** fonts like lilly.com/at and a horizontal menu on top instead of the left sidebar; free font stand-ins and a user menu chosen by Vito.
+- **Chief:** done in the main session (one area, frontend only); `qa-reviewer` PASS WITH NOTES. Fixed from QA: legal note always visible again (page footer, BRIEF requirement), approval evidence panel and `#demo` anchor no longer hidden under the 64 px header, stale font names in the verify skill.
+- **Open:** real font rendering checked only on the Vercel preview (fonts mocked in the sandbox).

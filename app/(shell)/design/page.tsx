@@ -120,7 +120,7 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
-      <Section title="Type" description="Source Serif 4 for headings and key figures, Inter for body and UI; tabular numbers for money and dates.">
+      <Section title="Type" description="EB Garamond for headings and key figures, Public Sans for body and UI; tabular numbers for money and dates.">
         <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5 sm:p-8">
           <h1 className="text-3xl font-semibold tracking-[-0.015em] sm:text-5xl">Recover {formatEUR(190000)}</h1>
           <h2 className="text-2xl font-semibold">Excursion on the FRA ramp, airline custody</h2>

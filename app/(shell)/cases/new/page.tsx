@@ -42,7 +42,7 @@ export default function NewCasePage() {
         <UploadDropzone />
       </section>
 
-      <section id="demo" aria-labelledby="demo-heading" className="flex scroll-mt-8 flex-col gap-3">
+      <section id="demo" aria-labelledby="demo-heading" className="flex scroll-mt-24 flex-col gap-3">
         <div>
           <h2 id="demo-heading" className="text-[1.2rem] font-semibold">
             Demo cases

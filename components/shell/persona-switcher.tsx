@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronDown, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
@@ -10,6 +11,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DEFAULT_PERSONA_ID, PERSONA_COOKIE, PERSONAS, getPersona, type Persona } from "@/lib/domain/personas";
@@ -56,23 +58,26 @@ export function PersonaAvatar({ persona, className }: { persona: Persona; classN
   );
 }
 
-export function PersonaSwitcher() {
+/** Top-bar user menu: who you are acting as, persona switch and theme. */
+export function UserMenu() {
   const persona = usePersona();
   const router = useRouter();
+  const { resolvedTheme, setTheme } = useTheme();
+  const dark = resolvedTheme === "dark";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-        aria-label={`Acting as ${persona.name}, ${persona.title}. Change persona`}
+        className="flex items-center gap-2.5 rounded-full py-1 pr-2 pl-1 text-left transition-colors hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        aria-label={`Acting as ${persona.name}, ${persona.title}. Open user menu`}
       >
         <PersonaAvatar persona={persona} />
-        <span className="min-w-0 flex-1">
-          <span className="block text-[11px] text-muted-foreground">Acting as</span>
-          <span className="block truncate text-[13px] font-medium">{persona.name}</span>
+        <span className="hidden min-w-0 sm:block">
+          <span className="block text-[11px] leading-tight text-muted-foreground">Acting as</span>
+          <span className="block truncate text-[13px] leading-tight font-medium">{persona.name}</span>
         </span>
-        <ChevronsUpDown className="size-4 text-subtle" aria-hidden="true" />
+        <ChevronDown className="size-4 text-subtle" aria-hidden="true" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="top" align="start" className="w-60">
+      <DropdownMenuContent side="bottom" align="end" className="w-64">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Act as (demo personas)</DropdownMenuLabel>
           {PERSONAS.map((p) => (
@@ -90,10 +95,15 @@ export function PersonaSwitcher() {
                 <span className="block text-[13px] font-medium">{p.name}</span>
                 <span className="block text-[11px] text-muted-foreground">{p.title}</span>
               </span>
-              {p.id === persona.id && <Check className="size-4 text-brand-fg" />}
+              {p.id === persona.id && <Check className="size-4 text-brand-fg" aria-label="Current persona" />}
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setTheme(dark ? "light" : "dark")} className="gap-2.5 py-2">
+          {dark ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}
+          {dark ? "Light mode" : "Dark mode"}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
